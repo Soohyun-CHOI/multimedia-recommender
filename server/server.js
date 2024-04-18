@@ -10,7 +10,12 @@ app.use(cors({
 
 // We use express to define our various API endpoints and
 // provide their handlers that we implemented in routes.js
-app.get('/random_shows', routes.random_shows);
+app.get('/random_shows/:num/:selected_mood', routes.random_shows);
+app.get('/random_books/:num/:selected_mood', routes.random_books);
+app.get('/random_games/:num/:selected_mood', routes.random_games);
+app.get('/random_movies/:num/:selected_mood', routes.random_movies);
+app.get('/random_songs/:num/:selected_mood', routes.random_songs);
+app.get('/ordered_suggestion/:selected_mood/:mood_list', routes.ordered_suggestion);
 /*
 app.get('/author/:type', routes.author);
 app.get('/random', routes.random);

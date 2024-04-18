@@ -12,15 +12,21 @@ const connection = mysql.createConnection({
 });
 connection.connect((err) => err && console.log(err));
 
-// Route 0: GET /random_shows
+// Route 1: GET /random_shows/:num/:selected_mood
 const random_shows = async function(req, res) {
+  const num = req.params.num;
+  const selectedMood = req.params.selected_mood;
   
-  // We get 10 random shows from the database
+  // We get a number of random shows from the database which have a high value of the given mood
   connection.query(`
+    WITH mm AS (SELECT media_id
+      FROM MediaMoods
+      WHERE media_type = 'show'
+        AND ${selectedMood} > 65
+      ORDER BY RAND()
+      LIMIT ${num})
     SELECT *
-    FROM TVShows
-    ORDER BY RAND()
-    LIMIT 10
+    FROM TVShows tv JOIN mm ON tv.show_id = mm.media_id
   `, (err, data) => {
     if (err || data.length === 0) {
       // If there is an error for some reason, or if the query is empty (this should not be possible)
@@ -35,8 +41,219 @@ const random_shows = async function(req, res) {
   });
 }
 
+// Route 2: GET /random_books/:num/:selected_mood
+const random_books = async function(req, res) {
+  const num = req.params.num;
+  const selectedMood = req.params.selected_mood;
+  
+  // We get a number of random books from the database which have a high value of the given mood
+  connection.query(`
+    WITH mm AS (SELECT media_id
+      FROM MediaMoods
+      WHERE media_type = 'book'
+        AND ${selectedMood} > 65
+      ORDER BY RAND()
+      LIMIT ${num})
+    SELECT *
+    FROM Books b JOIN mm ON b.book_id = mm.media_id
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      // If there is an error for some reason, or if the query is empty (this should not be possible)
+      // print the error message and return an empty object instead
+      console.log(err);
+      // Be cognizant of the fact we return an empty array [].
+      res.json([]);
+    } else {
+      // Here, we return results of the query 
+      res.json(data);
+    }
+  });
+}
+
+// Route 3: GET /random_games/:num/:selected_mood
+const random_games = async function(req, res) {
+  const num = req.params.num;
+  const selectedMood = req.params.selected_mood;
+  
+  // We get a number of random games from the database which have a high value of the given mood
+  connection.query(`
+    WITH mm AS (SELECT media_id
+      FROM MediaMoods
+      WHERE media_type = 'game'
+        AND ${selectedMood} > 65
+      ORDER BY RAND()
+      LIMIT ${num})
+    SELECT *
+    FROM Games g JOIN mm ON g.app_id = mm.media_id
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      // If there is an error for some reason, or if the query is empty (this should not be possible)
+      // print the error message and return an empty object instead
+      console.log(err);
+      // Be cognizant of the fact we return an empty array [].
+      res.json([]);
+    } else {
+      // Here, we return results of the query 
+      res.json(data);
+    }
+  });
+}
+
+// Route 4: GET /random_games/:num/:selected_mood
+const random_movies = async function(req, res) {
+  const num = req.params.num;
+  const selectedMood = req.params.selected_mood;
+  
+  // We get a number of random movies from the database which have a high value of the given mood
+  connection.query(`
+    WITH mm AS (SELECT media_id
+      FROM MediaMoods
+      WHERE media_type = 'movie'
+        AND ${selectedMood} > 65
+      ORDER BY RAND()
+      LIMIT ${num})
+    SELECT *
+    FROM Movie mv JOIN mm ON mv.movie_id = mm.media_id
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      // If there is an error for some reason, or if the query is empty (this should not be possible)
+      // print the error message and return an empty object instead
+      console.log(err);
+      // Be cognizant of the fact we return an empty array [].
+      res.json([]);
+    } else {
+      // Here, we return results of the query 
+      res.json(data);
+    }
+  });
+}
+
+// Route 4: GET /random_games/:num/:selected_mood
+const random_songs = async function(req, res) {
+  const num = req.params.num;
+  const selectedMood = req.params.selected_mood;
+  
+  // We get a number of random songs from the database which have a high value of the given mood
+  connection.query(`
+    WITH mm AS (SELECT media_id
+      FROM MediaMoods
+      WHERE media_type = 'song'
+        AND ${selectedMood} > 65
+      ORDER BY RAND()
+      LIMIT ${num})
+    SELECT *
+    FROM Music mu JOIN mm ON mu.song_id = mm.media_id
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      // If there is an error for some reason, or if the query is empty (this should not be possible)
+      // print the error message and return an empty object instead
+      console.log(err);
+      // Be cognizant of the fact we return an empty array [].
+      res.json([]);
+    } else {
+      // Here, we return results of the query 
+      res.json(data);
+    }
+  });
+}
+
+// Route 5: GET /ordered_suggestion/:selected_mood/:mood_list
+const ordered_suggestion = async function(req, res) {
+  const selectedMood = req.params.selected_mood;
+  var moodList = req.params.mood_list.split(",")
+
+  const christmas = moodList.includes("christmas");
+  const halloween = moodList.includes("halloween");
+  const valentine = moodList.includes("valentine");
+  const celebration = moodList.includes("celebration");
+  const relaxing = moodList.includes("relaxing");
+  const nature = moodList.includes("nature");
+  const industrial = moodList.includes("industrial");
+  const sunshine = moodList.includes("sunshine");
+  const sad = moodList.includes("sad");
+  const happy = moodList.includes("happy");
+  const summer = moodList.includes("summer");
+  const winter = moodList.includes("winter");
+  const sports = moodList.includes("sports");
+  const playful = moodList.includes("playful");
+  const energetic = moodList.includes("energetic");
+  const scary = moodList.includes("scary");
+  const anger = moodList.includes("anger");
+  const optimistic = moodList.includes("optimistic");
+  const adventurous = moodList.includes("adventurous");
+  const learning = moodList.includes("learning");
+  const artistic = moodList.includes("artistic");
+  const science = moodList.includes("science");
+  const cozy = moodList.includes("cozy");
+  const colorful = moodList.includes("colorful");
+  const space = moodList.includes("space");
+
+  // Create the temporary table if it does not exist already
+  connection.query(`
+    CREATE TEMPORARY TABLE IF NOT EXISTS all_media SELECT media_id, media_type, 0 AS row_num FROM MediaMoods LIMIT 0
+  `);
+
+  // Empty the temporary table
+  connection.query(`
+    TRUNCATE all_media
+  `);
+  
+  // Creates a temporary table of all media that filters for moods in the mood list
+  // Orders each media within type from best to least matching media of specified selected mood
+  connection.query(`
+    REPLACE INTO all_media
+    SELECT media_id, media_type, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY ${selectedMood} DESC) AS row_num
+    FROM MediaMoods
+    WHERE christmas > IF(${christmas}, 50, 0)
+      AND halloween > IF(${halloween}, 50, 0)
+      AND valentine > IF(${valentine}, 50, 0)
+      AND celebration > IF(${celebration}, 50, 0)
+      AND relaxing > IF(${relaxing}, 50, 0)
+      AND nature > IF(${nature}, 50, 0)
+      AND industrial > IF(${industrial}, 50, 0)
+      AND sunshine > IF(${sunshine}, 50, 0)
+      AND sad > IF(${sad}, 50, 0)
+      AND happy > IF(${happy}, 50, 0)
+      AND summer > IF(${summer}, 50, 0)
+      AND winter > IF(${winter}, 50, 0)
+      AND sports > IF(${sports}, 50, 0)
+      AND playful > IF(${playful}, 50, 0)
+      AND energetic > IF(${energetic}, 50, 0)
+      AND scary > IF(${scary}, 50, 0)
+      AND anger > IF(${anger}, 50, 0)
+      AND optimistic > IF(${optimistic}, 50, 0)
+      AND adventurous > IF(${adventurous}, 50, 0)
+      AND learning > IF(${learning}, 50, 0)
+      AND artistic > IF(${artistic}, 50, 0)
+      AND science > IF(${science}, 50, 0)
+      AND cozy > IF(${cozy}, 50, 0)
+      AND colorful > IF(${colorful}, 50, 0)
+    AND space > IF(${space}, 50, 0)
+  `);
+
+  connection.query(`
+    SELECT * FROM all_media LIMIT 10
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      // If there is an error for some reason, or if the query is empty (this should not be possible)
+      // print the error message and return an empty object instead
+      console.log(err);
+      // Be cognizant of the fact we return an empty array [].
+      res.json([]);
+    } else {
+      // Here, we return results of the query 
+      res.json(data);
+    }
+  });
+  }
+
 module.exports = {
-  random_shows
+  random_shows,
+  random_books,
+  random_games,
+  random_movies,
+  random_songs,
+  ordered_suggestion,
 }
 
 /*
