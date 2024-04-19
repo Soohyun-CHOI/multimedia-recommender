@@ -1,5 +1,5 @@
-const mysql = require('mysql')
-const config = require('./config.json')
+const mysql = require("mysql");
+const config = require("./config.json");
 
 // Creates MySQL connection using database credential provided in config.json
 // Do not edit. If the connection fails, make sure to check that config.json is filled out correctly
@@ -8,36 +8,373 @@ const connection = mysql.createConnection({
   user: config.rds_user,
   password: config.rds_password,
   port: config.rds_port,
-  database: config.rds_db
+  database: config.rds_db,
 });
 connection.connect((err) => err && console.log(err));
 
-// Route 0: GET /random_shows
-const random_shows = async function(req, res) {
-  
-  // We get 10 random shows from the database
-  connection.query(`
-    SELECT *
-    FROM TVShows
-    ORDER BY RAND()
-    LIMIT 10
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      // If there is an error for some reason, or if the query is empty (this should not be possible)
-      // print the error message and return an empty object instead
-      console.log(err);
-      // Be cognizant of the fact we return an empty array [].
-      res.json([]);
-    } else {
-      // Here, we return results of the query 
-      res.json(data);
+// Route 1: GET /add_media/ (ALLY)
+// About: Adds 5 additional media items of specified type to the suggested_media table
+// Input param: media type
+// Return: media_id, media_type, title, creator, image
+const pool_size = 50;
+const add_media = async function (req, res) {
+  const type = req.query.type;
+  pool_size = pool_size + 5; // increment pool size by 5 every time we add media
+
+  connection.query(
+    `
+    CREATE TEMPORARY TABLE IF NOT EXISTS suggested_ids (
+      media_id INT,
+      media_type VARCHAR(255)
+    );
+
+    INSERT INTO suggested_ids (media_id, media_type)
+    SELECT media_id, media_type
+    FROM suggested_media;
+
+    INSERT INTO suggested_media
+    WITH suggest_rand AS (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY RAND()) AS row_num2
+        FROM all_media
+        WHERE row_num <= ${pool_size} 
+        AND (media_id, media_type) NOT IN (
+            SELECT media_id, media_type
+        FROM suggested_ids))
+    SELECT media_id, media_type,
+      LEFT(COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title), 100) AS title,
+      LEFT(COALESCE (book_table.creator, music_table.creator, game_table.creator), 100) AS creator, image
+    FROM suggest_rand s
+    LEFT JOIN (
+        SELECT a.book_id, title, GROUP_CONCAT(author SEPARATOR ', ') AS creator
+        FROM Books b
+        JOIN Authors a ON b.book_id = a.book_id
+        GROUP BY book_id) book_table ON s.media_id = book_table.book_id AND s.media_type LIKE 'book'
+    LEFT JOIN (
+        SELECT song_id, title, artist AS creator
+        FROM Music) music_table ON s.media_id = music_table.song_id AND s.media_type LIKE 'song'
+    LEFT JOIN (
+        SELECT app_id, name AS title, developers AS creator
+        FROM Games) game_table ON s.media_id = game_table.app_id AND s.media_type LIKE 'game'
+    LEFT JOIN (
+        SELECT movie_id, title
+        FROM Movie) movie_table ON s.media_id = movie_table.movie_id AND s.media_type LIKE 'movie'
+    LEFT JOIN (
+        SELECT show_id, series_title
+        FROM TVShows) show_table ON s.media_id = show_table.show_id AND s.media_type LIKE 'show'
+    WHERE row_num2 <= 5 AND media_type LIKE '${type}';
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
     }
-  });
-}
+  );
+};
+
+// Route 2: GET /get_user_playlist/:user_id (ALLY)
+// About: return all of user's playlist & collab playlists
+// Input param: user_id
+// Return: playlist_id, image, title, creator, timestamp
+const get_user_playlist = async function (req, res) {
+  const user_id = req.params.user_id;
+
+  connection.query(
+    `
+    WITH personal_playlists AS (
+      SELECT playlist_id, image, title, username AS creator, timestamp
+      FROM Playlist p
+      LEFT JOIN Users u ON p.user_id = u.user_id
+      WHERE p.user_id = ${user_id}
+    ), my_collabs AS (
+      SELECT playlist_id
+      FROM CollaboratesOn c
+      WHERE user_id = ${user_id}
+    ), collab_playlists AS (
+      SELECT p.playlist_id, image, title, username AS creator, timestamp
+      FROM my_collabs m
+      LEFT JOIN Playlist p ON p.playlist_id = m.playlist_id
+      LEFT JOIN Users u ON p.user_id = u.user_id
+      WHERE p.playlist_id NOT IN (SELECT playlist_id FROM personal_playlists) 
+    )
+    SELECT *
+    FROM (
+      SELECT playlist_id, image, title, creator, timestamp
+      FROM personal_playlists
+      UNION
+      SELECT playlist_id, image, title, creator, timestamp
+      FROM collab_playlists
+    ) AS subquery
+    ORDER BY subquery.timestamp DESC
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
+    }
+  );
+};
+
+// Route 3: GET /get_playlist/:playlist_id (ALLY)
+// About: return all media items in the given playlist
+// Input param: playlist_id
+// Return: media_id, media_type, title, creator, image
+const get_playlist = async function (req, res) {
+  const playlist_id = req.params.playlist_id;
+
+  connection.query(
+    `
+      SELECT 
+        s.media_id, 
+        s.media_type, 
+        COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
+        COALESCE (book_table.creator, music_table.creator, game_table.creator) AS creator,
+        image
+      FROM Playlist AS p
+      LEFT JOIN PlaylistMedia AS s ON s.playlist_id = p.playlist_id
+      LEFT JOIN (
+        SELECT b.book_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS creator
+        FROM Books b
+        LEFT JOIN Authors a ON b.book_id = a.book_id
+        GROUP BY b.book_id
+      ) book_table ON s.media_id = book_table.book_id AND media_type LIKE '%book%'
+      LEFT JOIN (
+        SELECT song_id, title, artist AS creator 
+        FROM Music
+      ) music_table ON s.media_id = music_table.song_id AND media_type LIKE '%song%'
+      LEFT JOIN (
+        SELECT app_id, name AS title, developers AS creator 
+        FROM Games
+      ) game_table ON s.media_id = game_table.app_id AND media_type LIKE '%game%'
+      LEFT JOIN (
+        SELECT movie_id, title 
+        FROM Movie
+      ) movie_table ON s.media_id = movie_table.movie_id AND media_type LIKE '%movie%'
+      LEFT JOIN (
+        SELECT show_id, series_title 
+        FROM TVShows
+      ) show_table ON s.media_id = show_table.show_id AND media_type LIKE '%show%'
+      WHERE p.playlist_id = ${playlist_id};
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
+    }
+  );
+};
+
+// Route 4: GET /search_games (ALLY)
+// About: return all games that match the given search query
+// Optional param: title, developer, game_score, year_min, year_max
+// Return: media_id, title, developer, image link
+const search_games = async function (req, res) {
+  const title = req.query.title ?? "";
+  const developer = req.query.developer ?? "";
+  const game_score = req.query.game_score ?? 0;
+  const year_min = req.query.year_min ?? 0;
+  const year_max = req.query.year_max ?? 2030;
+
+  const christmas = req.query.christmas ?? false;
+  const halloween = req.query.halloween ?? false;
+  const valentine = req.query.valentine ?? false;
+  const celebration = req.query.celebration ?? false;
+  const relaxing = req.query.relaxing ?? false;
+  const nature = req.query.nature ?? false;
+  const industrial = req.query.industrial ?? false;
+  const sunshine = req.query.sunshine ?? false;
+  const sad = req.query.sad ?? false;
+  const happy = req.query.happy ?? false;
+  const summer = req.query.summer ?? false;
+  const winter = req.query.winter ?? false;
+  const sports = req.query.sports ?? false;
+  const playful = req.query.playful ?? false;
+  const energetic = req.query.energetic ?? false;
+  const scary = req.query.scary ?? false;
+  const anger = req.query.anger ?? false;
+  const optimistic = req.query.optimistic ?? false;
+  const adventurous = req.query.adventurous ?? false;
+  const learning = req.query.learning ?? false;
+  const artistic = req.query.artistic ?? false;
+  const science = req.query.science ?? false;
+  const cozy = req.query.cozy ?? false;
+  const colorful = req.query.colorful ?? false;
+  const space = req.query.space ?? false;
+
+  // TODO - what to do with category and genre?
+  // assuming category_list is an array of strings
+  // if (req.query.categories_list === undefined) {
+  //   category_list = "";
+  // } else {
+  //   category_list = req.query.categories_list.map(() =>
+  //     category_list.map(() => "?").join(", ")
+  //   );
+  // }
+
+  // TODO : need to add genre and category table
+  // LEFT JOIN GameCategories gc ON g.app_id = gc.app_id
+  // LEFT JOIN GameGenre gg ON g.app_id = gg.app_id
+
+  connection.query(
+    `
+    SELECT media_id, name AS title, developers, screenshot AS image
+    FROM Games g
+    LEFT JOIN MediaMoods AS m ON g.app_id = m.media_id AND m.media_type LIKE '%game%'
+    WHERE (
+        name LIKE '%${title}%'
+        AND developers LIKE '%${developer}%'
+    )
+        AND christmas > IF(${christmas}, 50, 0)
+        AND halloween > IF(${halloween}, 50, 0)
+        AND valentine > IF(${valentine}, 50, 0)
+        AND celebration > IF(${celebration}, 50, 0)
+        AND relaxing > IF(${relaxing}, 50, 0)
+        AND nature > IF(${nature}, 50, 0)
+        AND industrial > IF(${industrial}, 50, 0)
+        AND sunshine > IF(${sunshine}, 50, 0)
+        AND sad > IF(${sad}, 50, 0)
+        AND happy > IF(${happy}, 50, 0)
+        AND summer > IF(${summer}, 50, 0)
+        AND winter > IF(${winter}, 50, 0)
+        AND sports > IF(${sports}, 50, 0)
+        AND playful > IF(${playful}, 50, 0)
+        AND energetic > IF(${energetic}, 50, 0)
+        AND scary > IF(${scary}, 50, 0)
+        AND anger > IF(${anger}, 50, 0)
+        AND optimistic > IF(${optimistic}, 50, 0)
+        AND adventurous > IF(${adventurous}, 50, 0)
+        AND learning > IF(${learning}, 50, 0)
+        AND artistic > IF(${artistic}, 50, 0)
+        AND science > IF(${science}, 50, 0)
+        AND cozy > IF(${cozy}, 50, 0)
+        AND colorful > IF(${colorful}, 50, 0)
+        AND space > IF(${space}, 50, 0)
+        AND CAST(RIGHT(release_date, 4) AS UNSIGNED) BETWEEN ${year_min} AND ${year_max}
+        AND metacritic_score >= ${game_score};
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
+    }
+  );
+};
+
+// Route 5: GET /search_books (ALLY)
+// About: return all books that match the given search query
+// Input param: title, author, publisher, year_min, year_max
+// Return: book_id, title, authors, image link
+const search_books = async function (req, res) {
+  const title = req.query.title ?? "";
+  const author = req.query.author ?? "";
+  const publisher = req.query.publisher ?? "";
+  const year_min = req.query.year_min ?? 0;
+  const year_max = req.query.year_max ?? 2030;
+
+  const christmas = req.query.christmas ?? false;
+  const halloween = req.query.halloween ?? false;
+  const valentine = req.query.valentine ?? false;
+  const celebration = req.query.celebration ?? false;
+  const relaxing = req.query.relaxing ?? false;
+  const nature = req.query.nature ?? false;
+  const industrial = req.query.industrial ?? false;
+  const sunshine = req.query.sunshine ?? false;
+  const sad = req.query.sad ?? false;
+  const happy = req.query.happy ?? false;
+  const summer = req.query.summer ?? false;
+  const winter = req.query.winter ?? false;
+  const sports = req.query.sports ?? false;
+  const playful = req.query.playful ?? false;
+  const energetic = req.query.energetic ?? false;
+  const scary = req.query.scary ?? false;
+  const anger = req.query.anger ?? false;
+  const optimistic = req.query.optimistic ?? false;
+  const adventurous = req.query.adventurous ?? false;
+  const learning = req.query.learning ?? false;
+  const artistic = req.query.artistic ?? false;
+  const science = req.query.science ?? false;
+  const cozy = req.query.cozy ?? false;
+  const colorful = req.query.colorful ?? false;
+  const space = req.query.space ?? false;
+
+  // TODO - what to do with category?
+  // assuming category_list is an array of strings
+  // if (req.query.categories_list === undefined) {
+  //   category_list = "";
+  // } else {
+  //   category_list = req.query.categories_list.map(() =>
+  //     category_list.map(() => "?").join(", ")
+  //   );
+  // }
+
+  connection.query(
+    `
+    SELECT media_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS authors, image
+    FROM Books b
+    LEFT JOIN Authors a ON b.book_id = a.book_id
+    LEFT JOIN MediaMoods AS m ON b.book_id = m.media_id AND m.media_type LIKE '%book%'
+    WHERE (
+        title LIKE '%${title}%'
+        AND author LIKE '%${author}%'
+        AND publisher LIKE '%${publisher}%'
+    )
+        AND christmas > IF(${christmas}, 50, 0)
+        AND halloween > IF(${halloween}, 50, 0)
+        AND valentine > IF(${valentine}, 50, 0)
+        AND celebration > IF(${celebration}, 50, 0)
+        AND relaxing > IF(${relaxing}, 50, 0)
+        AND nature > IF(${nature}, 50, 0)
+        AND industrial > IF(${industrial}, 50, 0)
+        AND sunshine > IF(${sunshine}, 50, 0)
+        AND sad > IF(${sad}, 50, 0)
+        AND happy > IF(${happy}, 50, 0)
+        AND summer > IF(${summer}, 50, 0)
+        AND winter > IF(${winter}, 50, 0)
+        AND sports > IF(${sports}, 50, 0)
+        AND playful > IF(${playful}, 50, 0)
+        AND energetic > IF(${energetic}, 50, 0)
+        AND scary > IF(${scary}, 50, 0)
+        AND anger > IF(${anger}, 50, 0)
+        AND optimistic > IF(${optimistic}, 50, 0)
+        AND adventurous > IF(${adventurous}, 50, 0)
+        AND learning > IF(${learning}, 50, 0)
+        AND artistic > IF(${artistic}, 50, 0)
+        AND science > IF(${science}, 50, 0)
+        AND cozy > IF(${cozy}, 50, 0)
+        AND colorful > IF(${colorful}, 50, 0)
+        AND space > IF(${space}, 50, 0)
+        AND CAST(LEFT(published_date, 4) AS UNSIGNED) BETWEEN ${year_min} AND ${year_max}
+        GROUP BY b.book_id, title, image;
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
+    }
+  );
+};
 
 module.exports = {
-  random_shows
-}
+  search_books,
+  search_games,
+  get_playlist,
+  get_user_playlist,
+  add_media,
+};
 
 /*
 // Route 1: GET /author/:type
