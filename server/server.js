@@ -1,12 +1,14 @@
-const express = require('express');
-const cors = require('cors');
-const config = require('./config');
-const routes = require('./routes');
+const express = require("express");
+const cors = require("cors");
+const config = require("./config");
+const routes = require("./routes");
 
 const app = express();
-app.use(cors({
-  origin: '*',
-}));
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 // We use express to define our various API endpoints and
 // provide their handlers that we implemented in routes.js
@@ -16,20 +18,16 @@ app.get('/random_games/:num/:selected_mood', routes.random_games);
 app.get('/random_movies/:num/:selected_mood', routes.random_movies);
 app.get('/random_songs/:num/:selected_mood', routes.random_songs);
 app.get('/ordered_suggestion/:selected_mood/:mood_list', routes.ordered_suggestion);
-/*
-app.get('/author/:type', routes.author);
-app.get('/random', routes.random);
-app.get('/song/:song_id', routes.song);
-app.get('/album/:album_id', routes.album);
-app.get('/albums', routes.albums);
-app.get('/album_songs/:album_id', routes.album_songs);
-app.get('/top_songs', routes.top_songs);
-app.get('/top_albums', routes.top_albums);
-app.get('/search_songs', routes.search_songs);
-*/
+app.get("/add_media", routes.add_media);
+app.get("/search_games", routes.search_games);
+app.get("/search_books", routes.search_books);
+app.get("/get_playlist/:playlist_id", routes.get_playlist);
+app.get("/get_user_playlist/:user_id", routes.get_user_playlist);
 
 app.listen(config.server_port, () => {
-  console.log(`Server running at http://${config.server_host}:${config.server_port}/`)
+  console.log(
+    `Server running at http://${config.server_host}:${config.server_port}/`
+  );
 });
 
 module.exports = app;
