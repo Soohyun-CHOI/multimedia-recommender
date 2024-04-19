@@ -12,36 +12,6 @@ const connection = mysql.createConnection({
 });
 connection.connect((err) => err && console.log(err));
 
-// Route 1: GET /random_shows/:num/:selected_mood
-const random_shows = async function(req, res) {
-  const num = req.params.num;
-  const selectedMood = req.params.selected_mood;
-  
-  // We get a number of random shows from the database which have a high value of the given mood
-  connection.query(`
-    WITH mm AS (SELECT media_id
-      FROM MediaMoods
-      WHERE media_type = 'show'
-        AND ${selectedMood} > 65
-      ORDER BY RAND()
-      LIMIT ${num})
-    SELECT *
-    FROM TVShows tv JOIN mm ON tv.show_id = mm.media_id
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      // If there is an error for some reason, or if the query is empty (this should not be possible)
-      // print the error message and return an empty object instead
-      console.log(err);
-      // Be cognizant of the fact we return an empty array [].
-      res.json([]);
-    } else {
-      // Here, we return results of the query 
-      res.json(data);
-    }
-  }
-);
-};
-
 // Route 1: GET /add_media/ (ALLY)
 // About: Adds 5 additional media items of specified type to the suggested_media table
 // Input param: media type
@@ -398,7 +368,38 @@ const search_books = async function (req, res) {
   );
 };
 
-// Route 2: GET /random_books/:num/:selected_mood
+
+// Route 6.1: GET /random_shows/:num/:selected_mood
+const random_shows = async function(req, res) {
+  const num = req.params.num;
+  const selectedMood = req.params.selected_mood;
+  
+  // We get a number of random shows from the database which have a high value of the given mood
+  connection.query(`
+    WITH mm AS (SELECT media_id
+      FROM MediaMoods
+      WHERE media_type = 'show'
+        AND ${selectedMood} > 65
+      ORDER BY RAND()
+      LIMIT ${num})
+    SELECT *
+    FROM TVShows tv JOIN mm ON tv.show_id = mm.media_id
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      // If there is an error for some reason, or if the query is empty (this should not be possible)
+      // print the error message and return an empty object instead
+      console.log(err);
+      // Be cognizant of the fact we return an empty array [].
+      res.json([]);
+    } else {
+      // Here, we return results of the query 
+      res.json(data);
+    }
+  }
+);
+};
+
+// Route 6.2: GET /random_books/:num/:selected_mood
 const random_books = async function(req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
@@ -427,7 +428,7 @@ const random_books = async function(req, res) {
   });
 }
 
-// Route 3: GET /random_games/:num/:selected_mood
+// Route 6.3: GET /random_games/:num/:selected_mood
 const random_games = async function(req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
@@ -456,7 +457,7 @@ const random_games = async function(req, res) {
   });
 }
 
-// Route 4: GET /random_games/:num/:selected_mood
+// Route 6.4: GET /random_games/:num/:selected_mood
 const random_movies = async function(req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
@@ -485,7 +486,7 @@ const random_movies = async function(req, res) {
   });
 }
 
-// Route 4: GET /random_games/:num/:selected_mood
+// Route 6.5: GET /random_games/:num/:selected_mood
 const random_songs = async function(req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
@@ -514,7 +515,7 @@ const random_songs = async function(req, res) {
   });
 }
 
-// Route 5: GET /ordered_suggestion/:selected_mood/:mood_list
+// Route 7: GET /ordered_suggestion/:selected_mood/:mood_list
 const ordered_suggestion = async function(req, res) {
   const selectedMood = req.params.selected_mood;
   var moodList = req.params.mood_list.split(",")
