@@ -16,62 +16,74 @@ connection.connect((err) => err && console.log(err));
 // About: Adds 5 additional media items of specified type to the suggested_media table
 // Input param: media type
 // Return: media_id, media_type, title, creator, image
-const pool_size = 50;
+let pool_size = 50;
 const add_media = async function (req, res) {
-  const type = req.query.type;
+  let type = req.query.type ?? "";
   pool_size = pool_size + 5; // increment pool size by 5 every time we add media
+
+  connection.query(`
+    CREATE TEMPORARY TABLE IF NOT EXISTS suggested_ids (media_id INT);
+  `);
 
   connection.query(
     `
-    CREATE TEMPORARY TABLE IF NOT EXISTS suggested_ids (
-      media_id INT,
-      media_type VARCHAR(255)
-    );
-
-    INSERT INTO suggested_ids (media_id, media_type)
-    SELECT media_id, media_type
+    REPLACE INTO suggested_ids (media_id)
+    SELECT media_id
     FROM suggested_media;
+    `
+  );
 
-    INSERT INTO suggested_media
-    WITH suggest_rand AS (
-        SELECT *, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY RAND()) AS row_num2
-        FROM all_media
-        WHERE row_num <= ${pool_size} 
-        AND (media_id, media_type) NOT IN (
-            SELECT media_id, media_type
-        FROM suggested_ids))
-    SELECT media_id, media_type,
-      LEFT(COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title), 100) AS title,
-      LEFT(COALESCE (book_table.creator, music_table.creator, game_table.creator), 100) AS creator, image
-    FROM suggest_rand s
+  let query2 = `
+      SELECT media_id FROM suggested_ids;
+    `;
+
+  let query = `
+    SELECT media_id,
+      COALESCE (book_table.media_type, music_table.media_type, game_table.media_type, movie_table.media_type, show_table.media_type) AS media_type,
+      COALESCE (book_table.image, music_table.image, game_table.image, show_table.image) AS image,
+      COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
+      COALESCE (book_table.creator, music_table.creator, game_table.creator) AS creator
+    FROM (
+      SELECT *, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY RAND()) AS row_num2
+      FROM all_media
+      WHERE row_num <= ${pool_size}
+      AND media_id NOT IN (SELECT media_id FROM suggested_ids)
+    ) AS s
     LEFT JOIN (
-        SELECT a.book_id, title, GROUP_CONCAT(author SEPARATOR ', ') AS creator
+        SELECT a.book_id,'bk' as media_type, image, title, GROUP_CONCAT(author SEPARATOR ', ') AS creator
         FROM Books b
         JOIN Authors a ON b.book_id = a.book_id
-        GROUP BY book_id) book_table ON s.media_id = book_table.book_id AND s.media_type LIKE 'book'
+        GROUP BY book_id) book_table ON s.media_id = book_table.book_id
     LEFT JOIN (
-        SELECT song_id, title, artist AS creator
-        FROM Music) music_table ON s.media_id = music_table.song_id AND s.media_type LIKE 'song'
+        SELECT song_id, 'mu' as media_type, image, title, artist AS creator
+        FROM Music) music_table ON s.media_id = music_table.song_id
     LEFT JOIN (
-        SELECT app_id, name AS title, developers AS creator
-        FROM Games) game_table ON s.media_id = game_table.app_id AND s.media_type LIKE 'game'
+        SELECT app_id, 'gm' as media_type, screenshot AS image, name AS title, developers AS creator
+        FROM Games) game_table ON s.media_id = game_table.app_id
     LEFT JOIN (
-        SELECT movie_id, title
-        FROM Movie) movie_table ON s.media_id = movie_table.movie_id AND s.media_type LIKE 'movie'
+        SELECT movie_id, 'mv' as media_type, title
+        FROM Movie) movie_table ON s.media_id = movie_table.movie_id
     LEFT JOIN (
-        SELECT show_id, series_title
-        FROM TVShows) show_table ON s.media_id = show_table.show_id AND s.media_type LIKE 'show'
-    WHERE row_num2 <= 5 AND media_type LIKE '${type}';
-    `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
-      }
+        SELECT show_id, 'tv' as media_type, image, series_title
+        FROM TVShows) show_table ON s.media_id = show_table.show_id
+    WHERE row_num2 <= 5 AND (
+        book_table.media_type LIKE '${type}' OR 
+        music_table.media_type LIKE '${type}' OR 
+        game_table.media_type LIKE '${type}' OR 
+        movie_table.media_type LIKE '${type}' OR 
+        show_table.media_type LIKE '${type}');
+    `;
+
+  console.log(query2);
+
+  connection.query(query2, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json([]);
+    } else {
+      res.json(data);
     }
-  );
+  });
 };
 
 // Route 2: GET /get_user_playlist/:user_id (ALLY)
@@ -518,7 +530,6 @@ const random_songs = async function (req, res) {
 
 // Route 7: GET /ordered_suggestion
 const ordered_suggestion = async function (req, res) {
-
   const selectedMood = req.query.selected_mood ?? "";
 
   const christmas = req.query.christmas ?? false;
@@ -527,7 +538,7 @@ const ordered_suggestion = async function (req, res) {
   const celebration = req.query.celebration ?? false;
   const relaxing = req.query.relaxing ?? false;
   const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ? 1 : 0;
+  const industrial = req.query.industrial ?? false;
   const sunshine = req.query.sunshine ?? false;
   const sad = req.query.sad ?? false;
   const happy = req.query.happy ?? false;
@@ -592,7 +603,7 @@ const ordered_suggestion = async function (req, res) {
 
   connection.query(
     `
-    SELECT * FROM all_media LIMIT 10
+    SELECT * FROM all_media WHERE row_num <= 10;
   `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -611,7 +622,6 @@ const ordered_suggestion = async function (req, res) {
 
 // Route 8: GET /suggested_media
 const suggested_media = async function (req, res) {
-
   const selectedMood = req.query.selected_mood ?? "";
 
   const christmas = req.query.christmas ?? false;
@@ -620,7 +630,7 @@ const suggested_media = async function (req, res) {
   const celebration = req.query.celebration ?? false;
   const relaxing = req.query.relaxing ?? false;
   const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ? 1 : 0;
+  const industrial = req.query.industrial ?? false;
   const sunshine = req.query.sunshine ?? false;
   const sad = req.query.sad ?? false;
   const happy = req.query.happy ?? false;
@@ -702,7 +712,7 @@ const suggested_media = async function (req, res) {
     ON s.media_id = movie_table.movie_id AND s.media_type = 'mv'
     LEFT JOIN (SELECT show_id, series_title AS title, image FROM TVShows) show_table
     ON s.media_id = show_table.show_id AND s.media_type = 'tv'
-    WHERE row_num2 <= 10
+    WHERE row_num2 <= 1
   `);
 
   connection.query(
@@ -736,5 +746,5 @@ module.exports = {
   get_playlist,
   get_user_playlist,
   add_media,
-  suggested_media
+  suggested_media,
 };
