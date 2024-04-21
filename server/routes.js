@@ -12,12 +12,12 @@ const connection = mysql.createConnection({
 });
 connection.connect((err) => err && console.log(err));
 
-// Route 1: GET /add_media/ (ALLY)
+// Route 1: GET /additional_media/ (ALLY)
 // About: Adds 5 additional media items of specified type to the suggested_media table
 // Input param: media type
 // Return: media_id, media_type, title, creator, image
 let pool_size = 50;
-const add_media = async function (req, res) {
+const additional_media = async function (req, res) {
   let type = req.query.type ?? "";
   pool_size = pool_size + 5; // increment pool size by 5 every time we add media
 
@@ -86,11 +86,11 @@ const add_media = async function (req, res) {
   });
 };
 
-// Route 2: GET /get_user_playlist/:user_id (ALLY)
+// Route 2: GET /user_playlist/:user_id (ALLY)
 // About: return all of user's playlist & collab playlists
 // Input param: user_id
 // Return: playlist_id, image, title, creator, timestamp
-const get_user_playlist = async function (req, res) {
+const user_playlist = async function (req, res) {
   const user_id = req.params.user_id;
 
   connection.query(
@@ -132,11 +132,11 @@ const get_user_playlist = async function (req, res) {
   );
 };
 
-// Route 3: GET /get_playlist/:playlist_id (ALLY)
+// Route 3: GET /playlist/:playlist_id (ALLY)
 // About: return all media items in the given playlist
 // Input param: playlist_id
 // Return: media_id, title, creator, image
-const get_playlist = async function (req, res) {
+const playlist = async function (req, res) {
   const playlist_id = req.params.playlist_id;
 
   connection.query(
@@ -183,12 +183,12 @@ const get_playlist = async function (req, res) {
   );
 };
 
-// Route 4: GET /search_games (ALLY)
+// Route 4: GET /games (ALLY)
 // About: return all games that match the given search query
 // Optional param: title, developer, game_score, year_min, year_max, game category, game genre
 // Return: media_id, title, developer, image link
 // Category and genre should be a list of strings concatenated by '|'
-const search_games = async function (req, res) {
+const games = async function (req, res) {
   const title = req.query.title ?? "";
   const developer = req.query.developer ?? "";
   const game_score = req.query.game_score ?? 0;
@@ -280,12 +280,12 @@ const search_games = async function (req, res) {
   );
 };
 
-// Route 5: GET /search_books (ALLY)
+// Route 5: GET /books (ALLY)
 // About: return all books that match the given search query
 // Input param: title, author, publisher, year_min, year_max
 // Return: book_id, title, authors, image link
 // Category should be a list of strings concatenated by '|'
-const search_books = async function (req, res) {
+const books = async function (req, res) {
   const title = req.query.title ?? "";
   const author = req.query.author ?? "";
   const publisher = req.query.publisher ?? "";
@@ -709,12 +709,12 @@ const suggested_media = async function (req, res) {
   );
 };
 
-// Route 9: GET /search_shows
+// Route 9: GET /shows
 // About: return all shows that match the given search query
 // Input param: title, year_min, year_max, genre
 // Return: show_id, title, image link
 // Genre should be a list of strings concatenated by '|'
-const search_shows = async function (req, res) {
+const shows = async function (req, res) {
   const title = req.query.title ?? "";
   const cast = req.query.cast ?? "";
   const yearMin = req.query.year_min ?? 0;
@@ -800,12 +800,12 @@ const search_shows = async function (req, res) {
   );
 };
 
-// Route 10: GET /search_shows
+// Route 10: GET /moives
 // About: return all movies that match the given search query
 // Input param: title, year_min, year_max, genre
 // Return: show_id, title
 // Genre should be a list of strings concatenated by '|'
-const search_movies = async function (req, res) {
+const movies = async function (req, res) {
   const title = req.query.title ?? "";
   const cast = req.query.cast ?? "";
   const yearMin = req.query.year_min ?? 0;
@@ -889,12 +889,12 @@ const search_movies = async function (req, res) {
   );
 };
 
-// Route 11: GET /search_songs
+// Route 11: GET /songs
 // About: return all songs that match the given search query
 // Input param: title, year_min, year_max, genre
 // Return: show_id, title, image
 // tag_list should be a list of strings concatenated by '|'
-const search_songs = async function (req, res) {
+const songs = async function (req, res) {
   const searchInput = req.query.search_input ?? "";
   const yearMin = req.query.year_min ?? 0;
   const yearMax = req.query.year_max ?? 2030;
@@ -978,13 +978,13 @@ module.exports = {
   random_movies,
   random_songs,
   ordered_suggestion,
-  search_books,
-  search_games,
-  get_playlist,
-  get_user_playlist,
-  add_media,
+  books,
+  games,
+  playlist,
+  user_playlist,
+  additional_media,
   suggested_media,
-  search_shows,
-  search_movies,
-  search_songs,
+  shows,
+  movies,
+  songs,
 };
