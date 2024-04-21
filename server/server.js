@@ -17,12 +17,13 @@ app.get('/random_books/:num/:selected_mood', routes.random_books);
 app.get('/random_games/:num/:selected_mood', routes.random_games);
 app.get('/random_movies/:num/:selected_mood', routes.random_movies);
 app.get('/random_songs/:num/:selected_mood', routes.random_songs);
-app.get('/ordered_suggestion/:selected_mood/:mood_list', routes.ordered_suggestion);
+app.get('/ordered_suggestion', routes.ordered_suggestion);
 app.get("/add_media", routes.add_media);
 app.get("/search_games", routes.search_games);
 app.get("/search_books", routes.search_books);
 app.get("/get_playlist/:playlist_id", routes.get_playlist);
 app.get("/get_user_playlist/:user_id", routes.get_user_playlist);
+app.get("/suggested_media", routes.suggested_media);
 
 app.listen(config.server_port, () => {
   console.log(
