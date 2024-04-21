@@ -366,11 +366,11 @@ const random_shows = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'show'
+      WHERE media_type = 'tv'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
+    SELECT media_id, series_title AS title, image
     FROM TVShows tv JOIN mm ON tv.show_id = mm.media_id
   `,
     (err, data) => {
@@ -398,12 +398,15 @@ const random_books = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'book'
+      WHERE media_type = 'bk'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
-    FROM Books b JOIN mm ON b.book_id = mm.media_id
+    SELECT media_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS authors, image
+    FROM Books b 
+      JOIN mm ON b.book_id = mm.media_id
+      JOIN Authors a ON b.book_id = a.book_id
+    GROUP BY b.book_id, title, image;
   `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -430,11 +433,11 @@ const random_games = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'game'
+      WHERE media_type = 'gm'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
+      SELECT media_id, name AS title, developers, screenshot AS image
     FROM Games g JOIN mm ON g.app_id = mm.media_id
   `,
     (err, data) => {
@@ -452,7 +455,7 @@ const random_games = async function (req, res) {
   );
 };
 
-// Route 6.4: GET /random_games/:num/:selected_mood
+// Route 6.4: GET /random_movies/:num/:selected_mood
 const random_movies = async function (req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
@@ -462,11 +465,11 @@ const random_movies = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'movie'
+      WHERE media_type = 'mv'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
+    SELECT media_id, title
     FROM Movie mv JOIN mm ON mv.movie_id = mm.media_id
   `,
     (err, data) => {
@@ -484,7 +487,7 @@ const random_movies = async function (req, res) {
   );
 };
 
-// Route 6.5: GET /random_games/:num/:selected_mood
+// Route 6.5: GET /random_songs/:num/:selected_mood
 const random_songs = async function (req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
@@ -494,11 +497,11 @@ const random_songs = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'song'
+      WHERE media_type = 'mu'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
+    SELECT media_id, title, image
     FROM Music mu JOIN mm ON mu.song_id = mm.media_id
   `,
     (err, data) => {
@@ -860,7 +863,7 @@ const search_movies = async function (req, res) {
         FROM MovieCast
         WHERE cast LIKE '%${cast}%'
       )
-      SELECT mv.movie_id, title
+      SELECT m.media_id, title
       FROM Movie mv 
       JOIN MovieGenre mg On mv.movie_id = mg.movie_id
       JOIN MediaMoods AS m ON mv.movie_id = m.media_id
@@ -943,7 +946,7 @@ const search_songs = async function (req, res) {
 
   connection.query(
     `
-      SELECT mu.song_id, title, image
+      SELECT m.media_id, title, image
       FROM Music mu 
       JOIN MediaMoods AS m ON mu.song_id = m.media_id
       WHERE (title LIKE '%${searchInput}%' OR artist LIKE '%${searchInput}%')
