@@ -24,6 +24,9 @@ app.get("/search_books", routes.search_books);
 app.get("/get_playlist/:playlist_id", routes.get_playlist);
 app.get("/get_user_playlist/:user_id", routes.get_user_playlist);
 app.get("/suggested_media", routes.suggested_media);
+app.get("/search_shows", routes.search_shows);
+app.get("/search_movies", routes.search_movies);
+app.get("/search_songs", routes.search_songs);
 
 app.listen(config.server_port, () => {
   console.log(
