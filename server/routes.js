@@ -378,11 +378,11 @@ const random_shows = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'show'
+      WHERE media_type = 'tv'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
+    SELECT media_id, series_title AS title, image
     FROM TVShows tv JOIN mm ON tv.show_id = mm.media_id
   `,
     (err, data) => {
@@ -410,12 +410,15 @@ const random_books = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'book'
+      WHERE media_type = 'bk'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
-    FROM Books b JOIN mm ON b.book_id = mm.media_id
+    SELECT media_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS authors, image
+    FROM Books b 
+      JOIN mm ON b.book_id = mm.media_id
+      JOIN Authors a ON b.book_id = a.book_id
+    GROUP BY b.book_id, title, image;
   `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -442,11 +445,11 @@ const random_games = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'game'
+      WHERE media_type = 'gm'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
+      SELECT media_id, name AS title, developers, screenshot AS image
     FROM Games g JOIN mm ON g.app_id = mm.media_id
   `,
     (err, data) => {
@@ -464,7 +467,7 @@ const random_games = async function (req, res) {
   );
 };
 
-// Route 6.4: GET /random_games/:num/:selected_mood
+// Route 6.4: GET /random_movies/:num/:selected_mood
 const random_movies = async function (req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
@@ -474,11 +477,11 @@ const random_movies = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'movie'
+      WHERE media_type = 'mv'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
+    SELECT media_id, title
     FROM Movie mv JOIN mm ON mv.movie_id = mm.media_id
   `,
     (err, data) => {
@@ -496,7 +499,7 @@ const random_movies = async function (req, res) {
   );
 };
 
-// Route 6.5: GET /random_games/:num/:selected_mood
+// Route 6.5: GET /random_songs/:num/:selected_mood
 const random_songs = async function (req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
@@ -506,11 +509,11 @@ const random_songs = async function (req, res) {
     `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
-      WHERE media_type = 'song'
+      WHERE media_type = 'mu'
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT *
+    SELECT media_id, title, image
     FROM Music mu JOIN mm ON mu.song_id = mm.media_id
   `,
     (err, data) => {
@@ -603,7 +606,7 @@ const ordered_suggestion = async function (req, res) {
 
   connection.query(
     `
-    SELECT * FROM all_media WHERE row_num <= 10;
+    SELECT * FROM all_media
   `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -622,34 +625,6 @@ const ordered_suggestion = async function (req, res) {
 
 // Route 8: GET /suggested_media
 const suggested_media = async function (req, res) {
-  const selectedMood = req.query.selected_mood ?? "";
-
-  const christmas = req.query.christmas ?? false;
-  const halloween = req.query.halloween ?? false;
-  const valentine = req.query.valentine ?? false;
-  const celebration = req.query.celebration ?? false;
-  const relaxing = req.query.relaxing ?? false;
-  const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ?? false;
-  const sunshine = req.query.sunshine ?? false;
-  const sad = req.query.sad ?? false;
-  const happy = req.query.happy ?? false;
-  const summer = req.query.summer ?? false;
-  const winter = req.query.winter ?? false;
-  const sports = req.query.sports ?? false;
-  const playful = req.query.playful ?? false;
-  const energetic = req.query.energetic ?? false;
-  const scary = req.query.scary ?? false;
-  const anger = req.query.anger ?? false;
-  const optimistic = req.query.optimistic ?? false;
-  const adventurous = req.query.adventurous ?? false;
-  const learning = req.query.learning ?? false;
-  const artistic = req.query.artistic ?? false;
-  const science = req.query.science ?? false;
-  const cozy = req.query.cozy ?? false;
-  const colorful = req.query.colorful ?? false;
-  const space = req.query.space ?? false;
-
   // Create the temporary table if it does not exist already
   connection.query(`
     CREATE TEMPORARY TABLE IF NOT EXISTS suggested_media (
@@ -734,6 +709,268 @@ const suggested_media = async function (req, res) {
   );
 };
 
+// Route 9: GET /search_shows
+// About: return all shows that match the given search query
+// Input param: title, year_min, year_max, genre
+// Return: show_id, title, image link
+// Genre should be a list of strings concatenated by '|'
+const search_shows = async function (req, res) {
+  const title = req.query.title ?? "";
+  const cast = req.query.cast ?? "";
+  const yearMin = req.query.year_min ?? 0;
+  const yearMax = req.query.year_max ?? 2030;
+  const genre = req.query.genre ?? ".*";
+  const ratingNum = req.query.rating_num ?? 0;
+
+  const christmas = req.query.christmas ?? false;
+  const halloween = req.query.halloween ?? false;
+  const valentine = req.query.valentine ?? false;
+  const celebration = req.query.celebration ?? false;
+  const relaxing = req.query.relaxing ?? false;
+  const nature = req.query.nature ?? false;
+  const industrial = req.query.industrial ? 1 : 0;
+  const sunshine = req.query.sunshine ?? false;
+  const sad = req.query.sad ?? false;
+  const happy = req.query.happy ?? false;
+  const summer = req.query.summer ?? false;
+  const winter = req.query.winter ?? false;
+  const sports = req.query.sports ?? false;
+  const playful = req.query.playful ?? false;
+  const energetic = req.query.energetic ?? false;
+  const scary = req.query.scary ?? false;
+  const anger = req.query.anger ?? false;
+  const optimistic = req.query.optimistic ?? false;
+  const adventurous = req.query.adventurous ?? false;
+  const learning = req.query.learning ?? false;
+  const artistic = req.query.artistic ?? false;
+  const science = req.query.science ?? false;
+  const cozy = req.query.cozy ?? false;
+  const colorful = req.query.colorful ?? false;
+  const space = req.query.space ?? false;
+
+  connection.query(
+    `
+      WITH shows_in AS (
+        SELECT show_id
+        FROM TVCast
+        WHERE cast LIKE '%${cast}%'
+      )
+      SELECT DISTINCT s.show_id, series_title, image
+      FROM TVShows s
+      JOIN ShowGenre sg On s.show_id = sg.show_id
+      JOIN MediaMoods AS m ON s.show_id = m.media_id
+      WHERE s.series_title LIKE '%${title}%'
+              AND christmas > IF(${christmas}, 50, 0)
+              AND halloween > IF(${halloween}, 50, 0)
+              AND valentine > IF(${valentine}, 50, 0)
+              AND celebration > IF(${celebration}, 50, 0)
+              AND relaxing > IF(${relaxing}, 50, 0)
+              AND nature > IF(${nature}, 50, 0)
+              AND industrial > IF(${industrial}, 50, 0)
+              AND sunshine > IF(${sunshine}, 50, 0)
+              AND sad > IF(${sad}, 50, 0)
+              AND happy > IF(${happy}, 50, 0)
+              AND summer > IF(${summer}, 50, 0)
+              AND winter > IF(${winter}, 50, 0)
+              AND sports > IF(${sports}, 50, 0)
+              AND playful > IF(${playful}, 50, 0)
+              AND energetic > IF(${energetic}, 50, 0)
+              AND scary > IF(${scary}, 50, 0)
+              AND anger > IF(${anger}, 50, 0)
+              AND optimistic > IF(${optimistic}, 50, 0)
+              AND adventurous > IF(${adventurous}, 50, 0)
+              AND learning > IF(${learning}, 50, 0)
+              AND artistic > IF(${artistic}, 50, 0)
+              AND science > IF(${science}, 50, 0)
+              AND cozy > IF(${cozy}, 50, 0)
+              AND colorful > IF(${colorful}, 50, 0)
+              AND space > IF(${space}, 50, 0)
+        AND release_year BETWEEN ${yearMin} AND ${yearMax}
+        AND sg.genre REGEXP '${genre}'
+        AND rating >= ${ratingNum}
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
+    }
+  );
+};
+
+// Route 10: GET /search_shows
+// About: return all movies that match the given search query
+// Input param: title, year_min, year_max, genre
+// Return: show_id, title
+// Genre should be a list of strings concatenated by '|'
+const search_movies = async function (req, res) {
+  const title = req.query.title ?? "";
+  const cast = req.query.cast ?? "";
+  const yearMin = req.query.year_min ?? 0;
+  const yearMax = req.query.year_max ?? 2030;
+  const genre = req.query.genre ?? ".*";
+
+  const christmas = req.query.christmas ?? false;
+  const halloween = req.query.halloween ?? false;
+  const valentine = req.query.valentine ?? false;
+  const celebration = req.query.celebration ?? false;
+  const relaxing = req.query.relaxing ?? false;
+  const nature = req.query.nature ?? false;
+  const industrial = req.query.industrial ? 1 : 0;
+  const sunshine = req.query.sunshine ?? false;
+  const sad = req.query.sad ?? false;
+  const happy = req.query.happy ?? false;
+  const summer = req.query.summer ?? false;
+  const winter = req.query.winter ?? false;
+  const sports = req.query.sports ?? false;
+  const playful = req.query.playful ?? false;
+  const energetic = req.query.energetic ?? false;
+  const scary = req.query.scary ?? false;
+  const anger = req.query.anger ?? false;
+  const optimistic = req.query.optimistic ?? false;
+  const adventurous = req.query.adventurous ?? false;
+  const learning = req.query.learning ?? false;
+  const artistic = req.query.artistic ?? false;
+  const science = req.query.science ?? false;
+  const cozy = req.query.cozy ?? false;
+  const colorful = req.query.colorful ?? false;
+  const space = req.query.space ?? false;
+
+  connection.query(
+    `
+      WITH movies_in AS (
+        SELECT movie_id
+        FROM MovieCast
+        WHERE cast LIKE '%${cast}%'
+      )
+      SELECT m.media_id, title
+      FROM Movie mv 
+      JOIN MovieGenre mg On mv.movie_id = mg.movie_id
+      JOIN MediaMoods AS m ON mv.movie_id = m.media_id
+      WHERE mv.title LIKE '%${title}%'
+              AND christmas > IF(${christmas}, 50, 0)
+              AND halloween > IF(${halloween}, 50, 0)
+              AND valentine > IF(${valentine}, 50, 0)
+              AND celebration > IF(${celebration}, 50, 0)
+              AND relaxing > IF(${relaxing}, 50, 0)
+              AND nature > IF(${nature}, 50, 0)
+              AND industrial > IF(${industrial}, 50, 0)
+              AND sunshine > IF(${sunshine}, 50, 0)
+              AND sad > IF(${sad}, 50, 0)
+              AND happy > IF(${happy}, 50, 0)
+              AND summer > IF(${summer}, 50, 0)
+              AND winter > IF(${winter}, 50, 0)
+              AND sports > IF(${sports}, 50, 0)
+              AND playful > IF(${playful}, 50, 0)
+              AND energetic > IF(${energetic}, 50, 0)
+              AND scary > IF(${scary}, 50, 0)
+              AND anger > IF(${anger}, 50, 0)
+              AND optimistic > IF(${optimistic}, 50, 0)
+              AND adventurous > IF(${adventurous}, 50, 0)
+              AND learning > IF(${learning}, 50, 0)
+              AND artistic > IF(${artistic}, 50, 0)
+              AND science > IF(${science}, 50, 0)
+              AND cozy > IF(${cozy}, 50, 0)
+              AND colorful > IF(${colorful}, 50, 0)
+              AND space > IF(${space}, 50, 0)
+        AND release_date BETWEEN '${yearMin}-01-01' AND '${yearMax}-01-01'
+        AND mg.genre REGEXP '${genre}'
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
+    }
+  );
+};
+
+// Route 11: GET /search_songs
+// About: return all songs that match the given search query
+// Input param: title, year_min, year_max, genre
+// Return: show_id, title, image
+// tag_list should be a list of strings concatenated by '|'
+const search_songs = async function (req, res) {
+  const searchInput = req.query.search_input ?? "";
+  const yearMin = req.query.year_min ?? 0;
+  const yearMax = req.query.year_max ?? 2030;
+  const tagList = req.query.tag_list ?? ".*";
+
+  const christmas = req.query.christmas ?? false;
+  const halloween = req.query.halloween ?? false;
+  const valentine = req.query.valentine ?? false;
+  const celebration = req.query.celebration ?? false;
+  const relaxing = req.query.relaxing ?? false;
+  const nature = req.query.nature ?? false;
+  const industrial = req.query.industrial ? 1 : 0;
+  const sunshine = req.query.sunshine ?? false;
+  const sad = req.query.sad ?? false;
+  const happy = req.query.happy ?? false;
+  const summer = req.query.summer ?? false;
+  const winter = req.query.winter ?? false;
+  const sports = req.query.sports ?? false;
+  const playful = req.query.playful ?? false;
+  const energetic = req.query.energetic ?? false;
+  const scary = req.query.scary ?? false;
+  const anger = req.query.anger ?? false;
+  const optimistic = req.query.optimistic ?? false;
+  const adventurous = req.query.adventurous ?? false;
+  const learning = req.query.learning ?? false;
+  const artistic = req.query.artistic ?? false;
+  const science = req.query.science ?? false;
+  const cozy = req.query.cozy ?? false;
+  const colorful = req.query.colorful ?? false;
+  const space = req.query.space ?? false;
+
+  connection.query(
+    `
+      SELECT m.media_id, title, image
+      FROM Music mu 
+      JOIN MediaMoods AS m ON mu.song_id = m.media_id
+      WHERE (title LIKE '%${searchInput}%' OR artist LIKE '%${searchInput}%')
+              AND christmas > IF(${christmas}, 50, 0)
+              AND halloween > IF(${halloween}, 50, 0)
+              AND valentine > IF(${valentine}, 50, 0)
+              AND celebration > IF(${celebration}, 50, 0)
+              AND relaxing > IF(${relaxing}, 50, 0)
+              AND nature > IF(${nature}, 50, 0)
+              AND industrial > IF(${industrial}, 50, 0)
+              AND sunshine > IF(${sunshine}, 50, 0)
+              AND sad > IF(${sad}, 50, 0)
+              AND happy > IF(${happy}, 50, 0)
+              AND summer > IF(${summer}, 50, 0)
+              AND winter > IF(${winter}, 50, 0)
+              AND sports > IF(${sports}, 50, 0)
+              AND playful > IF(${playful}, 50, 0)
+              AND energetic > IF(${energetic}, 50, 0)
+              AND scary > IF(${scary}, 50, 0)
+              AND anger > IF(${anger}, 50, 0)
+              AND optimistic > IF(${optimistic}, 50, 0)
+              AND adventurous > IF(${adventurous}, 50, 0)
+              AND learning > IF(${learning}, 50, 0)
+              AND artistic > IF(${artistic}, 50, 0)
+              AND science > IF(${science}, 50, 0)
+              AND cozy > IF(${cozy}, 50, 0)
+              AND colorful > IF(${colorful}, 50, 0)
+              AND space > IF(${space}, 50, 0)
+        AND year BETWEEN ${yearMin} AND ${yearMax}
+        AND mu.tag REGEXP '${tagList}'
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
+    }
+  );
+};
+
 module.exports = {
   random_shows,
   random_books,
@@ -747,4 +984,7 @@ module.exports = {
   get_user_playlist,
   add_media,
   suggested_media,
+  search_shows,
+  search_movies,
+  search_songs,
 };
