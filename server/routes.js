@@ -123,7 +123,7 @@ const get_user_playlist = async function (req, res) {
 // Route 3: GET /get_playlist/:playlist_id (ALLY)
 // About: return all media items in the given playlist
 // Input param: playlist_id
-// Return: media_id, media_type, title, creator, image
+// Return: media_id, title, creator, image
 const get_playlist = async function (req, res) {
   const playlist_id = req.params.playlist_id;
 
@@ -131,7 +131,6 @@ const get_playlist = async function (req, res) {
     `
       SELECT 
         s.media_id, 
-        s.media_type, 
         COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
         COALESCE (book_table.creator, music_table.creator, game_table.creator) AS creator,
         image
@@ -142,23 +141,23 @@ const get_playlist = async function (req, res) {
         FROM Books b
         LEFT JOIN Authors a ON b.book_id = a.book_id
         GROUP BY b.book_id
-      ) book_table ON s.media_id = book_table.book_id AND media_type LIKE '%book%'
+      ) book_table ON s.media_id = book_table.book_id
       LEFT JOIN (
         SELECT song_id, title, artist AS creator 
         FROM Music
-      ) music_table ON s.media_id = music_table.song_id AND media_type LIKE '%song%'
+      ) music_table ON s.media_id = music_table.song_id
       LEFT JOIN (
         SELECT app_id, name AS title, developers AS creator 
         FROM Games
-      ) game_table ON s.media_id = game_table.app_id AND media_type LIKE '%game%'
+      ) game_table ON s.media_id = game_table.app_id
       LEFT JOIN (
         SELECT movie_id, title 
         FROM Movie
-      ) movie_table ON s.media_id = movie_table.movie_id AND media_type LIKE '%movie%'
+      ) movie_table ON s.media_id = movie_table.movie_id
       LEFT JOIN (
         SELECT show_id, series_title 
         FROM TVShows
-      ) show_table ON s.media_id = show_table.show_id AND media_type LIKE '%show%'
+      ) show_table ON s.media_id = show_table.show_id
       WHERE p.playlist_id = ${playlist_id};
     `,
     (err, data) => {
@@ -174,14 +173,17 @@ const get_playlist = async function (req, res) {
 
 // Route 4: GET /search_games (ALLY)
 // About: return all games that match the given search query
-// Optional param: title, developer, game_score, year_min, year_max
+// Optional param: title, developer, game_score, year_min, year_max, game category, game genre
 // Return: media_id, title, developer, image link
+// Category and genre should be a list of strings concatenated by '|'
 const search_games = async function (req, res) {
   const title = req.query.title ?? "";
   const developer = req.query.developer ?? "";
   const game_score = req.query.game_score ?? 0;
   const year_min = req.query.year_min ?? 0;
   const year_max = req.query.year_max ?? 2030;
+  const category = req.query.category ?? ".*";
+  const genre = req.query.genre ?? ".*";
 
   const christmas = req.query.christmas ?? false;
   const halloween = req.query.halloween ?? false;
@@ -209,29 +211,22 @@ const search_games = async function (req, res) {
   const colorful = req.query.colorful ?? false;
   const space = req.query.space ?? false;
 
-  // TODO - what to do with category and genre?
-  // assuming category_list is an array of strings
-  // if (req.query.categories_list === undefined) {
-  //   category_list = "";
-  // } else {
-  //   category_list = req.query.categories_list.map(() =>
-  //     category_list.map(() => "?").join(", ")
-  //   );
-  // }
-
-  // TODO : need to add genre and category table
-  // LEFT JOIN GameCategories gc ON g.app_id = gc.app_id
-  // LEFT JOIN GameGenre gg ON g.app_id = gg.app_id
-
   connection.query(
     `
     SELECT media_id, name AS title, developers, screenshot AS image
     FROM Games g
-    LEFT JOIN MediaMoods AS m ON g.app_id = m.media_id AND m.media_type LIKE '%game%'
-    WHERE (
+    LEFT JOIN MediaMoods AS m ON g.app_id = m.media_id
+    LEFT JOIN (
+      SELECT app_id, GROUP_CONCAT(genre SEPARATOR ', ') AS genres
+      FROM GameGenre
+      GROUP BY app_id) AS gg ON gg.app_id = g.app_id
+    LEFT JOIN (
+      SELECT app_id, GROUP_CONCAT(categories SEPARATOR ', ') AS categories
+      FROM GameCategories
+      GROUP BY app_id) AS gc ON gc.app_id = g.app_id
+    WHERE 
         name LIKE '%${title}%'
         AND developers LIKE '%${developer}%'
-    )
         AND christmas > IF(${christmas}, 50, 0)
         AND halloween > IF(${halloween}, 50, 0)
         AND valentine > IF(${valentine}, 50, 0)
@@ -258,7 +253,9 @@ const search_games = async function (req, res) {
         AND colorful > IF(${colorful}, 50, 0)
         AND space > IF(${space}, 50, 0)
         AND CAST(RIGHT(release_date, 4) AS UNSIGNED) BETWEEN ${year_min} AND ${year_max}
-        AND metacritic_score >= ${game_score};
+        AND metacritic_score >= ${game_score}
+        AND categories REGEXP '${category}'
+        AND genres REGEXP '${genre}'
     `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -275,12 +272,14 @@ const search_games = async function (req, res) {
 // About: return all books that match the given search query
 // Input param: title, author, publisher, year_min, year_max
 // Return: book_id, title, authors, image link
+// Category should be a list of strings concatenated by '|'
 const search_books = async function (req, res) {
   const title = req.query.title ?? "";
   const author = req.query.author ?? "";
   const publisher = req.query.publisher ?? "";
   const year_min = req.query.year_min ?? 0;
   const year_max = req.query.year_max ?? 2030;
+  const category = req.query.category ?? ".*";
 
   const christmas = req.query.christmas ?? false;
   const halloween = req.query.halloween ?? false;
@@ -288,7 +287,7 @@ const search_books = async function (req, res) {
   const celebration = req.query.celebration ?? false;
   const relaxing = req.query.relaxing ?? false;
   const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ?? false;
+  const industrial = req.query.industrial ? 1 : 0;
   const sunshine = req.query.sunshine ?? false;
   const sad = req.query.sad ?? false;
   const happy = req.query.happy ?? false;
@@ -308,27 +307,15 @@ const search_books = async function (req, res) {
   const colorful = req.query.colorful ?? false;
   const space = req.query.space ?? false;
 
-  // TODO - what to do with category?
-  // assuming category_list is an array of strings
-  // if (req.query.categories_list === undefined) {
-  //   category_list = "";
-  // } else {
-  //   category_list = req.query.categories_list.map(() =>
-  //     category_list.map(() => "?").join(", ")
-  //   );
-  // }
-
   connection.query(
     `
     SELECT media_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS authors, image
     FROM Books b
     LEFT JOIN Authors a ON b.book_id = a.book_id
-    LEFT JOIN MediaMoods AS m ON b.book_id = m.media_id AND m.media_type LIKE '%book%'
-    WHERE (
-        title LIKE '%${title}%'
+    LEFT JOIN MediaMoods AS m ON b.book_id = m.media_id
+    WHERE title LIKE '%${title}%'
         AND author LIKE '%${author}%'
         AND publisher LIKE '%${publisher}%'
-    )
         AND christmas > IF(${christmas}, 50, 0)
         AND halloween > IF(${halloween}, 50, 0)
         AND valentine > IF(${valentine}, 50, 0)
@@ -355,6 +342,7 @@ const search_books = async function (req, res) {
         AND colorful > IF(${colorful}, 50, 0)
         AND space > IF(${space}, 50, 0)
         AND CAST(LEFT(published_date, 4) AS UNSIGNED) BETWEEN ${year_min} AND ${year_max}
+        AND categories REGEXP '${category}'
         GROUP BY b.book_id, title, image;
     `,
     (err, data) => {
@@ -368,14 +356,14 @@ const search_books = async function (req, res) {
   );
 };
 
-
 // Route 6.1: GET /random_shows/:num/:selected_mood
-const random_shows = async function(req, res) {
+const random_shows = async function (req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
-  
+
   // We get a number of random shows from the database which have a high value of the given mood
-  connection.query(`
+  connection.query(
+    `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'show'
@@ -384,28 +372,30 @@ const random_shows = async function(req, res) {
       LIMIT ${num})
     SELECT *
     FROM TVShows tv JOIN mm ON tv.show_id = mm.media_id
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      // If there is an error for some reason, or if the query is empty (this should not be possible)
-      // print the error message and return an empty object instead
-      console.log(err);
-      // Be cognizant of the fact we return an empty array [].
-      res.json([]);
-    } else {
-      // Here, we return results of the query 
-      res.json(data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        // If there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        // Be cognizant of the fact we return an empty array [].
+        res.json([]);
+      } else {
+        // Here, we return results of the query
+        res.json(data);
+      }
     }
-  }
-);
+  );
 };
 
 // Route 6.2: GET /random_books/:num/:selected_mood
-const random_books = async function(req, res) {
+const random_books = async function (req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
-  
+
   // We get a number of random books from the database which have a high value of the given mood
-  connection.query(`
+  connection.query(
+    `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'book'
@@ -414,27 +404,30 @@ const random_books = async function(req, res) {
       LIMIT ${num})
     SELECT *
     FROM Books b JOIN mm ON b.book_id = mm.media_id
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      // If there is an error for some reason, or if the query is empty (this should not be possible)
-      // print the error message and return an empty object instead
-      console.log(err);
-      // Be cognizant of the fact we return an empty array [].
-      res.json([]);
-    } else {
-      // Here, we return results of the query 
-      res.json(data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        // If there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        // Be cognizant of the fact we return an empty array [].
+        res.json([]);
+      } else {
+        // Here, we return results of the query
+        res.json(data);
+      }
     }
-  });
-}
+  );
+};
 
 // Route 6.3: GET /random_games/:num/:selected_mood
-const random_games = async function(req, res) {
+const random_games = async function (req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
-  
+
   // We get a number of random games from the database which have a high value of the given mood
-  connection.query(`
+  connection.query(
+    `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'game'
@@ -443,27 +436,30 @@ const random_games = async function(req, res) {
       LIMIT ${num})
     SELECT *
     FROM Games g JOIN mm ON g.app_id = mm.media_id
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      // If there is an error for some reason, or if the query is empty (this should not be possible)
-      // print the error message and return an empty object instead
-      console.log(err);
-      // Be cognizant of the fact we return an empty array [].
-      res.json([]);
-    } else {
-      // Here, we return results of the query 
-      res.json(data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        // If there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        // Be cognizant of the fact we return an empty array [].
+        res.json([]);
+      } else {
+        // Here, we return results of the query
+        res.json(data);
+      }
     }
-  });
-}
+  );
+};
 
 // Route 6.4: GET /random_games/:num/:selected_mood
-const random_movies = async function(req, res) {
+const random_movies = async function (req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
-  
+
   // We get a number of random movies from the database which have a high value of the given mood
-  connection.query(`
+  connection.query(
+    `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'movie'
@@ -472,27 +468,30 @@ const random_movies = async function(req, res) {
       LIMIT ${num})
     SELECT *
     FROM Movie mv JOIN mm ON mv.movie_id = mm.media_id
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      // If there is an error for some reason, or if the query is empty (this should not be possible)
-      // print the error message and return an empty object instead
-      console.log(err);
-      // Be cognizant of the fact we return an empty array [].
-      res.json([]);
-    } else {
-      // Here, we return results of the query 
-      res.json(data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        // If there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        // Be cognizant of the fact we return an empty array [].
+        res.json([]);
+      } else {
+        // Here, we return results of the query
+        res.json(data);
+      }
     }
-  });
-}
+  );
+};
 
 // Route 6.5: GET /random_games/:num/:selected_mood
-const random_songs = async function(req, res) {
+const random_songs = async function (req, res) {
   const num = req.params.num;
   const selectedMood = req.params.selected_mood;
-  
+
   // We get a number of random songs from the database which have a high value of the given mood
-  connection.query(`
+  connection.query(
+    `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'song'
@@ -501,24 +500,26 @@ const random_songs = async function(req, res) {
       LIMIT ${num})
     SELECT *
     FROM Music mu JOIN mm ON mu.song_id = mm.media_id
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      // If there is an error for some reason, or if the query is empty (this should not be possible)
-      // print the error message and return an empty object instead
-      console.log(err);
-      // Be cognizant of the fact we return an empty array [].
-      res.json([]);
-    } else {
-      // Here, we return results of the query 
-      res.json(data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        // If there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        // Be cognizant of the fact we return an empty array [].
+        res.json([]);
+      } else {
+        // Here, we return results of the query
+        res.json(data);
+      }
     }
-  });
-}
+  );
+};
 
 // Route 7: GET /ordered_suggestion/:selected_mood/:mood_list
-const ordered_suggestion = async function(req, res) {
+const ordered_suggestion = async function (req, res) {
   const selectedMood = req.params.selected_mood;
-  var moodList = req.params.mood_list.split(",")
+  var moodList = req.params.mood_list.split(",");
 
   const christmas = moodList.includes("christmas");
   const halloween = moodList.includes("halloween");
@@ -555,7 +556,7 @@ const ordered_suggestion = async function(req, res) {
   connection.query(`
     TRUNCATE all_media
   `);
-  
+
   // Creates a temporary table of all media that filters for moods in the mood list
   // Orders each media within type from best to least matching media of specified selected mood
   connection.query(`
@@ -589,22 +590,24 @@ const ordered_suggestion = async function(req, res) {
     AND space > IF(${space}, 50, 0)
   `);
 
-  connection.query(`
+  connection.query(
+    `
     SELECT * FROM all_media LIMIT 10
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      // If there is an error for some reason, or if the query is empty (this should not be possible)
-      // print the error message and return an empty object instead
-      console.log(err);
-      // Be cognizant of the fact we return an empty array [].
-      res.json([]);
-    } else {
-      // Here, we return results of the query 
-      res.json(data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        // If there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        // Be cognizant of the fact we return an empty array [].
+        res.json([]);
+      } else {
+        // Here, we return results of the query
+        res.json(data);
+      }
     }
-  });
-}
-  
+  );
+};
 
 module.exports = {
   random_shows,
