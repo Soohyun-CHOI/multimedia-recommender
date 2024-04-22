@@ -22,7 +22,7 @@ const additional_media = async function (req, res) {
   pool_size = pool_size + 5; // increment pool size by 5 every time we add media
 
   connection.query(`
-    CREATE TEMPORARY TABLE IF NOT EXISTS suggested_ids (media_id INT);
+    CREATE TEMPORARY TABLE IF NOT EXISTS suggested_ids (media_id VARCHAR(100));
   `);
 
   connection.query(
@@ -33,11 +33,8 @@ const additional_media = async function (req, res) {
     `
   );
 
-  let query2 = `
-      SELECT media_id FROM suggested_ids;
-    `;
-
-  let query = `
+  connection.query(`
+    INSERT INTO suggested_media
     SELECT media_id,
       COALESCE (book_table.media_type, music_table.media_type, game_table.media_type, movie_table.media_type, show_table.media_type) AS media_type,
       COALESCE (book_table.image, music_table.image, game_table.image, show_table.image) AS image,
@@ -72,11 +69,13 @@ const additional_media = async function (req, res) {
         game_table.media_type LIKE '${type}' OR 
         movie_table.media_type LIKE '${type}' OR 
         show_table.media_type LIKE '${type}');
-    `;
+    `);
 
-  console.log(query2);
+  query = `SELECT * FROM suggested_media;`;
 
-  connection.query(query2, (err, data) => {
+  console.log(query);
+
+  connection.query(query, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
       res.json([]);
@@ -800,7 +799,7 @@ const shows = async function (req, res) {
   );
 };
 
-// Route 10: GET /moives
+// Route 10: GET /movies
 // About: return all movies that match the given search query
 // Input param: title, year_min, year_max, genre
 // Return: show_id, title
