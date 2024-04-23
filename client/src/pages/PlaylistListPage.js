@@ -3,7 +3,7 @@ import React from "react";
 function PlaylistListPage() {
     return (
         <>
-            Play list list Test
+            Play list list
         </>
     );
 }
