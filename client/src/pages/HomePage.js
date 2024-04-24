@@ -8,18 +8,18 @@ function HomePage() {
     const [cheerful, setCheerful] = useState([]);
 
     useEffect(() => {
-        fetch(`http://${config.server_host}:${config.server_port}/random_books/10/summer`)
+        fetch(`http://${config.server_host}:${config.server_port}/random_all/10/summer`)
             .then(res => res.json())
             .then(resJson => setSummer(resJson));
 
-        fetch(`http://${config.server_host}:${config.server_port}/random_songs/10/summer`)
+        fetch(`http://${config.server_host}:${config.server_port}/random_all/10/summer`)
             .then(res => res.json())
             .then(resJson => setCheerful(resJson));
     }, []);
 
     function handleStringSize(str) {
-        if (str.length >= 24) return str.slice(0, 25) + "..."
-        return str
+        if (str.length >= 24) return str.slice(0, 25) + "...";
+        return str;
     }
 
     return (
@@ -36,6 +36,7 @@ function HomePage() {
                 <div className="media-wrap">
                     {summer.map(media =>
                         <div className="media" key={media.media_id}>
+                            <div className="media-type">{(media.media_type || " ").toUpperCase()}</div>
                             <NavLink to={`/media/${media.media_id}`}>
                                 <img src={media.image} alt=""/>
                             </NavLink>
@@ -51,6 +52,7 @@ function HomePage() {
                 <div className="media-wrap">
                     {cheerful.map(media =>
                         <div className="media" key={media.media_id}>
+                            <div className="media-type">{(media.media_type || " ").toUpperCase()}</div>
                             <NavLink to={`/media/${media.media_id}`}>
                                 <img src={media.image} alt=""/>
                             </NavLink>
