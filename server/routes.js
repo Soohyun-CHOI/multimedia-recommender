@@ -1018,6 +1018,30 @@ const songs = async function (req, res) {
     );
 };
 
+// Route 12: GET /user/:user_id
+const user = async function (req, res) {
+    const userID = req.params.user_id;
+
+    // We get a number of random songs from the database which have a high value of the given mood
+    connection.query(
+        `
+        SELECT * FROM Users WHERE user_id=${userID};
+    `,
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
+        }
+    );
+};
+
 module.exports = {
     random_shows,
     random_books,
@@ -1035,4 +1059,5 @@ module.exports = {
     shows,
     movies,
     songs,
+    user
 };
