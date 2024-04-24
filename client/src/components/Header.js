@@ -4,21 +4,16 @@ import "../styles/Header.scss";
 
 function Header() {
     return (
-        <>
-            <div className="nav">
-                <NavLink to="/" className="logo">
-                    logo
-                </NavLink>
-                <NavLink to="/auth/profile">Profile</NavLink>
+        <div id="header">
+            <NavLink to="/" className="logo">
+                logo
+            </NavLink>
+            <div>
+                <NavLink to="/playlists" className="menu">My Playlists</NavLink>
+                <NavLink to="/search" className="menu">Search</NavLink>
+                <NavLink to="/auth/profile" className="menu">Profile</NavLink>
             </div>
-            <div className="banner">
-                <div className="title">THEME YOUR LIFE</div>
-                <div className="menu">
-                    <NavLink to="/playlists">My Playlists</NavLink>
-                    <NavLink to="/search">Search</NavLink>
-                </div>
-            </div>
-        </>
+        </div>
     );
 }
 

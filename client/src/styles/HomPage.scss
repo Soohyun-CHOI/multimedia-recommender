@@ -1,0 +1,33 @@
+@import "init";
+
+.banner {
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: $color-light;
+
+  .title {
+    font-family: "Playfair Display", serif;
+    font-size: 70px;
+    margin: 50px 0 70px;
+  }
+
+  .menu {
+    margin: 0 30px;
+    padding: 15px 30px;
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 20px;
+
+    &:first-child {
+      background: $color-main;
+      color: white
+    }
+
+    &:last-child {
+      border: 1px solid $color-main;
+      color: $color-main;
+    }
+  }
+}

@@ -1,1 +1,17 @@
 @import "init";
+
+#header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 5%;
+
+  .menu {
+    margin-left: 40px;
+    font-size: 18px;
+
+    &:hover {
+      color: $color-main;
+    }
+  }
+}
