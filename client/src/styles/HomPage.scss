@@ -5,12 +5,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: $color-light;
+  background: $light-orange;
 
   .title {
     font-family: "Playfair Display", serif;
     font-size: 70px;
     margin: 50px 0 70px;
+    color: $dark-teal;
   }
 
   .menu {
@@ -21,13 +22,13 @@
     font-size: 20px;
 
     &:first-child {
-      background: $color-main;
+      background: $dark-teal;
       color: white
     }
 
     &:last-child {
-      border: 1px solid $color-main;
-      color: $color-main;
+      border: 1px solid $dark-teal;
+      color: $dark-teal;
     }
   }
 }
@@ -66,9 +67,9 @@
         font-size: 14px;
         width: 34px;
         padding: 3px 0;
-        border: 1px solid $color-main;
+        border: 1px solid $dark-orange;
         border-radius: 100px;
-        color: $color-main;
+        color: $dark-orange;
         text-align: center;
         margin-bottom: 3px;
       }
