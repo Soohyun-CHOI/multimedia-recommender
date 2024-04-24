@@ -5,16 +5,16 @@ import config from "../config.json";
 
 function HomePage() {
     const [summer, setSummer] = useState([]);
-    const [cheerful, setCheerful] = useState([]);
+    const [happy, setHappy] = useState([]);
 
     useEffect(() => {
-        fetch(`http://${config.server_host}:${config.server_port}/random_all/10/summer`)
+        fetch(`http://${config.server_host}:${config.server_port}/random_all/3/summer`)
             .then(res => res.json())
             .then(resJson => setSummer(resJson));
 
-        fetch(`http://${config.server_host}:${config.server_port}/random_all/10/summer`)
+        fetch(`http://${config.server_host}:${config.server_port}/random_all/3/happy`)
             .then(res => res.json())
-            .then(resJson => setCheerful(resJson));
+            .then(resJson => setHappy(resJson));
     }, []);
 
     function handleStringSize(str) {
@@ -49,9 +49,9 @@ function HomePage() {
                 </div>
             </div>
             <div className="theme">
-                <div className="title">Cheerful for You</div>
+                <div className="title">Happy for You</div>
                 <div className="media-wrap">
-                    {cheerful.map(media =>
+                    {happy.map(media =>
                         <div className="media" key={media.media_id}>
                             <div className="media-type">{(media.media_type || " ").toUpperCase()}</div>
                             <NavLink to={`/media/${media.media_id}`}>
