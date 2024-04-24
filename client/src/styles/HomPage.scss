@@ -31,3 +31,23 @@
     }
   }
 }
+
+.theme {
+  margin: 20px 10%;
+
+  .title {
+    font-weight: 500;
+    font-size: 22px;
+  }
+
+  .media-wrap {
+    display: flex;
+    padding: 20px;
+    border: 1px solid #dddddd;
+    border-radius: 30px;
+
+    .media {
+      margin-right: 10px;
+    }
+  }
+}
