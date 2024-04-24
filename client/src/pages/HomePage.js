@@ -7,14 +7,19 @@ function HomePage() {
     const [cheerful, setCheerful] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8080/")
+        fetch("http://localhost:8080/random_books/10/summer")
             .then(res => res.json())
             .then(resJson => setSummer(resJson));
 
-        fetch("http://localhost:8080/")
+        fetch("http://localhost:8080/random_songs/10/summer")
             .then(res => res.json())
             .then(resJson => setCheerful(resJson));
-    })
+    }, []);
+
+    function handleStringSize(str) {
+        if (str.length >= 24) return str.slice(0, 25) + "..."
+        return str
+    }
 
     return (
         <>
@@ -29,12 +34,12 @@ function HomePage() {
                 <div className="title">Summer for You</div>
                 <div className="media-wrap">
                     {summer.map(media =>
-                        <div className="media">
-                            <NavLink to={`/media/:${media.media_id}`}>
+                        <div className="media" key={media.media_id}>
+                            <NavLink to={`/media/${media.media_id}`}>
                                 <img src={media.image} alt=""/>
                             </NavLink>
-                            <NavLink to={`/media/:${media.media_id}`} className="media-title">
-                                {media.title}
+                            <NavLink to={`/media/${media.media_id}`} className="media-title">
+                                {handleStringSize(media.title)}
                             </NavLink>
                         </div>
                     )}
@@ -44,12 +49,12 @@ function HomePage() {
                 <div className="title">Cheerful for You</div>
                 <div className="media-wrap">
                     {cheerful.map(media =>
-                        <div className="media">
-                            <NavLink to={`/media/:${media.media_id}`}>
+                        <div className="media" key={media.media_id}>
+                            <NavLink to={`/media/${media.media_id}`}>
                                 <img src={media.image} alt=""/>
                             </NavLink>
-                            <NavLink to={`/media/:${media.media_id}`} className="media-title">
-                                {media.title}
+                            <NavLink to={`/media/${media.media_id}`} className="media-title">
+                                {handleStringSize(media.title)}
                             </NavLink>
                         </div>
                     )}
