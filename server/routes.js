@@ -539,19 +539,28 @@ const random_all = async function (req, res) {
     // We get a number of random songs from the database which have a high value of the given mood
     connection.query(`
     WITH mm AS (SELECT media_id, media_type
-      FROM MediaMoods
-      WHERE ${selectedMood} > 65
-      ORDER BY RAND()
-      LIMIT ${num})
-    SELECT media_id, media_type,
-           COALESCE (b.title, mu.title, g.name, mv.title, tv.series_title) AS title,
-           COALESCE (b.image, mu.image, g.screenshot, mv.image, tv.image) AS image
-    FROM mm
-        LEFT JOIN Movie mv ON mv.movie_id = mm.media_id
-        LEFT JOIN TVShows tv ON tv.show_id = mm.media_id
-        LEFT JOIN Books b ON b.book_id = mm.media_id
-        LEFT JOIN Games g ON g.app_id = mm.media_id
-        LEFT JOIN Music mu on mu.song_id = mm.media_id;
+     FROM MediaMoods
+     WHERE ${selectedMood} > 65)
+    (SELECT media_id, media_type, mv.title, mv.image
+       FROM (SELECT * FROM mm WHERE media_type = 'mv' ORDER BY RAND() LIMIT ${num}) AS mv_mm
+       LEFT JOIN Movie mv ON mv.movie_id = mv_mm.media_id )
+    UNION
+    (SELECT tv_mm.media_id, tv_mm.media_type, tv.series_title AS title, tv.image
+       FROM (SELECT * FROM mm WHERE media_type = 'tv' ORDER BY RAND() LIMIT ${num}) AS tv_mm
+       LEFT JOIN TVShows tv ON tv.show_id = tv_mm.media_id )
+    UNION
+    (SELECT bk_mm.media_id, bk_mm.media_type, b.title, b.image
+       FROM (SELECT * FROM mm WHERE media_type = 'bk' ORDER BY RAND() LIMIT ${num}) AS bk_mm
+       LEFT JOIN Books b ON b.book_id = bk_mm.media_id )
+    UNION
+    (SELECT gm_mm.media_id, gm_mm.media_type, g.name AS title, g.screenshot
+       FROM (SELECT * FROM mm WHERE media_type = 'gm' ORDER BY RAND() LIMIT ${num}) AS gm_mm
+       LEFT JOIN Games g ON g.app_id = gm_mm.media_id )
+    UNION
+    (SELECT mu_mm.media_id, mu_mm.media_type, mu.title, mu.image
+       FROM (SELECT * FROM mm WHERE media_type = 'mu' ORDER BY RAND() LIMIT ${num}) AS mu_mm
+      LEFT JOIN Music mu on mu.song_id = mu_mm.media_id )
+    ORDER BY RAND();
   `,
         (err, data) => {
             if (err || data.length === 0) {
