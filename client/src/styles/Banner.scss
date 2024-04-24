@@ -1,0 +1,10 @@
+@import "init";
+
+.banner {
+  height: 100px;
+  line-height: 100px;
+  background: $color-light;
+  font-family: "Playfair Display", serif;
+  font-size: 40px;
+  margin-bottom: 10px;
+}

@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import {NavLink} from "react-router-dom";
 import "../styles/HomPage.scss";
 import config from "../config.json";
+import Banner from "../components/Banner";
 
 function HomePage() {
     const [summer, setSummer] = useState([]);
