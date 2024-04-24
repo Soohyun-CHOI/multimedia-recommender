@@ -1,17 +1,18 @@
 import React, {useState, useEffect} from "react";
 import {NavLink} from "react-router-dom";
 import "../styles/HomPage.scss";
+import config from "../config.json";
 
 function HomePage() {
     const [summer, setSummer] = useState([]);
     const [cheerful, setCheerful] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8080/random_books/10/summer")
+        fetch(`http://${config.server_host}:${config.server_port}/random_books/10/summer`)
             .then(res => res.json())
             .then(resJson => setSummer(resJson));
 
-        fetch("http://localhost:8080/random_songs/10/summer")
+        fetch(`http://${config.server_host}:${config.server_port}/random_songs/10/summer`)
             .then(res => res.json())
             .then(resJson => setCheerful(resJson));
     }, []);
