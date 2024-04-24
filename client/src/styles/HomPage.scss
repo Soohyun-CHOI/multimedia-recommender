@@ -1,0 +1,77 @@
+@import "init";
+
+.banner {
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: $color-light;
+
+  .title {
+    font-family: "Playfair Display", serif;
+    font-size: 70px;
+    margin: 50px 0 70px;
+  }
+
+  .menu {
+    margin: 0 30px;
+    padding: 15px 30px;
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 20px;
+
+    &:first-child {
+      background: $color-main;
+      color: white
+    }
+
+    &:last-child {
+      border: 1px solid $color-main;
+      color: $color-main;
+    }
+  }
+}
+
+.theme {
+  margin: 20px $margin-left;
+
+  .title {
+    font-weight: 500;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  .media-wrap {
+    display: flex;
+    padding: 20px;
+    border: 1px solid #dddddd;
+    border-radius: 20px;
+    overflow-x: auto;
+
+    .media {
+      margin-right: 14px;
+
+      img {
+        width: 140px;
+        height: 160px;
+        object-fit: cover;
+        margin-bottom: 5px;
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      .media-type {
+        font-size: 14px;
+        width: 34px;
+        padding: 3px 0;
+        border: 1px solid $color-main;
+        border-radius: 100px;
+        color: $color-main;
+        text-align: center;
+        margin-bottom: 3px;
+      }
+    }
+  }
+}
