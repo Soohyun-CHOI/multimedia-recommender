@@ -5,10 +5,13 @@ const routes = require("./routes");
 
 const app = express();
 app.use(
-    cors({
-        origin: "*",
-    })
+  cors({
+    origin: "*",
+  })
 );
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // We use express to define our various API endpoints and
 // provide their handlers that we implemented in routes.js
@@ -29,11 +32,16 @@ app.get("/shows", routes.shows);
 app.get("/movies", routes.movies);
 app.get("/songs", routes.songs);
 app.get("/user/:user_id", routes.user);
+app.post("/new_playlist", routes.new_playlist);
+app.post("/new_collaborator", routes.new_collaborator);
+app.post("/new_media", routes.new_media);
+app.get("/all_playlist_search", routes.all_playlist_search);
+app.get("/user_playlist_search", routes.user_playlist_search);
 
 app.listen(config.server_port, () => {
-    console.log(
-        `Server running at http://${config.server_host}:${config.server_port}/`
-    );
+  console.log(
+    `Server running at http://${config.server_host}:${config.server_port}/`
+  );
 });
 
 module.exports = app;
