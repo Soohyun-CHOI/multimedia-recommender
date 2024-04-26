@@ -229,7 +229,7 @@ const additional_media = async function (req, res) {
         SELECT app_id, 'gm' as media_type, screenshot AS image, name AS title, developers AS creator
         FROM Games) game_table ON s.media_id = game_table.app_id
     LEFT JOIN (
-        SELECT movie_id, 'mv' as media_type, title
+        SELECT movie_id, 'mv' as media_type, title, image
         FROM Movie) movie_table ON s.media_id = movie_table.movie_id
     LEFT JOIN (
         SELECT show_id, 'tv' as media_type, image, series_title
@@ -649,7 +649,7 @@ const random_movies = async function (req, res) {
         AND ${selectedMood} > 65
       ORDER BY RAND()
       LIMIT ${num})
-    SELECT media_id, title
+    SELECT media_id, title, image
     FROM Movie mv JOIN mm ON mv.movie_id = mm.media_id
   `,
     (err, data) => {
@@ -871,7 +871,7 @@ const suggested_media = async function (req, res) {
         WHEN media_type = 'bk' THEN book_table.image
         WHEN media_type = 'mu' THEN music_table.image
         WHEN media_type = 'gm' THEN game_table.image
-        WHEN media_type = 'mv' THEN NULL
+        WHEN media_type = 'mv' THEN movie_table.image
         WHEN media_type = 'tv' THEN show_table.image
     END AS image,
     CASE
@@ -898,7 +898,7 @@ const suggested_media = async function (req, res) {
     ON s.media_id = music_table.song_id AND s.media_type = 'mu'
     LEFT JOIN (SELECT app_id, name AS title, developers AS creator, screenshot AS image FROM Games) game_table
     ON s.media_id = game_table.app_id AND s.media_type = 'gm'
-    LEFT JOIN (SELECT movie_id, title FROM Movie) movie_table
+    LEFT JOIN (SELECT movie_id, title, image FROM Movie) movie_table
     ON s.media_id = movie_table.movie_id AND s.media_type = 'mv'
     LEFT JOIN (SELECT show_id, series_title AS title, image FROM TVShows) show_table
     ON s.media_id = show_table.show_id AND s.media_type = 'tv'
@@ -1060,7 +1060,7 @@ const movies = async function (req, res) {
         FROM MovieCast
         WHERE cast LIKE '%${cast}%'
       )
-      SELECT m.media_id, title
+      SELECT m.media_id, title, image
       FROM Movie mv 
       JOIN MovieGenre mg On mv.movie_id = mg.movie_id
       JOIN MediaMoods AS m ON mv.movie_id = m.media_id
