@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import "../styles/PlaylistListPage.scss"
 import { Navlink } from "react-router-dom";
 
 
@@ -10,11 +11,11 @@ function PlaylistListPage() {
     const [userId, setUserId] = useState([]);
 
     useEffect(() => {
-        // fetch(`${config.server_host}:${config.server_port}/account_info`)
-        //     .then(res => res.json())
-        //     .then(resJson => {
-        //         setUserId(resJson.userId);
-        //     })
+        fetch(`${config.server_host}:${config.server_port}/account_info`)
+            .then(res => res.json())
+            .then(resJson => {
+                setUserId(resJson.userId);
+            })
 
         fetch(`http://${config.server_host}:${config.server_port}/user_playlist/100000`)
             .then(res => res.json())
@@ -22,12 +23,13 @@ function PlaylistListPage() {
     });
     return (
         <> 
-            test
             <div className="plist">
+                <div className="title">MY PLAYLISTS</div>
                 <div className="media-wrap">
                     {playlists.map((user_playlist)=>
-                        <div key={user_playlist.playlist_id}>
+                        <div className="item" key={user_playlist.playlist_id}>
                             <h3>{user_playlist.title}</h3>
+                            <p>{user_playlist.creator}</p>
                         </div>
                     )}
                 </div>
