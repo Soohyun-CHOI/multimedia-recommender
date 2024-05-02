@@ -421,8 +421,7 @@ const playlist = async function (req, res) {
 // Return: media_id, title, developer, image link
 // Category and genre should be a list of strings concatenated by '|'
 const games = async function (req, res) {
-  const title = req.query.title ?? "";
-  const developer = req.query.developer ?? "";
+  const searchInput = req.query.search_input ?? "";
   const game_score = req.query.game_score ?? 0;
   const year_min = req.query.year_min ?? 0;
   const year_max = req.query.year_max ?? 2030;
@@ -468,9 +467,7 @@ const games = async function (req, res) {
       SELECT app_id, GROUP_CONCAT(categories SEPARATOR ', ') AS categories
       FROM GameCategories
       GROUP BY app_id) AS gc ON gc.app_id = g.app_id
-    WHERE 
-        name LIKE '%${title}%'
-        AND developers LIKE '%${developer}%'
+    WHERE (name LIKE '%${searchInput}%' OR developers LIKE '%${searchInput}%')
         AND christmas > IF(${christmas}, 50, 0)
         AND halloween > IF(${halloween}, 50, 0)
         AND valentine > IF(${valentine}, 50, 0)
@@ -518,9 +515,7 @@ const games = async function (req, res) {
 // Return: book_id, title, authors, image link
 // Category should be a list of strings concatenated by '|'
 const books = async function (req, res) {
-  const title = req.query.title ?? "";
-  const author = req.query.author ?? "";
-  const publisher = req.query.publisher ?? "";
+  const searchInput = req.query.search_input ?? "";
   const year_min = req.query.year_min ?? 0;
   const year_max = req.query.year_max ?? 2030;
   const category = req.query.category ?? ".*";
@@ -557,9 +552,7 @@ const books = async function (req, res) {
     FROM Books b
     LEFT JOIN Authors a ON b.book_id = a.book_id
     LEFT JOIN MediaMoods AS m ON b.book_id = m.media_id
-    WHERE title LIKE '%${title}%'
-        AND author LIKE '%${author}%'
-        AND publisher LIKE '%${publisher}%'
+    WHERE (title LIKE '%${searchInput}%' OR author LIKE '%${searchInput}%' OR publisher LIKE '%${searchInput}%')
         AND christmas > IF(${christmas}, 50, 0)
         AND halloween > IF(${halloween}, 50, 0)
         AND valentine > IF(${valentine}, 50, 0)
@@ -994,8 +987,7 @@ const suggested_media = async function (req, res) {
 // Return: show_id, title, image link
 // Genre should be a list of strings concatenated by '|'
 const shows = async function (req, res) {
-  const title = req.query.title ?? "";
-  const cast = req.query.cast ?? "";
+  const searchInput = req.query.search_input ?? "";
   const yearMin = req.query.year_min ?? 0;
   const yearMax = req.query.year_max ?? 2030;
   const genre = req.query.genre ?? ".*";
@@ -1032,13 +1024,13 @@ const shows = async function (req, res) {
       WITH shows_in AS (
         SELECT show_id
         FROM TVCast
-        WHERE cast LIKE '%${cast}%'
+        WHERE cast LIKE '%${searchInput}%'
       )
       SELECT DISTINCT s.show_id, series_title, image
       FROM TVShows s
       JOIN ShowGenre sg On s.show_id = sg.show_id
       JOIN MediaMoods AS m ON s.show_id = m.media_id
-      WHERE s.series_title LIKE '%${title}%'
+      WHERE (s.series_title LIKE '%${searchInput}%' OR s.show_id IN (SELECT * FROM shows_in))
               AND christmas > IF(${christmas}, 50, 0)
               AND halloween > IF(${halloween}, 50, 0)
               AND valentine > IF(${valentine}, 50, 0)
@@ -1085,8 +1077,7 @@ const shows = async function (req, res) {
 // Return: show_id, title
 // Genre should be a list of strings concatenated by '|'
 const movies = async function (req, res) {
-  const title = req.query.title ?? "";
-  const cast = req.query.cast ?? "";
+  const searchInput = req.query.search_input ?? "";
   const yearMin = req.query.year_min ?? 0;
   const yearMax = req.query.year_max ?? 2030;
   const genre = req.query.genre ?? ".*";
@@ -1122,13 +1113,13 @@ const movies = async function (req, res) {
       WITH movies_in AS (
         SELECT movie_id
         FROM MovieCast
-        WHERE cast LIKE '%${cast}%'
+        WHERE cast LIKE '%${searchInput}%'
       )
-      SELECT m.media_id, title, image
+      SELECT DISTINCT m.media_id, title, image
       FROM Movie mv 
       JOIN MovieGenre mg On mv.movie_id = mg.movie_id
       JOIN MediaMoods AS m ON mv.movie_id = m.media_id
-      WHERE mv.title LIKE '%${title}%'
+      WHERE (mv.title LIKE '%${searchInput}%' OR mv.movie_id IN (SELECT * FROM movies_in))
               AND christmas > IF(${christmas}, 50, 0)
               AND halloween > IF(${halloween}, 50, 0)
               AND valentine > IF(${valentine}, 50, 0)
