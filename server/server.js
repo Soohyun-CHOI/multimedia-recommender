@@ -37,6 +37,9 @@ app.post("/new_collaborator", routes.new_collaborator);
 app.post("/new_media", routes.new_media);
 app.get("/all_playlist_search", routes.all_playlist_search);
 app.get("/user_playlist_search", routes.user_playlist_search);
+app.delete("/delete_playlist/", routes.delete_playlist);
+app.delete("/delete_collaborator/", routes.delete_collaborator);
+app.delete("/delete_media/", routes.delete_media);
 
 app.listen(config.server_port, () => {
   console.log(

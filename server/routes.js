@@ -183,6 +183,70 @@ const all_playlist_search = async function (req, res) {
   );
 };
 
+// Route F: Remove playlist
+const delete_playlist = async function (req, res) {
+  const playlist_id = req.body.playlist_id;
+
+  connection.query(
+    `
+     DELETE FROM Playlist WHERE playlist_id = ${playlist_id};
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to delete playlist" });
+      } else {
+        console.log("Playlist deleted successfully!");
+        res.json({ message: "Playlist deleted successfully!" });
+      }
+    }
+  );
+};
+
+// Route G: Remove collaborator
+const delete_collaborator = async function (req, res) {
+  const playlist_id = req.body.playlist_id;
+  const user_id = req.body.user_id;
+
+  connection.query(
+    `
+     DELETE FROM CollabortesOn WHERE playlist_id = ${playlist_id} AND user_id = ${user_id};
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to delete collaborator" });
+      } else {
+        console.log("Collaborator deleted successfully!");
+        res.json({ message: "Collaborator deleted successfully!" });
+      }
+    }
+  );
+};
+
+// Route H: Remove media from playlist
+const delete_media = async function (req, res) {
+  const playlist_id = req.body.playlist_id;
+  const media_id = req.body.media_id;
+
+  connection.query(
+    `
+     DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id} AND media_id = ${media_id};
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res
+          .status(500)
+          .json({ error: "Failed to delete media from playlist." });
+      } else {
+        console.log("Media deleted successfully!");
+        res.json({ message: "Media deleted successfully!" });
+      }
+    }
+  );
+};
+
 // Route 1: GET /additional_media/ (ALLY)
 // About: Adds 5 additional media items of specified type to the suggested_media table
 // Input param: media type
@@ -1233,4 +1297,7 @@ module.exports = {
   new_media,
   user_playlist_search,
   all_playlist_search,
+  delete_collaborator,
+  delete_media,
+  delete_playlist,
 };
