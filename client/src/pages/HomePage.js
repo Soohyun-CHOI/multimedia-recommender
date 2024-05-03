@@ -25,7 +25,7 @@ function HomePage() {
 
     return (
         <>
-            <div className="banner">
+            <div className="main-banner">
                 <div className="title">THEME YOUR LIFE</div>
                 <div className="menu-wrap">
                     <NavLink className="menu" to="/playlists">My Playlists</NavLink>

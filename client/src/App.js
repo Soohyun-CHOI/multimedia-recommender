@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import PlaylistListPage from "./pages/PlaylistListPage";
 import SearchPage from "./pages/SearchPage";
+import ResultsPage from "./pages/ResultsPage";
 
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
                 <Route path="/" element={<HomePage/>}/>
                 <Route path="/playlists" element={<PlaylistListPage/>}/>
                 <Route path="/search" element={<SearchPage/>}/>
+                <Route path="/results" element={<ResultsPage/>}/>
             </Routes>
         </div>
     );

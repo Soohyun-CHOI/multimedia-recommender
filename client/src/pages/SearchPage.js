@@ -1,5 +1,6 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import Banner from "../components/Banner";
+import {useNavigate} from "react-router-dom";
 
 function SearchPage() {
     const moods = [
@@ -7,16 +8,29 @@ function SearchPage() {
         "sad", "happy", "summer", "winter", "sports", "playful", "energetic", "scary", "anger", "optimistic",
         "adventurous", "learning", "artistic", "science", "cozy", "colorful", "space"
     ]
-    const [searchInfo, setSearchInfo] = useState("");
-    const [selectedTypes, setSelectedTypes] = useState({
+    const initialTypes = {
         movie: false,
         show: false,
-        music: false,
+        song: false,
         book: false,
         game: false
-    });
+    }
+
+    const [searchInfo, setSearchInfo] = useState("");
+    const [selectedTypes, setSelectedTypes] = useState({...initialTypes});
     const [selectedMoods, setSelectedMoods] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const resetForm = () => {
+            setSearchInfo("");
+            setSelectedTypes({...initialTypes});
+            setSelectedMoods([]);
+        }
+
+        resetForm();
+    }, []);
 
     const handleSelectedTypes = (type) => {
         setSelectedTypes(prev => ({
@@ -33,13 +47,19 @@ function SearchPage() {
         }
     }
 
-
     const handleSearch = () => {
         console.log({
             searchInfo,
             SelectedTypes: Object.entries(selectedTypes).filter(([key, value]) => value).map(([key]) => key),
             selectedMoods
         });
+        const state = {
+            searchInfo,
+            selectedTypes: {...selectedTypes},
+            selectedMoods: [...selectedMoods]
+        }
+        navigate("/results", {state});
+        console.log("Sending state:", state);
     }
 
     return (
