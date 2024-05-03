@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, TextField, Modal, Checkbox } from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import {Box, Button, TextField, Modal, Checkbox} from '@mui/material';
 import "../styles/AddPlaylist.scss"
-import { NavLink } from 'react-router-dom';
+import {NavLink} from 'react-router-dom';
+
 const config = require('../config.json');
 
 function AddPlaylist({open, handleClose}) {
@@ -31,16 +32,16 @@ function AddPlaylist({open, handleClose}) {
             public: isPublic,
             user_id: userId
         };
-            
+
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(playlistData)
         };
 
         try {
             const response = await fetch(`http://${config.server_host}:${config.server_port}/new_playlist`, requestOptions);
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error('Failed to create new playlist');
             }
             const data = await response.json();
@@ -81,14 +82,15 @@ function AddPlaylist({open, handleClose}) {
                         <NavLink to="/filters">
                             <Button onClick={handleSubmit} className="button">Find A Theme</Button>
                         </NavLink>
-                        
+
                     </div>
-                        
-                    
+
+
                 </Box>
             </Modal>
         </>
-        
+
     )
 }
+
 export default AddPlaylist;

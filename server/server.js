@@ -6,27 +6,27 @@ const { auth, requiresAuth } = require("express-openid-connect");
 
 const app = express();
 app.use(
-  cors({
-    origin: "*",
-  })
+    cors({
+        origin: "*",
+    })
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
-  auth({
-    authRequired: false,
-    auth0Logout: true,
-    secret: "rsTKI0MU8n5KCzZEmsiwg2b6nAwoiUU78-DT7Z3wAJ9TPbIS_rDtHzebtMXn6MXn",
-    baseURL: "http://localhost:8080",
-    clientID: "UQ5u32mrjn1n5aEestrBuZMD42cSnxam",
-    issuerBaseURL: "https://dev-f7sryn57ejf6hcg7.us.auth0.com",
-  })
+    auth({
+        authRequired: false,
+        auth0Logout: true,
+        secret: "rsTKI0MU8n5KCzZEmsiwg2b6nAwoiUU78-DT7Z3wAJ9TPbIS_rDtHzebtMXn6MXn",
+        baseURL: "http://localhost:3000",
+        clientID: "UQ5u32mrjn1n5aEestrBuZMD42cSnxam",
+        issuerBaseURL: "https://dev-f7sryn57ejf6hcg7.us.auth0.com",
+    })
 );
 
 // for auth0
 app.get("/", (req, res) => {
-  res.send(req.oidc.isAuthenticated() ? "Logged in" : "Logged out");
+    res.send(req.oidc.isAuthenticated() ? "Logged in" : "Logged out");
 });
 
 // We use express to define our various API endpoints and
@@ -38,6 +38,7 @@ app.get("/random_movies/:num/:selected_mood", routes.random_movies);
 app.get("/random_songs/:num/:selected_mood", routes.random_songs);
 app.get("/random_all/:num/:selected_mood", routes.random_all);
 app.post("/ordered_suggestion", routes.ordered_suggestion);
+app.post("/create_all_media", routes.create_all_media);
 app.get("/additional_media", routes.additional_media);
 app.get("/games", routes.games);
 app.get("/books", routes.books);
@@ -50,6 +51,7 @@ app.get("/songs", routes.songs);
 app.get("/user/:user_id", routes.user);
 app.post("/new_playlist", routes.new_playlist);
 app.post("/new_collaborator", routes.new_collaborator);
+app.post("/new_user", routes.new_user);
 app.post("/new_media", routes.new_media);
 app.get("/all_playlist_search", routes.all_playlist_search);
 app.get("/user_playlist_search", routes.user_playlist_search);
@@ -57,13 +59,13 @@ app.delete("/delete_playlist/", routes.delete_playlist);
 app.delete("/delete_collaborator/", routes.delete_collaborator);
 app.delete("/delete_media/", routes.delete_media);
 app.get("/profile", requiresAuth(), (req, res) => {
-  res.send(JSON.stringify(req.oidc.user));
+    res.send(JSON.stringify(req.oidc.user));
 });
 
 app.listen(config.server_port, () => {
-  console.log(
-    `Server running at http://${config.server_host}:${config.server_port}/`
-  );
+    console.log(
+        `Server running at http://${config.server_host}:${config.server_port}/`
+    );
 });
 
 module.exports = app;

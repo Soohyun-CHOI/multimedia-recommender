@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {NavLink} from 'react-router-dom';
 import "../styles/Suggestions.scss"
+
 const config = require('../config.json');
 
-function SuggestionPage(){
-    const[resultData, setResultData] = useState([]);
+function SuggestionPage() {
+    const [resultData, setResultData] = useState([]);
 
-    useEffect(()=>{
+    useEffect(() => {
         fetch(`http://${config.server_host}:${config.server_port}/suggested_media`)
             .then(res => res.json())
             .then(resJson => setResultData(resJson));

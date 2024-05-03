@@ -7,6 +7,7 @@ import SearchPage from "./pages/SearchPage";
 import ResultsPage from "./pages/ResultsPage";
 import FiltersPage from "./pages/FiltersPage";
 import SuggestionPage from "./pages/SuggestionPage";
+import MediaDetailPage from "./pages/MediaDetailPage";
 
 export default function App() {
     return (
@@ -19,6 +20,7 @@ export default function App() {
                 <Route path="/results" element={<ResultsPage/>}/>
                 <Route path="/filters" element={<FiltersPage/>}/>
                 <Route path="/suggestions" element={<SuggestionPage/>}/>
+                <Route path="/media/:mediaId" element={<MediaDetailPage/>}/>
             </Routes>
         </div>
     );
