@@ -6,6 +6,7 @@
   align-items: center;
   height: 60px;
   padding: 0 5%;
+  background: $dark-teal;
 
   img {
     width: 60px;
@@ -14,9 +15,10 @@
 
   .menu {
     margin-left: 40px;
+    color: white;
 
     &:hover {
-      color: $dark-teal;
+      color: $light-orange;
     }
   }
 }

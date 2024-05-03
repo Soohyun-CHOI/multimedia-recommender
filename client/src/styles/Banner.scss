@@ -3,8 +3,10 @@
 .banner {
   height: 100px;
   line-height: 100px;
-  background: $light-blue;
+  background: $light-orange;
   font-family: "Playfair Display", serif;
   font-size: 40px;
   margin-bottom: 10px;
+  color: $dark-teal;
+  padding-left: $margin-left;
 }

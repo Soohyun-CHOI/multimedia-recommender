@@ -726,7 +726,7 @@ const games = async function (req, res) {
 
   connection.query(
     `
-    SELECT media_id, name AS title, developers, screenshot AS image
+    SELECT DISTINCT media_id, name AS title, developers, screenshot AS image
     FROM Games g
     LEFT JOIN MediaMoods AS m ON g.app_id = m.media_id
     LEFT JOIN (
@@ -818,7 +818,7 @@ const books = async function (req, res) {
 
   connection.query(
     `
-    SELECT media_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS authors, image
+    SELECT DISTINCT media_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS authors, image
     FROM Books b
     LEFT JOIN Authors a ON b.book_id = a.book_id
     LEFT JOIN MediaMoods AS m ON b.book_id = m.media_id
@@ -1534,7 +1534,7 @@ const songs = async function (req, res) {
 
   connection.query(
     `
-      SELECT m.media_id, title, image
+      SELECT DISTINCT m.media_id, title, image
       FROM Music mu 
       JOIN MediaMoods AS m ON mu.song_id = m.media_id
       WHERE (title LIKE '%${searchInput}%' OR artist LIKE '%${searchInput}%')
