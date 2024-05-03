@@ -62,7 +62,7 @@ const new_playlist = async function (req, res) {
 
   connection.query(
     `
-      INSERT INTO Playlist VALUES(${playlist_id}, '${playlist_name}', ${public}, ${user_id}, '${image_URL}', '${timestamp}');
+      INSERT INTO Playlist VALUES(${playlist_id}, '${playlist_name}', ${public}, ${user_id}, '${image_URL}', '${timestamp}', 'None');
       `,
     (err) => {
       if (err) {
