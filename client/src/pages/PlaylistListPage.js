@@ -6,18 +6,20 @@ import { Navlink } from "react-router-dom";
 
 const config = require('../config.json');
 
+
 function PlaylistListPage() {
     const [playlists, setPlaylists] = useState([]);
-    const [userId, setUserId] = useState([]);
+    const userId = localStorage.getItem('userId');
+    
 
     useEffect(() => {
-        fetch(`${config.server_host}:${config.server_port}/account_info`)
-            .then(res => res.json())
-            .then(resJson => {
-                setUserId(resJson.userId);
-            })
+        // fetch(`${config.server_host}:${config.server_port}/account_info`)
+        //     .then(res => res.json())
+        //     .then(resJson => {
+        //         setUserId(resJson.userId);
+        //     })
 
-        fetch(`http://${config.server_host}:${config.server_port}/user_playlist/100000`)
+        fetch(`http://${config.server_host}:${config.server_port}/user_playlist/${userId}`)
             .then(res => res.json())
             .then(resJson => setPlaylists(resJson));
     });
