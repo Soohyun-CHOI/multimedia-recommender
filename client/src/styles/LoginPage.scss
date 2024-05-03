@@ -1,0 +1,12 @@
+@import "init";
+
+.home-link{
+    color: gray;
+    text-decoration: none; // Removes underline from all links
+    padding: 10px;
+    margin: 5px;
+
+    &:hover {
+        color: blue; // Changes color on hover
+    }
+}

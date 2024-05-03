@@ -1,5 +1,35 @@
 @import "init";
 
 .plist {
-    margin: 20px $margin-left
+    margin: 20px $margin-left;
+
+    .title {
+        font-weight: 500;
+        font-size: 22px;
+        margin-bottom: 5px;
+    }
+    .media-wrap {
+        display: block;
+        padding: 5px;
+        
+        overflow-x: auto;
+
+        .item {
+            border: 1px solid #dddddd;
+            border-radius: 20px;
+            font-size: 14px;
+            padding: 10px;
+            margin-bottom: 10px; // Add some space between items
+    
+            h3 {
+                margin-bottom: 5px; // Space between the title and the creator name
+            }
+    
+            p {
+                font-size: 12px; // Smaller font size for creator's name
+                color: $dark-orange; // Different color for distinction
+                margin-bottom: 5px;
+            }
+        }
+    }
 }
