@@ -242,11 +242,11 @@ const user_playlist_search = async function (req, res) {
       SELECT playlist_id, image, title, timestamp, public
       FROM Playlist p
       LEFT JOIN Users u ON p.user_id = u.user_id
-      WHERE p.user_id = ${user_id}
+      WHERE p.user_id = '${user_id}'
     ), my_collabs AS (
       SELECT playlist_id
       FROM CollaboratesOn c
-      WHERE user_id = ${user_id}
+      WHERE user_id = '${user_id}'
     ), collab_playlists AS (
       SELECT p.playlist_id, image, title, timestamp, public
       FROM my_collabs m
@@ -601,11 +601,11 @@ const user_playlist = async function (req, res) {
       SELECT playlist_id, image, title, timestamp, public
       FROM Playlist p
       LEFT JOIN Users u ON p.user_id = u.user_id
-      WHERE p.user_id = ${user_id}
+      WHERE p.user_id = '${user_id}'
     ), my_collabs AS (
       SELECT playlist_id
       FROM CollaboratesOn c
-      WHERE user_id = ${user_id}
+      WHERE user_id = '${user_id}'
     ), collab_playlists AS (
       SELECT p.playlist_id, image, title, timestamp, public
       FROM my_collabs m
