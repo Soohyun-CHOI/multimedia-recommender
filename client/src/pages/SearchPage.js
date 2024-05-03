@@ -59,27 +59,27 @@ function SearchPage() {
 
     const [filterData, setFilterData] = useState({
         movie: {
-            year_range: [1900, 2023],
+            year_range: [1980, 2023],
             genre: []
         },
         show: {
-            year_range: [1900, 2023],
+            year_range: [1980, 2023],
             genre: [],
-            rating_num: ""
+            rating_num: 0
         },
         song: {
-            year_range: [1900, 2023],
+            year_range: [1980, 2023],
             tag_list: []
         },
         book: {
-            year_range: [1900, 2023],
+            year_range: [1980, 2023],
             category: []
         },
         game: {
-            year_range: [1900, 2023],
+            year_range: [1980, 2023],
             genre: [],
             category: [],
-            game_score: ""
+            game_score: 0
         }
     })
 
@@ -89,9 +89,8 @@ function SearchPage() {
     const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
 
-    const CheckboxGroup = ({label, options, selectedOptions, setSelectedOptions}) => (
-        <fieldset>
-            <legend>{label}</legend>
+    const CheckboxGroup = ({options, selectedOptions, setSelectedOptions}) => (
+        <fieldset style={{border: 'none'}}>
             {options.map(option => (
                 <label key={option}>
                     <input
@@ -105,24 +104,22 @@ function SearchPage() {
         </fieldset>
     )
 
-    const RadioButtonGroup = ({label, name, options, selectedValue, onChange}) => (
-        <div>
-            <fieldset>
-                <legend>{label}</legend>
-                {options.map(option => (
-                    <label key={option}>
-                        <input
-                            type="radio"
-                            name={name}
-                            value={option}
-                            checked={selectedValue === option}
-                            onChange={onChange}
-                        />
-                        {option}
-                    </label>
-                ))}
-            </fieldset>
-        </div>
+    const RadioButtonGroup = ({name, options, selectedValue, onChange}) => (
+        <fieldset style={{border: 'none'}}>
+            {options.map(option => (
+                <label key={option}>
+                    <input
+                        type="radio"
+                        name={name}
+                        value={option}
+                        checked={selectedValue === option}
+                        onChange={onChange}
+                        className="search"
+                    />
+                    {option}
+                </label>
+            ))}
+        </fieldset>
     )
 
     useEffect(() => {
@@ -213,7 +210,7 @@ function SearchPage() {
                 </div>
                 <div className="filters">
                     <div className="moods">
-                        <button onClick={() => setShowDropdown(!showDropdown)}>Select Moods <span>▼</span></button>
+                        <button onClick={() => setShowDropdown(!showDropdown)}>Moods <span>▼</span></button>
                         {showDropdown &&
                             <div className="drop-down">
                                 {moods.map(mood =>
@@ -242,85 +239,112 @@ function SearchPage() {
                                 </label>
                                 {selectedTypes[type] && (
                                     <>
-                                        <div>Year Range: {filterData[type].year_range[0]} - {filterData[type].year_range[1]}</div>
-                                        <Range
-                                            step={1}
-                                            min={1900}
-                                            max={2023}
-                                            values={filterData[type].year_range}
-                                            onChange={values => handleRangeData(type, values)}
-                                            renderTrack={({props, children}) => (
-                                                <div {...props} style={{
-                                                    height: '6px',
-                                                    width: '100%',
-                                                    backgroundColor: '#ccc'
-                                                }}>{children}</div>
-                                            )}
-                                            renderThumb={({props}) => (
-                                                <div {...props} style={{
-                                                    ...props.style,
-                                                    height: '20px',
-                                                    width: '20px',
-                                                    backgroundColor: '#555'
-                                                }}/>
-                                            )}
-                                        />
-                                        {type === "movie" && (
-                                            <CheckboxGroup
-                                                label="Genres" options={movieGenres}
-                                                selectedOptions={filterData[type].genre}
-                                                setSelectedOptions={options => handleFilterData(type, "genre", options)}
+                                        <div className="extra-filter">
+                                            <div className="subtitle">Year</div>
+                                            <div>{filterData[type].year_range[0]} - {filterData[type].year_range[1]}</div>
+                                            <Range
+                                                step={1}
+                                                min={1980}
+                                                max={2023}
+                                                values={filterData[type].year_range}
+                                                onChange={values => handleRangeData(type, values)}
+                                                renderTrack={({props, children}) => (
+                                                    <div {...props} style={{
+                                                        height: '4px',
+                                                        width: '90%',
+                                                        margin: '10px auto',
+                                                        backgroundColor: '#f7996e'
+                                                    }}>{children}</div>
+                                                )}
+                                                renderThumb={({props}) => (
+                                                    <div {...props} style={{
+                                                        ...props.style,
+                                                        height: '12px',
+                                                        width: '12px',
+                                                        borderRadius: '100px',
+                                                        backgroundColor: '#06545A'
+                                                    }}/>
+                                                )}
                                             />
+                                        </div>
+                                        {type === "movie" && (
+                                            <div className="extra-filter checkbox">
+                                                <div className="subtitle">Genres</div>
+                                                <CheckboxGroup
+                                                    options={movieGenres}
+                                                    selectedOptions={filterData[type].genre}
+                                                    setSelectedOptions={options => handleFilterData(type, "genre", options)}
+                                                />
+                                            </div>
                                         )}
                                         {type === "show" && (
                                             <>
-                                                <RadioButtonGroup
-                                                    label="Min Rating"
-                                                    options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                                                    name="show-rating"
-                                                    selectedValue={filterData[type].rating_num}
-                                                    onChange={e => handleFilterData(type, "rating-num", e.target.value)}
-                                                />
-                                                <CheckboxGroup
-                                                    label="Genres" options={showGenres}
-                                                    selectedOptions={filterData[type].genre}
-                                                    setSelectedOptions={options => handleFilterData(type, "genre", options)}
-                                                />
+                                                <div className="extra-filter">
+                                                    <div className="subtitle">Min Rating</div>
+                                                    <RadioButtonGroup
+                                                        options={[1, 5, 10]}
+                                                        name="rating_num"
+                                                        selectedValue={filterData[type].rating_num}
+                                                        onChange={e => handleFilterData(type, "rating_num", parseInt(e.target.value))}
+                                                    />
+                                                </div>
+                                                <div className="extra-filter checkbox">
+                                                    <div className="subtitle">Genres</div>
+                                                    <CheckboxGroup
+                                                        options={showGenres}
+                                                        selectedOptions={filterData[type].genre}
+                                                        setSelectedOptions={options => handleFilterData(type, "genre", options)}
+                                                    />
+                                                </div>
                                             </>
                                         )}
                                         {type === "song" && (
-                                            <CheckboxGroup
-                                                label="Genres" options={songTags}
-                                                selectedOptions={filterData[type].tag_list}
-                                                setSelectedOptions={options => handleFilterData(type, "tag_list", options)}
-                                            />
+                                            <div className="extra-filter checkbox">
+                                                <div className="subtitle">Genres</div>
+                                                <CheckboxGroup
+                                                    options={songTags}
+                                                    selectedOptions={filterData[type].tag_list}
+                                                    setSelectedOptions={options => handleFilterData(type, "tag_list", options)}
+                                                />
+                                            </div>
                                         )}
                                         {type === "book" && (
-                                            <CheckboxGroup
-                                                label="Genres" options={bookCategories}
-                                                selectedOptions={filterData[type].category}
-                                                setSelectedOptions={options => handleFilterData(type, "category", options)}
-                                            />
-                                        )}
-                                        {type === "game" && (
-                                            <>
-                                                <RadioButtonGroup
-                                                    label="Min Rating"
-                                                    options={[0, 20, 40, 60, 80, 100]}
-                                                    name="game-score"
-                                                    selectedValue={filterData[type].game_score}
-                                                    onChange={e => handleFilterData(type, "game_score", e.target.value)}
-                                                />
+                                            <div className="extra-filter checkbox">
+                                                <div className="subtitle">Genres</div>
                                                 <CheckboxGroup
-                                                    label="Genres" options={gameGenres}
-                                                    selectedOptions={filterData[type].genre}
-                                                    setSelectedOptions={options => handleFilterData(type, "genre", options)}
-                                                />
-                                                <CheckboxGroup
-                                                    label="Categories" options={gameCategories}
+                                                    options={bookCategories}
                                                     selectedOptions={filterData[type].category}
                                                     setSelectedOptions={options => handleFilterData(type, "category", options)}
                                                 />
+                                            </div>
+                                        )}
+                                        {type === "game" && (
+                                            <>
+                                                <div className="extra-filter">
+                                                    <div className="subtitle">Min Rating</div>
+                                                    <RadioButtonGroup
+                                                        options={[0, 20, 40, 60, 80, 100]}
+                                                        name="game-score"
+                                                        selectedValue={filterData[type].game_score}
+                                                        onChange={e => handleFilterData(type, "game_score", parseInt(e.target.value))}
+                                                    />
+                                                </div>
+                                                <div className="extra-filter checkbox">
+                                                    <div className="subtitle">Genres</div>
+                                                    <CheckboxGroup
+                                                        options={gameGenres}
+                                                        selectedOptions={filterData[type].genre}
+                                                        setSelectedOptions={options => handleFilterData(type, "genre", options)}
+                                                    />
+                                                </div>
+                                                <div className="extra-filter checkbox">
+                                                    <div className="subtitle">Categories</div>
+                                                    <CheckboxGroup
+                                                        label="Categories" options={gameCategories}
+                                                        selectedOptions={filterData[type].category}
+                                                        setSelectedOptions={options => handleFilterData(type, "category", options)}
+                                                    />
+                                                </div>
                                             </>
                                         )}
                                     </>

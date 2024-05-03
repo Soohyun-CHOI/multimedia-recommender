@@ -41,7 +41,7 @@
 }
 
 .moods {
-  width: 15%;
+  width: 13%;
 
   button {
     background: $plum;
@@ -51,7 +51,7 @@
     width: 100%;
     padding: 15px 0;
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 500;
     color: $light-blue;
 
     span {
@@ -73,6 +73,7 @@
     flex-direction: column;
     padding: 15px;
     overflow-y: scroll;
+    font-size: 14px;
   }
 
   label {
@@ -117,7 +118,7 @@
 .types {
   display: flex;
   justify-content: space-between;
-  width: 78%;
+  width: 85%;
   margin-top: 15px;
 
   .type {
@@ -154,6 +155,80 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+    }
+  }
+
+  .checkbox {
+    max-height: 300px;
+    overflow-y: scroll;
+  }
+}
+
+.extra-filter {
+  width: 90%;
+  margin-top: 10px;
+  font-size: 15px;
+  padding: 12px;
+  border: 1px solid $dark-teal;
+  border-radius: 8px;
+
+  .subtitle {
+    font-size: 16px;
+    font-weight: 500;
+    color: $dark-teal;
+    margin: 20px 0 10px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  label {
+    margin-bottom: 5px;
+  }
+
+  input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    position: relative;
+    border: 2px solid $dark-orange;
+    border-radius: 100px;
+    margin-right: 10px;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    &:checked {
+      background: white;
+      position: relative;
+    }
+
+    &:checked:after {
+      content: '';
+      width: 12px;
+      height: 12px;
+      background: $dark-orange;
+      border-radius: 100px;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+    }
+  }
+
+  input[type="checkbox"] {
+    padding: 8px;
+    border: 2px solid $dark-teal;
+    margin-right: 5px;
+
+    &:checked {
+      background: $dark-teal;
+    }
+
+    &:checked:after {
+      font-size: 20px;
     }
   }
 }
