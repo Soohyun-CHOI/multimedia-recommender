@@ -82,7 +82,7 @@ function SearchPage() {
                 </div>
                 <div className="filters">
                     <div className="moods">
-                        <button onClick={() => setShowDropdown(!showDropdown)}>Select Moods  <span>▼</span></button>
+                        <button onClick={() => setShowDropdown(!showDropdown)}>Select Moods <span>▼</span></button>
                         {showDropdown &&
                             <div className="drop-down">
                                 {moods.map(mood =>
@@ -99,8 +99,8 @@ function SearchPage() {
                         }
                     </div>
                     <div className="types">
-                        {Object.keys(selectedTypes).map(type =>
-                            <div className="type">
+                        {Object.keys(selectedTypes).map((type, idx) =>
+                            <div className="type" key={idx}>
                                 <label key={type}>
                                     <input
                                         type="checkbox"

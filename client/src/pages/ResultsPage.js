@@ -1,7 +1,9 @@
 import React, {useState, useEffect} from "react";
-import {useLocation} from "react-router-dom";
+import {NavLink, useLocation} from "react-router-dom";
 import config from "../config.json";
 import Banner from "../components/Banner";
+import {handleStringSize} from "../helpers/helpers";
+import "../styles/ResultsPage.scss";
 
 function ResultsPage() {
     const location = useLocation();
@@ -41,13 +43,21 @@ function ResultsPage() {
     return (
         <>
             <Banner/>
-            {results.map((res, idx) =>
-                <div key={idx}>
-                    {res.title}
-                </div>
-            )}
+            <div id="results">
+                {results.map(media =>
+                    <div className="media" key={media.media_id}>
+                        <div className="media-type">{(media.media_type || " ").toUpperCase()}</div>
+                        <NavLink to={`/media/${media.media_id}`}>
+                            <img src={media.image} alt=""/>
+                        </NavLink>
+                        <NavLink to={`/media/${media.media_id}`} className="media-title">
+                            {handleStringSize(media.title)}
+                        </NavLink>
+                    </div>
+                )}
+            </div>
         </>
-    )
+    );
 }
 
 export default ResultsPage;

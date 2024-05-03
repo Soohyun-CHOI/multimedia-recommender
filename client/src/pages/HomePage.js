@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import {NavLink} from "react-router-dom";
 import "../styles/HomPage.scss";
 import config from "../config.json";
+import {handleStringSize} from "../helpers/helpers";
 
 function HomePage() {
     const [summer, setSummer] = useState([]);
@@ -16,12 +17,6 @@ function HomePage() {
             .then(res => res.json())
             .then(resJson => setHappy(resJson));
     }, []);
-
-    function handleStringSize(str) {
-        if (!str) return str
-        if (str.length >= 24) return str.slice(0, 25) + "...";
-        return str;
-    }
 
     return (
         <>
