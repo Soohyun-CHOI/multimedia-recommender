@@ -38,6 +38,7 @@ app.get("/random_movies/:num/:selected_mood", routes.random_movies);
 app.get("/random_songs/:num/:selected_mood", routes.random_songs);
 app.get("/random_all/:num/:selected_mood", routes.random_all);
 app.post("/ordered_suggestion", routes.ordered_suggestion);
+app.post("/create_all_media", routes.create_all_media);
 app.get("/additional_media", routes.additional_media);
 app.get("/games", routes.games);
 app.get("/books", routes.books);

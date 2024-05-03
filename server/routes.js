@@ -1036,7 +1036,26 @@ const random_all = async function (req, res) {
   );
 };
 
-// Route 7: GET /ordered_suggestion
+// Route 7: POST /create_all_media
+const create_all_media = async function (req, res) {
+
+  // Create the temporary table if it does not exist already
+  connection.query(
+    `
+    CREATE TEMPORARY TABLE IF NOT EXISTS all_media SELECT media_id, media_type, 0 AS row_num FROM MediaMoods LIMIT 0
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("all_media failed to generate");
+      } else {
+        console.log("all_media generated successfully!");
+        res.json({ message: "all_media generated successfully!" });
+      }
+    }
+  );
+};
+
+// Route 7: POST /ordered_suggestion
 const ordered_suggestion = async function (req, res) {
   const christmas = req.body.christmas ?? false;
   const halloween = req.body.halloween ?? false;
@@ -1063,12 +1082,7 @@ const ordered_suggestion = async function (req, res) {
   const cozy = req.body.cozy ?? false;
   const colorful = req.body.colorful ?? false;
   const space = req.body.space ?? false;
-
-  // Create the temporary table if it does not exist already
-  connection.query(`
-    CREATE TEMPORARY TABLE IF NOT EXISTS all_media SELECT media_id, media_type, 0 AS row_num FROM MediaMoods LIMIT 0
-  `);
-
+/*
   connection.query(
     `
     CREATE UNIQUE INDEX am_index ON all_media(media_id);
@@ -1084,7 +1098,7 @@ const ordered_suggestion = async function (req, res) {
   connection.query(`
     TRUNCATE all_media
   `);
-
+*/
   // Creates a temporary table of all media that filters for moods in the mood list
   // Orders each media within type from best to least matching media of specified selected mood
   connection.query(`
@@ -1146,7 +1160,7 @@ const ordered_suggestion = async function (req, res) {
         AND science > IF(${science}, 50, 0)
         AND cozy > IF(${cozy}, 50, 0)
         AND colorful > IF(${colorful}, 50, 0)
-      AND space > IF(${space}, 50, 0);
+      AND space > IF(${space}, 50, 0)
   `),
     (err) => {
       if (err) {
@@ -1544,6 +1558,7 @@ module.exports = {
   random_songs,
   random_all,
   ordered_suggestion,
+  create_all_media,
   books,
   games,
   playlist,
