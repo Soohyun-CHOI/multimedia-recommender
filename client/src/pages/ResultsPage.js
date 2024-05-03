@@ -26,17 +26,44 @@ function ResultsPage() {
         fetchResults();
     }, [searchInfo, selectedTypes, selectedMoods]);
 
-    const createApiUrls = (searchInfo, types, moods) => {
+    const createApiUrls = (searchInfo, types, moods, filterData) => {
         const moodParams = moods.map(mood => `${mood}=true`).join('&');
         let urls = [];
 
         Object.entries(types).forEach(([type, isSelected]) => {
             if (isSelected) {
+                let params = [];
                 const baseApiUrl = `http://${config.server_host}:${config.server_port}/${type}s`;
-                urls.push(`${baseApiUrl}?title=${encodeURIComponent(searchInfo)}&${moodParams}`);
+
+                params.push(`title=${encodeURIComponent(searchInfo)}`);
+                params.push(moodParams);
+
+                if (filterData[type]) {
+                    if (filterData[type].year_range) {
+                        params.push(`year_min=${filterData[type].year_range[0]}`);
+                        params.push(`year_max=${filterData[type].year_range[1]}`);
+                    }
+                    if (filterData[type].genre) {
+                        params.push(`genre=${filterData[type].genre.join('|')}`);
+                    }
+                    if (filterData[type].category) {
+                        params.push(`category=${filterData[type].category.join('|')}`);
+                    }
+                    if (filterData[type].rating_num) {
+                        params.push(`rating_num=${filterData[type].rating_num}`);
+                    }
+                    if (filterData[type].game_score) {
+                        params.push(`game_score=${filterData[type].game_score}`);
+                    }
+                    if (filterData[type].tag_list) {
+                        params.push(`tag_list=${filterData[type].tag_list.join('|')}`)
+                    }
+                }
+
+                urls.push(`${baseApiUrl}?${params.join('&')}`);
             }
         });
-
+        console.log(urls);
         return urls;
     }
 
