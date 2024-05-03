@@ -1191,6 +1191,7 @@ const ordered_suggestion = async function (req, res) {
       res.status(500).json({ error: "Failed to generate all_media" });
     } else {
       console.log("all_media generated successfully!");
+      res.json({ message: "all_media generated successfully!" });
     }
   };
 };

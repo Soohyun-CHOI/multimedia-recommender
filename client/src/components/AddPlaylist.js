@@ -39,7 +39,7 @@ function AddPlaylist({open, handleClose}) {
         };
 
         try {
-            const response = await fetch(`${config.server_host}:${config.server_port}/new_playlist`, requestOptions);
+            const response = await fetch(`http://${config.server_host}:${config.server_port}/new_playlist`, requestOptions);
             if (!response.ok){
                 throw new Error('Failed to create new playlist');
             }
