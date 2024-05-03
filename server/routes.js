@@ -26,14 +26,14 @@ const new_media = async function (req, res) {
      INSERT INTO PlaylistMedia VALUES(${playlist_id}, '${media_id}');
       `
   ),
-  (err) => {
-    if (err) {
-      console.log(err);
-      res.status(500).json({ error: "Failed to add new media to playlist" });
-    } else {
-      console.log("New media added successfully!");
-    }
-  };
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to add new media to playlist" });
+      } else {
+        console.log("New media added successfully!");
+      }
+    };
 
   //Updates the max_mood of the given playlist
   connection.query(
@@ -131,16 +131,15 @@ const new_media = async function (req, res) {
       WHERE playlist_id = ${playlist_id};
       `
   ),
-  (err) => {
-    if (err) {
-      console.log(err);
-      res.status(500).json({ error: "Failed to add new media to playlist" });
-    } else {
-      console.log("max_mood updated!");
-      res.json({ message: "New media added successfully!" });
-    }
-  };
-  
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to add new media to playlist" });
+      } else {
+        console.log("max_mood updated!");
+        res.json({ message: "New media added successfully!" });
+      }
+    };
 };
 
 // Route B: POST /new_playlist
@@ -152,23 +151,23 @@ const new_playlist = async function (req, res) {
   const playlist_name = req.body.playlist_name;
   const public = req.body.public;
   const image_URL = req.body.image_URL ?? "N/A";
-  const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
-  let playlist_id = 0;
+  // const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+  // let playlist_id = 0;
 
   // Get max playlist_id and add 1 to get the new playlist_id
-  const first_query = `SELECT MAX(playlist_id) AS max_id FROM Playlist;`;
-  await connection.query(first_query, (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      playlist_id = data[0].max_id + 1;
-      console.log(playlist_id);
-    }
-  });
+  // const first_query = `SELECT MAX(playlist_id) AS max_id FROM Playlist;`;
+  // await connection.query(first_query, (err, data) => {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     playlist_id = data[0].max_id + 1;
+  //     console.log(playlist_id);
+  //   }
+  // });
 
   connection.query(
     `
-      INSERT INTO Playlist VALUES(${playlist_id}, '${playlist_name}', ${public}, ${user_id}, '${image_URL}', '${timestamp}');
+      INSERT INTO Playlist (title, public, user_id, image, max_mood) VALUES('${playlist_name}', ${public}, ${user_id}, '${image_URL}', 'None');
       `,
     (err) => {
       if (err) {
