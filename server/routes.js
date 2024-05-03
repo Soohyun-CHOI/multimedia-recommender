@@ -206,6 +206,28 @@ const new_collaborator = async function (req, res) {
   );
 };
 
+// Route C2: POST /new_user
+// About: Adds a new user
+// Input: email
+const new_user = async function (req, res) {
+  const email = req.body.email;
+
+  connection.query(
+    `
+     INSERT INTO Users VALUES('${email}');
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to add new user" });
+      } else {
+        console.log("User added successfully!");
+        res.json({ message: "User added successfully!" });
+      }
+    }
+  );
+};
+
 // Route D: POST /user_playlist_search
 // About: Search playlist by name for the user
 // Input: user_id, search
@@ -1510,6 +1532,7 @@ module.exports = {
   user,
   new_playlist,
   new_collaborator,
+  new_user,
   new_media,
   user_playlist_search,
   all_playlist_search,
