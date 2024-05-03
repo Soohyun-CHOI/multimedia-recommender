@@ -1147,7 +1147,7 @@ const ordered_suggestion = async function (req, res) {
         AND cozy > IF(${cozy}, 50, 0)
         AND colorful > IF(${colorful}, 50, 0)
       AND space > IF(${space}, 50, 0);
-  `),
+  `,
     (err) => {
       if (err) {
         console.log(err);
@@ -1156,7 +1156,7 @@ const ordered_suggestion = async function (req, res) {
         console.log("all_media generated successfully!");
         res.json({ message: "all_media generated successfully!" });
       }
-    };
+    });
 };
 
 // Route 8: GET /suggested_media
