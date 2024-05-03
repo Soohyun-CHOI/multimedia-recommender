@@ -49,14 +49,18 @@ function SearchPage() {
     }
 
     const handleSearch = () => {
-        console.log({
-            searchInfo,
-            SelectedTypes: Object.entries(selectedTypes).filter(([key, value]) => value).map(([key]) => key),
-            selectedMoods
-        });
+        // checks if any types are selected
+        const isTypeSelected = Object.values(selectedTypes).some(value => value);
+
+        // if no types are selected, treats all types as selected
+        const resTypes = isTypeSelected ? selectedTypes : Object.keys(initialTypes).reduce((acc, key) => {
+            acc[key] = true;
+            return acc;
+        }, {});
+
         const state = {
             searchInfo,
-            selectedTypes: {...selectedTypes},
+            selectedTypes: resTypes,
             selectedMoods: [...selectedMoods]
         }
         navigate("/results", {state});
