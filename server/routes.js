@@ -23,18 +23,123 @@ const new_media = async function (req, res) {
 
   connection.query(
     `
-     INSERT INTO PlaylistMedia VALUES(${playlist_id}, ${media_id});
-      `,
+     INSERT INTO PlaylistMedia VALUES(${playlist_id}, '${media_id}');
+      `
+  ),
     (err) => {
       if (err) {
         console.log(err);
         res.status(500).json({ error: "Failed to add new media to playlist" });
       } else {
         console.log("New media added successfully!");
+      }
+    };
+
+  //Updates the max_mood of the given playlist
+  connection.query(
+    `
+    UPDATE Playlist Set max_mood = (
+      WITH scores AS (SELECT playlist_id, SUM(christmas) AS christmas, SUM(halloween) AS halloween, SUM(valentine) AS valentine,
+                      SUM(celebration) AS celebration, SUM(relaxing) AS relaxing, SUM(nature) AS nature, SUM(industrial) AS industrial,
+                      SUM(sunshine) AS sunshine, SUM(sad) AS sad, SUM(happy) AS happy, SUM(summer) AS summer, SUM(winter) AS winter,
+                      SUM(sports) AS sports, SUM(playful) AS playful, SUM(energetic) AS energetic, SUM(scary) AS scary, SUM(anger) AS anger,
+                      SUM(optimistic) AS optimistic, SUM(adventurous) AS adventurous, SUM(learning) AS learning, SUM(artistic) AS artistic,
+                      SUM(science) AS science, SUM(cozy) AS cozy, SUM(colorful) AS colorful, SUM(space) AS space
+              FROM PlaylistMedia p
+              JOIN MediaMoods m ON p.media_id = m.media_id
+              WHERE p.playlist_id = ${playlist_id}
+              GROUP BY playlist_id)
+      SELECT CASE
+          WHEN christmas = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "christmas"
+          WHEN halloween = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "halloween"
+          WHEN valentine = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "valentine"
+          WHEN celebration = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "celebration"
+          WHEN relaxing = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "relaxing"
+          WHEN nature = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "nature"
+          WHEN industrial = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "industrial"
+          WHEN sunshine = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sunshine"
+          WHEN sad = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sad"
+          WHEN happy = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "happy"
+          WHEN summer = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "summer"
+          WHEN winter = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "winter"
+          WHEN sports = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sports"
+          WHEN playful = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "playful"
+          WHEN energetic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "energetic"
+          WHEN scary = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "scary"
+          WHEN anger = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "anger"
+          WHEN optimistic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "optimistic"
+          WHEN adventurous = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "adventurous"
+          WHEN learning = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "learning"
+          WHEN artistic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "artistic"
+          WHEN science = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "science"
+          WHEN cozy = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "cozy"
+          WHEN colorful = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "colorful"
+          WHEN space = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "space"
+          ELSE "None"
+      END AS max_mood
+      FROM scores)
+      WHERE playlist_id = ${playlist_id};
+      `
+  ),
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to add new media to playlist" });
+      } else {
+        console.log("max_mood updated!");
         res.json({ message: "New media added successfully!" });
       }
-    }
-  );
+    };
 };
 
 // Route B: POST /new_playlist
@@ -46,23 +151,23 @@ const new_playlist = async function (req, res) {
   const playlist_name = req.body.playlist_name;
   const public = req.body.public;
   const image_URL = req.body.image_URL ?? "N/A";
-  const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
-  let playlist_id = 0;
+  // const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+  // let playlist_id = 0;
 
   // Get max playlist_id and add 1 to get the new playlist_id
-  const first_query = `SELECT MAX(playlist_id) AS max_id FROM Playlist;`;
-  await connection.query(first_query, (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      playlist_id = data[0].max_id + 1;
-      console.log(playlist_id);
-    }
-  });
+  // const first_query = `SELECT MAX(playlist_id) AS max_id FROM Playlist;`;
+  // await connection.query(first_query, (err, data) => {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     playlist_id = data[0].max_id + 1;
+  //     console.log(playlist_id);
+  //   }
+  // });
 
   connection.query(
     `
-      INSERT INTO Playlist VALUES(${playlist_id}, '${playlist_name}', ${public}, ${user_id}, '${image_URL}', '${timestamp}');
+      INSERT INTO Playlist (title, public, user_id, image, max_mood) VALUES('${playlist_name}', ${public}, ${user_id}, '${image_URL}', 'None');
       `,
     (err) => {
       if (err) {
@@ -231,7 +336,7 @@ const delete_media = async function (req, res) {
 
   connection.query(
     `
-     DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id} AND media_id = ${media_id};
+     DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id} AND media_id = '${media_id}';
       `,
     (err) => {
       if (err) {
@@ -241,6 +346,126 @@ const delete_media = async function (req, res) {
           .json({ error: "Failed to delete media from playlist." });
       } else {
         console.log("Media deleted successfully!");
+      }
+    }
+  );
+
+  //Updates the max_mood of the given playlist
+  connection.query(
+    `
+    UPDATE Playlist Set max_mood = (
+      WITH scores AS (SELECT playlist_id, SUM(christmas) AS christmas, SUM(halloween) AS halloween, SUM(valentine) AS valentine,
+                      SUM(celebration) AS celebration, SUM(relaxing) AS relaxing, SUM(nature) AS nature, SUM(industrial) AS industrial,
+                      SUM(sunshine) AS sunshine, SUM(sad) AS sad, SUM(happy) AS happy, SUM(summer) AS summer, SUM(winter) AS winter,
+                      SUM(sports) AS sports, SUM(playful) AS playful, SUM(energetic) AS energetic, SUM(scary) AS scary, SUM(anger) AS anger,
+                      SUM(optimistic) AS optimistic, SUM(adventurous) AS adventurous, SUM(learning) AS learning, SUM(artistic) AS artistic,
+                      SUM(science) AS science, SUM(cozy) AS cozy, SUM(colorful) AS colorful, SUM(space) AS space
+              FROM PlaylistMedia p
+              JOIN MediaMoods m ON p.media_id = m.media_id
+              WHERE p.playlist_id = ${playlist_id}
+              GROUP BY playlist_id)
+      SELECT CASE
+          WHEN christmas = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "christmas"
+          WHEN halloween = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "halloween"
+          WHEN valentine = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "valentine"
+          WHEN celebration = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "celebration"
+          WHEN relaxing = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "relaxing"
+          WHEN nature = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "nature"
+          WHEN industrial = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "industrial"
+          WHEN sunshine = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sunshine"
+          WHEN sad = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sad"
+          WHEN happy = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "happy"
+          WHEN summer = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "summer"
+          WHEN winter = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "winter"
+          WHEN sports = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sports"
+          WHEN playful = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "playful"
+          WHEN energetic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "energetic"
+          WHEN scary = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "scary"
+          WHEN anger = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "anger"
+          WHEN optimistic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "optimistic"
+          WHEN adventurous = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "adventurous"
+          WHEN learning = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "learning"
+          WHEN artistic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "artistic"
+          WHEN science = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "science"
+          WHEN cozy = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "cozy"
+          WHEN colorful = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "colorful"
+          WHEN space = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "space"
+          ELSE "None"
+      END AS max_mood
+      FROM scores)
+      WHERE playlist_id = ${playlist_id};
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to update max_mood" });
+      } else {
+        console.log("Playlist max_mood updated successfully!");
+      }
+    }
+  );
+
+  //IF we removed all data from a playlist, we will get a null value, so we handle that.
+  connection.query(
+    `
+    UPDATE Playlist Set max_mood = IFNULL(max_mood, "None") WHERE playlist_id = ${playlist_id};
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to handle null max_mood" });
+      } else {
+        console.log("Handled null max_mood");
         res.json({ message: "Media deleted successfully!" });
       }
     }
@@ -268,6 +493,33 @@ const additional_media = async function (req, res) {
     `
   );
 
+  connection.query(
+    `
+    CREATE TEMPORARY TABLE IF NOT EXISTS book_table
+    SELECT b.book_id, 'bk' as media_type, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS creator, image
+    FROM Books b
+    LEFT JOIN Authors a ON b.book_id = a.book_id
+    GROUP BY b.book_id
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      }
+    }
+  );
+
+  connection.query(
+    `
+    CREATE UNIQUE INDEX b_index ON book_table(book_id);
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("book_table already has an index.");
+      }
+    }
+  );
+
   connection.query(`
     INSERT INTO suggested_media
     SELECT media_id,
@@ -281,11 +533,7 @@ const additional_media = async function (req, res) {
       WHERE row_num <= ${pool_size}
       AND media_id NOT IN (SELECT media_id FROM suggested_ids)
     ) AS s
-    LEFT JOIN (
-        SELECT a.book_id,'bk' as media_type, image, title, GROUP_CONCAT(author SEPARATOR ', ') AS creator
-        FROM Books b
-        JOIN Authors a ON b.book_id = a.book_id
-        GROUP BY book_id) book_table ON s.media_id = book_table.book_id
+    LEFT JOIN book_table ON s.media_id = book_table.book_id
     LEFT JOIN (
         SELECT song_id, 'mu' as media_type, image, title, artist AS creator
         FROM Music) music_table ON s.media_id = music_table.song_id
@@ -299,10 +547,10 @@ const additional_media = async function (req, res) {
         SELECT show_id, 'tv' as media_type, image, series_title
         FROM TVShows) show_table ON s.media_id = show_table.show_id
     WHERE row_num2 <= 5 AND (
-        book_table.media_type LIKE '${type}' OR 
-        music_table.media_type LIKE '${type}' OR 
-        game_table.media_type LIKE '${type}' OR 
-        movie_table.media_type LIKE '${type}' OR 
+        book_table.media_type LIKE '${type}' OR
+        music_table.media_type LIKE '${type}' OR
+        game_table.media_type LIKE '${type}' OR
+        movie_table.media_type LIKE '${type}' OR
         show_table.media_type LIKE '${type}');
     `);
 
@@ -373,36 +621,58 @@ const playlist = async function (req, res) {
 
   connection.query(
     `
-      SELECT 
-        s.media_id, 
-        COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
-        COALESCE (book_table.creator, music_table.creator, game_table.creator) AS creator,
-        image
-      FROM Playlist AS p
-      LEFT JOIN PlaylistMedia AS s ON s.playlist_id = p.playlist_id
-      LEFT JOIN (
-        SELECT b.book_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS creator
-        FROM Books b
-        LEFT JOIN Authors a ON b.book_id = a.book_id
-        GROUP BY b.book_id
-      ) book_table ON s.media_id = book_table.book_id
-      LEFT JOIN (
-        SELECT song_id, title, artist AS creator 
-        FROM Music
-      ) music_table ON s.media_id = music_table.song_id
-      LEFT JOIN (
-        SELECT app_id, name AS title, developers AS creator 
-        FROM Games
-      ) game_table ON s.media_id = game_table.app_id
-      LEFT JOIN (
-        SELECT movie_id, title 
-        FROM Movie
-      ) movie_table ON s.media_id = movie_table.movie_id
-      LEFT JOIN (
-        SELECT show_id, series_title 
-        FROM TVShows
-      ) show_table ON s.media_id = show_table.show_id
-      WHERE p.playlist_id = ${playlist_id};
+    CREATE TEMPORARY TABLE IF NOT EXISTS book_table
+    SELECT b.book_id, 'bk' as media_type, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS creator, image
+    FROM Books b
+    LEFT JOIN Authors a ON b.book_id = a.book_id
+    GROUP BY b.book_id
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      }
+    }
+  );
+
+  connection.query(
+    `
+    CREATE UNIQUE INDEX b_index ON book_table(book_id);
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("book_table already has an index.");
+      }
+    }
+  );
+
+  connection.query(
+    `
+      SELECT
+      s.media_id,
+      COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
+      COALESCE (book_table.creator, music_table.creator, game_table.creator) AS creator,
+      COALESCE (book_table.image, music_table.image, game_table.image, movie_table.image, show_table.image) AS image
+    FROM Playlist AS p
+    LEFT JOIN PlaylistMedia AS s ON s.playlist_id = p.playlist_id
+    LEFT JOIN book_table ON s.media_id = book_table.book_id
+    LEFT JOIN (
+      SELECT song_id, title, artist AS creator, image
+      FROM Music
+    ) music_table ON s.media_id = music_table.song_id
+    LEFT JOIN (
+      SELECT app_id, name AS title, developers AS creator, screenshot as image
+      FROM Games
+    ) game_table ON s.media_id = game_table.app_id
+    LEFT JOIN (
+      SELECT movie_id, title, image
+      FROM Movie
+    ) movie_table ON s.media_id = movie_table.movie_id
+    LEFT JOIN (
+      SELECT show_id, series_title, image
+      FROM TVShows
+    ) show_table ON s.media_id = show_table.show_id
+    WHERE p.playlist_id = ${playlist_id};
     `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -421,8 +691,7 @@ const playlist = async function (req, res) {
 // Return: media_id, title, developer, image link
 // Category and genre should be a list of strings concatenated by '|'
 const games = async function (req, res) {
-  const title = req.query.title ?? "";
-  const developer = req.query.developer ?? "";
+  const searchInput = req.query.search_input ?? "";
   const game_score = req.query.game_score ?? 0;
   const year_min = req.query.year_min ?? 0;
   const year_max = req.query.year_max ?? 2030;
@@ -468,9 +737,7 @@ const games = async function (req, res) {
       SELECT app_id, GROUP_CONCAT(categories SEPARATOR ', ') AS categories
       FROM GameCategories
       GROUP BY app_id) AS gc ON gc.app_id = g.app_id
-    WHERE 
-        name LIKE '%${title}%'
-        AND developers LIKE '%${developer}%'
+    WHERE (name LIKE '%${searchInput}%' OR developers LIKE '%${searchInput}%')
         AND christmas > IF(${christmas}, 50, 0)
         AND halloween > IF(${halloween}, 50, 0)
         AND valentine > IF(${valentine}, 50, 0)
@@ -518,9 +785,7 @@ const games = async function (req, res) {
 // Return: book_id, title, authors, image link
 // Category should be a list of strings concatenated by '|'
 const books = async function (req, res) {
-  const title = req.query.title ?? "";
-  const author = req.query.author ?? "";
-  const publisher = req.query.publisher ?? "";
+  const searchInput = req.query.search_input ?? "";
   const year_min = req.query.year_min ?? 0;
   const year_max = req.query.year_max ?? 2030;
   const category = req.query.category ?? ".*";
@@ -557,9 +822,7 @@ const books = async function (req, res) {
     FROM Books b
     LEFT JOIN Authors a ON b.book_id = a.book_id
     LEFT JOIN MediaMoods AS m ON b.book_id = m.media_id
-    WHERE title LIKE '%${title}%'
-        AND author LIKE '%${author}%'
-        AND publisher LIKE '%${publisher}%'
+    WHERE (title LIKE '%${searchInput}%' OR author LIKE '%${searchInput}%' OR publisher LIKE '%${searchInput}%')
         AND christmas > IF(${christmas}, 50, 0)
         AND halloween > IF(${halloween}, 50, 0)
         AND valentine > IF(${valentine}, 50, 0)
@@ -812,38 +1075,47 @@ const random_all = async function (req, res) {
 
 // Route 7: GET /ordered_suggestion
 const ordered_suggestion = async function (req, res) {
-  const selectedMood = req.query.selected_mood ?? "";
-
-  const christmas = req.query.christmas ?? false;
-  const halloween = req.query.halloween ?? false;
-  const valentine = req.query.valentine ?? false;
-  const celebration = req.query.celebration ?? false;
-  const relaxing = req.query.relaxing ?? false;
-  const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ?? false;
-  const sunshine = req.query.sunshine ?? false;
-  const sad = req.query.sad ?? false;
-  const happy = req.query.happy ?? false;
-  const summer = req.query.summer ?? false;
-  const winter = req.query.winter ?? false;
-  const sports = req.query.sports ?? false;
-  const playful = req.query.playful ?? false;
-  const energetic = req.query.energetic ?? false;
-  const scary = req.query.scary ?? false;
-  const anger = req.query.anger ?? false;
-  const optimistic = req.query.optimistic ?? false;
-  const adventurous = req.query.adventurous ?? false;
-  const learning = req.query.learning ?? false;
-  const artistic = req.query.artistic ?? false;
-  const science = req.query.science ?? false;
-  const cozy = req.query.cozy ?? false;
-  const colorful = req.query.colorful ?? false;
-  const space = req.query.space ?? false;
+  const christmas = req.body.christmas ?? false;
+  const halloween = req.body.halloween ?? false;
+  const valentine = req.body.valentine ?? false;
+  const celebration = req.body.celebration ?? false;
+  const relaxing = req.body.relaxing ?? false;
+  const nature = req.body.nature ?? false;
+  const industrial = req.body.industrial ?? false;
+  const sunshine = req.body.sunshine ?? false;
+  const sad = req.body.sad ?? false;
+  const happy = req.body.happy ?? false;
+  const summer = req.body.summer ?? false;
+  const winter = req.body.winter ?? false;
+  const sports = req.body.sports ?? false;
+  const playful = req.body.playful ?? false;
+  const energetic = req.body.energetic ?? false;
+  const scary = req.body.scary ?? false;
+  const anger = req.body.anger ?? false;
+  const optimistic = req.body.optimistic ?? false;
+  const adventurous = req.body.adventurous ?? false;
+  const learning = req.body.learning ?? false;
+  const artistic = req.body.artistic ?? false;
+  const science = req.body.science ?? false;
+  const cozy = req.body.cozy ?? false;
+  const colorful = req.body.colorful ?? false;
+  const space = req.body.space ?? false;
 
   // Create the temporary table if it does not exist already
   connection.query(`
     CREATE TEMPORARY TABLE IF NOT EXISTS all_media SELECT media_id, media_type, 0 AS row_num FROM MediaMoods LIMIT 0
   `);
+
+  connection.query(
+    `
+    CREATE UNIQUE INDEX am_index ON all_media(media_id);
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("all_media already has an index.");
+      }
+    }
+  );
 
   // Empty the temporary table
   connection.query(`
@@ -853,53 +1125,75 @@ const ordered_suggestion = async function (req, res) {
   // Creates a temporary table of all media that filters for moods in the mood list
   // Orders each media within type from best to least matching media of specified selected mood
   connection.query(`
-    REPLACE INTO all_media
-    SELECT media_id, media_type, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY ${selectedMood} DESC) AS row_num
-    FROM MediaMoods
-    WHERE christmas > IF(${christmas}, 50, 0)
-      AND halloween > IF(${halloween}, 50, 0)
-      AND valentine > IF(${valentine}, 50, 0)
-      AND celebration > IF(${celebration}, 50, 0)
-      AND relaxing > IF(${relaxing}, 50, 0)
-      AND nature > IF(${nature}, 50, 0)
-      AND industrial > IF(${industrial}, 50, 0)
-      AND sunshine > IF(${sunshine}, 50, 0)
-      AND sad > IF(${sad}, 50, 0)
-      AND happy > IF(${happy}, 50, 0)
-      AND summer > IF(${summer}, 50, 0)
-      AND winter > IF(${winter}, 50, 0)
-      AND sports > IF(${sports}, 50, 0)
-      AND playful > IF(${playful}, 50, 0)
-      AND energetic > IF(${energetic}, 50, 0)
-      AND scary > IF(${scary}, 50, 0)
-      AND anger > IF(${anger}, 50, 0)
-      AND optimistic > IF(${optimistic}, 50, 0)
-      AND adventurous > IF(${adventurous}, 50, 0)
-      AND learning > IF(${learning}, 50, 0)
-      AND artistic > IF(${artistic}, 50, 0)
-      AND science > IF(${science}, 50, 0)
-      AND cozy > IF(${cozy}, 50, 0)
-      AND colorful > IF(${colorful}, 50, 0)
-    AND space > IF(${space}, 50, 0)
-  `);
-
-  connection.query(
-    `
-    SELECT * FROM all_media
-  `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
-      }
+  REPLACE INTO all_media
+  WITH MediaSum AS(
+      SELECT media_id, media_type, christmas, halloween, valentine, celebration, relaxing, nature, industrial,
+             sunshine, sad, happy, summer, winter, sports, playful, energetic, scary, anger, optimistic,
+             adventurous, learning, artistic, science, cozy, colorful, space,
+      (IF(${christmas}, christmas, 0)+
+      IF(${halloween}, halloween, 0)+
+      IF(${valentine}, valentine, 0)+
+      IF(${celebration}, celebration, 0)+
+      IF(${relaxing}, relaxing, 0)+
+      IF(${nature}, nature, 0)+
+      IF(${industrial}, industrial, 0)+
+      IF(${sunshine}, sunshine, 0)+
+      IF(${sad}, sad, 0)+
+      IF(${happy}, happy, 0)+
+      IF(${summer}, summer, 0)+
+      IF(${winter}, winter, 0)+
+      IF(${sports}, sports, 0)+
+      IF(${playful}, playful, 0)+
+      IF(${energetic}, energetic, 0)+
+      IF(${scary}, scary, 0)+
+      IF(${anger}, anger, 0)+
+      IF(${optimistic}, optimistic, 0)+
+      IF(${adventurous}, adventurous, 0)+
+      IF(${learning}, learning, 0)+
+      IF(${artistic}, artistic, 0)+
+      IF(${science}, science, 0)+
+      IF(${cozy}, cozy, 0)+
+      IF(${colorful}, colorful, 0)+
+      IF(${space}, space, 0)) AS mood_sum
+  FROM MediaMoods
+  )
+      SELECT media_id, media_type, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY mood_sum DESC) AS row_num
+      FROM MediaSum
+      WHERE christmas > IF(${christmas}, 50, 0)
+        AND halloween > IF(${halloween}, 50, 0)
+        AND valentine > IF(${valentine}, 50, 0)
+        AND celebration > IF(${celebration}, 50, 0)
+        AND relaxing > IF(${relaxing}, 50, 0)
+        AND nature > IF(${nature}, 50, 0)
+        AND industrial > IF(${industrial}, 50, 0)
+        AND sunshine > IF(${sunshine}, 50, 0)
+        AND sad > IF(${sad}, 50, 0)
+        AND happy > IF(${happy}, 50, 0)
+        AND summer > IF(${summer}, 50, 0)
+        AND winter > IF(${winter}, 50, 0)
+        AND sports > IF(${sports}, 50, 0)
+        AND playful > IF(${playful}, 50, 0)
+        AND energetic > IF(${energetic}, 50, 0)
+        AND scary > IF(${scary}, 50, 0)
+        AND anger > IF(${anger}, 50, 0)
+        AND optimistic > IF(${optimistic}, 50, 0)
+        AND adventurous > IF(${adventurous}, 50, 0)
+        AND learning > IF(${learning}, 50, 0)
+        AND artistic > IF(${artistic}, 50, 0)
+        AND science > IF(${science}, 50, 0)
+        AND cozy > IF(${cozy}, 50, 0)
+        AND colorful > IF(${colorful}, 50, 0)
+      AND space > IF(${space}, 50, 0);
+  `),
+  (err) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ error: "Failed to generate all_media" });
+    } else {
+      console.log("all_media generated successfully!");
+      res.json({ message: "all_media generated successfully!" });
     }
-  );
+  };
 };
 
 // Route 8: GET /suggested_media
@@ -914,6 +1208,44 @@ const suggested_media = async function (req, res) {
       creator VARCHAR(255)
     )
   `);
+
+  connection.query(
+    `
+    CREATE UNIQUE INDEX sm_index ON suggested_media(media_id);
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("suggested_media already has an index.");
+      }
+    }
+  );
+
+  connection.query(
+    `
+    CREATE TEMPORARY TABLE IF NOT EXISTS book_table
+    SELECT b.book_id, 'bk' as media_type, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS creator, image
+    FROM Books b
+    LEFT JOIN Authors a ON b.book_id = a.book_id
+    GROUP BY b.book_id
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      }
+    }
+  );
+
+  connection.query(
+    `
+    CREATE UNIQUE INDEX b_index ON book_table(book_id);
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("book_table already has an index.");
+      }
+    }
+  );
 
   // Empty the temporary table
   connection.query(`
@@ -930,33 +1262,30 @@ const suggested_media = async function (req, res) {
     FROM all_media
     WHERE row_num <= 50
     )
-    SELECT media_id, media_type,
+    SELECT s.media_id, s.media_type,
     CASE
-        WHEN media_type = 'bk' THEN book_table.image
-        WHEN media_type = 'mu' THEN music_table.image
-        WHEN media_type = 'gm' THEN game_table.image
-        WHEN media_type = 'mv' THEN movie_table.image
-        WHEN media_type = 'tv' THEN show_table.image
+        WHEN s.media_type = 'bk' THEN book_table.image
+        WHEN s.media_type = 'mu' THEN music_table.image
+        WHEN s.media_type = 'gm' THEN game_table.image
+        WHEN s.media_type = 'mv' THEN movie_table.image
+        WHEN s.media_type = 'tv' THEN show_table.image
     END AS image,
     CASE
-        WHEN media_type = 'bk' THEN book_table.title
-        WHEN media_type = 'mu' THEN music_table.title
-        WHEN media_type = 'gm' THEN game_table.title
-        WHEN media_type = 'mv' THEN movie_table.title
-        WHEN media_type = 'tv' THEN show_table.title
+        WHEN s.media_type = 'bk' THEN book_table.title
+        WHEN s.media_type = 'mu' THEN music_table.title
+        WHEN s.media_type = 'gm' THEN game_table.title
+        WHEN s.media_type = 'mv' THEN movie_table.title
+        WHEN s.media_type = 'tv' THEN show_table.title
     END AS title,
     CASE
-        WHEN media_type = 'bk' THEN book_table.creator
-        WHEN media_type = 'mu' THEN music_table.creator
-        WHEN media_type = 'gm' THEN game_table.creator
-        WHEN media_type = 'mv' THEN NULL
-        WHEN media_type = 'tv' THEN NULL
+        WHEN s.media_type = 'bk' THEN book_table.creator
+        WHEN s.media_type = 'mu' THEN music_table.creator
+        WHEN s.media_type = 'gm' THEN game_table.creator
+        WHEN s.media_type = 'mv' THEN NULL
+        WHEN s.media_type = 'tv' THEN NULL
     END AS creator
     FROM suggest_rand s
-    LEFT JOIN (SELECT b.book_id, title, GROUP_CONCAT(author, ' , ') AS creator, image
-    FROM Books b
-    JOIN Authors a ON b.book_id=a.book_id
-    GROUP BY b.book_id) book_table
+    LEFT JOIN book_table
     ON s.media_id = book_table.book_id AND s.media_type = 'bk'
     LEFT JOIN (SELECT song_id, title, artist AS creator, image  FROM Music) music_table
     ON s.media_id = music_table.song_id AND s.media_type = 'mu'
@@ -966,7 +1295,7 @@ const suggested_media = async function (req, res) {
     ON s.media_id = movie_table.movie_id AND s.media_type = 'mv'
     LEFT JOIN (SELECT show_id, series_title AS title, image FROM TVShows) show_table
     ON s.media_id = show_table.show_id AND s.media_type = 'tv'
-    WHERE row_num2 <= 1
+    WHERE row_num2 <= 1;
   `);
 
   connection.query(
@@ -994,8 +1323,7 @@ const suggested_media = async function (req, res) {
 // Return: show_id, title, image link
 // Genre should be a list of strings concatenated by '|'
 const shows = async function (req, res) {
-  const title = req.query.title ?? "";
-  const cast = req.query.cast ?? "";
+  const searchInput = req.query.search_input ?? "";
   const yearMin = req.query.year_min ?? 0;
   const yearMax = req.query.year_max ?? 2030;
   const genre = req.query.genre ?? ".*";
@@ -1032,13 +1360,13 @@ const shows = async function (req, res) {
       WITH shows_in AS (
         SELECT show_id
         FROM TVCast
-        WHERE cast LIKE '%${cast}%'
+        WHERE cast LIKE '%${searchInput}%'
       )
       SELECT DISTINCT s.show_id, series_title, image
       FROM TVShows s
       JOIN ShowGenre sg On s.show_id = sg.show_id
       JOIN MediaMoods AS m ON s.show_id = m.media_id
-      WHERE s.series_title LIKE '%${title}%'
+      WHERE (s.series_title LIKE '%${searchInput}%' OR s.show_id IN (SELECT * FROM shows_in))
               AND christmas > IF(${christmas}, 50, 0)
               AND halloween > IF(${halloween}, 50, 0)
               AND valentine > IF(${valentine}, 50, 0)
@@ -1085,8 +1413,7 @@ const shows = async function (req, res) {
 // Return: show_id, title
 // Genre should be a list of strings concatenated by '|'
 const movies = async function (req, res) {
-  const title = req.query.title ?? "";
-  const cast = req.query.cast ?? "";
+  const searchInput = req.query.search_input ?? "";
   const yearMin = req.query.year_min ?? 0;
   const yearMax = req.query.year_max ?? 2030;
   const genre = req.query.genre ?? ".*";
@@ -1122,13 +1449,13 @@ const movies = async function (req, res) {
       WITH movies_in AS (
         SELECT movie_id
         FROM MovieCast
-        WHERE cast LIKE '%${cast}%'
+        WHERE cast LIKE '%${searchInput}%'
       )
       SELECT DISTINCT m.media_id, title, image
       FROM Movie mv 
       JOIN MovieGenre mg On mv.movie_id = mg.movie_id
       JOIN MediaMoods AS m ON mv.movie_id = m.media_id
-      WHERE mv.title LIKE '%${title}%'
+      WHERE (mv.title LIKE '%${searchInput}%' OR mv.movie_id IN (SELECT * FROM movies_in))
               AND christmas > IF(${christmas}, 50, 0)
               AND halloween > IF(${halloween}, 50, 0)
               AND valentine > IF(${valentine}, 50, 0)

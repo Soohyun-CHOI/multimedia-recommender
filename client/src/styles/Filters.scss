@@ -1,0 +1,57 @@
+@import "init";
+
+.filter-page {
+    margin-left: 20px;
+    .header {
+        font-size: 40px;
+        font-family: "Playfair Display", serif;
+    }
+    .selections{
+        margin-left: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-gap: 40px;
+
+        .selection-box {
+            border: 2px solid transparent;
+            padding: 10px;
+            margin: 10px;
+            // display: flex;
+            justify-content: center;
+            // align-items: center;
+
+            .image-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        
+
+            &.selected{
+                border-color: $light-blue;
+                border-radius: 8%;
+            }
+
+            img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8%;
+                border: 2px solid transparent;
+                transition: border-color 0.3s ease;
+
+                &:hover {
+                    border-color: $dark-orange;
+                }
+            }
+
+            div {
+                font-size: 16px;
+                margin-top: 6px;
+                
+            }
+
+        }
+    
+    }
+}

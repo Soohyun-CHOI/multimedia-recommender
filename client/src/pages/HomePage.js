@@ -3,10 +3,21 @@ import {NavLink} from "react-router-dom";
 import "../styles/HomPage.scss";
 import config from "../config.json";
 import {handleStringSize} from "../helpers/helpers";
+import AddPlaylist from "../components/AddPlaylist";
 
 function HomePage() {
     const [summer, setSummer] = useState([]);
     const [happy, setHappy] = useState([]);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
 
     useEffect(() => {
         fetch(`http://${config.server_host}:${config.server_port}/random_all/3/summer`)
@@ -23,10 +34,12 @@ function HomePage() {
             <div className="main-banner">
                 <div className="title">THEME YOUR LIFE</div>
                 <div className="menu-wrap">
+                    <button onClick={handleOpenModal} className="menu">Add Playlist</button>
                     <NavLink className="menu" to="/playlists">My Playlists</NavLink>
                     <NavLink className="menu" to="/search">Search Media</NavLink>
                 </div>
             </div>
+            <AddPlaylist open={isModalOpen} handleClose={handleCloseModal} />
             <div className="theme">
                 <div className="title">Summer for You</div>
                 <div className="media-wrap">

@@ -22,6 +22,11 @@
     font-size: 20px;
 
     &:first-child {
+      background: $yellow;  // Example color variable
+      color: $dark-teal;
+      
+    }
+    &:nth-child(2) {
       background: $dark-teal;
       color: white
     }

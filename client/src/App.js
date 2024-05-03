@@ -5,7 +5,8 @@ import HomePage from "./pages/HomePage";
 import PlaylistListPage from "./pages/PlaylistListPage";
 import SearchPage from "./pages/SearchPage";
 import ResultsPage from "./pages/ResultsPage";
-
+import FiltersPage from "./pages/FiltersPage";
+import SuggestionPage from "./pages/SuggestionPage";
 
 export default function App() {
     return (
@@ -16,6 +17,8 @@ export default function App() {
                 <Route path="/playlists" element={<PlaylistListPage/>}/>
                 <Route path="/search" element={<SearchPage/>}/>
                 <Route path="/results" element={<ResultsPage/>}/>
+                <Route path="/filters" element={<FiltersPage/>}/>
+                <Route path="/suggestions" element={<SuggestionPage/>}/>
             </Routes>
         </div>
     );
