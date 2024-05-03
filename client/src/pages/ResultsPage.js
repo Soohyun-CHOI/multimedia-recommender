@@ -7,12 +7,12 @@ import "../styles/ResultsPage.scss";
 
 function ResultsPage() {
     const location = useLocation();
-    const {searchInfo, selectedTypes, selectedMoods} = location.state;
+    const {searchInfo, selectedTypes, selectedMoods, filterData} = location.state;
     const [results, setResults] = useState([]);
 
     useEffect(() => {
         const fetchResults = async () => {
-            const urls = createApiUrls(searchInfo, selectedTypes, selectedMoods);
+            const urls = createApiUrls(searchInfo, selectedTypes, selectedMoods, filterData);
             const apiPromises = urls.map(url => fetch(url).then(res => res.json()));
             try {
                 const resultsFromApis = await Promise.all(apiPromises);
