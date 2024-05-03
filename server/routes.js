@@ -167,7 +167,7 @@ const new_playlist = async function (req, res) {
 
   connection.query(
     `
-      INSERT INTO Playlist (title, public, user_id, image, max_mood) VALUES('${playlist_name}', ${public}, ${user_id}, '${image_URL}', 'None');
+      INSERT INTO Playlist (title, public, user_id, image, max_mood) VALUES('${playlist_name}', ${public}, '${user_id}', '${image_URL}', 'None');
       `,
     (err) => {
       if (err) {
@@ -1207,15 +1207,15 @@ const ordered_suggestion = async function (req, res) {
         AND colorful > IF(${colorful}, 50, 0)
       AND space > IF(${space}, 50, 0);
   `),
-  (err) => {
-    if (err) {
-      console.log(err);
-      res.status(500).json({ error: "Failed to generate all_media" });
-    } else {
-      console.log("all_media generated successfully!");
-      res.json({ message: "all_media generated successfully!" });
-    }
-  };
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to generate all_media" });
+      } else {
+        console.log("all_media generated successfully!");
+        res.json({ message: "all_media generated successfully!" });
+      }
+    };
 };
 
 // Route 8: GET /suggested_media
