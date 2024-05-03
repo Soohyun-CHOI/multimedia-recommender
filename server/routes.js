@@ -1031,8 +1031,6 @@ const random_all = async function (req, res) {
 
 // Route 7: GET /ordered_suggestion
 const ordered_suggestion = async function (req, res) {
-  const selectedMood = req.query.selected_mood ?? "";
-
   const christmas = req.query.christmas ?? false;
   const halloween = req.query.halloween ?? false;
   const valentine = req.query.valentine ?? false;
@@ -1072,34 +1070,64 @@ const ordered_suggestion = async function (req, res) {
   // Creates a temporary table of all media that filters for moods in the mood list
   // Orders each media within type from best to least matching media of specified selected mood
   connection.query(`
-    REPLACE INTO all_media
-    SELECT media_id, media_type, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY ${selectedMood} DESC) AS row_num
-    FROM MediaMoods
-    WHERE christmas > IF(${christmas}, 50, 0)
-      AND halloween > IF(${halloween}, 50, 0)
-      AND valentine > IF(${valentine}, 50, 0)
-      AND celebration > IF(${celebration}, 50, 0)
-      AND relaxing > IF(${relaxing}, 50, 0)
-      AND nature > IF(${nature}, 50, 0)
-      AND industrial > IF(${industrial}, 50, 0)
-      AND sunshine > IF(${sunshine}, 50, 0)
-      AND sad > IF(${sad}, 50, 0)
-      AND happy > IF(${happy}, 50, 0)
-      AND summer > IF(${summer}, 50, 0)
-      AND winter > IF(${winter}, 50, 0)
-      AND sports > IF(${sports}, 50, 0)
-      AND playful > IF(${playful}, 50, 0)
-      AND energetic > IF(${energetic}, 50, 0)
-      AND scary > IF(${scary}, 50, 0)
-      AND anger > IF(${anger}, 50, 0)
-      AND optimistic > IF(${optimistic}, 50, 0)
-      AND adventurous > IF(${adventurous}, 50, 0)
-      AND learning > IF(${learning}, 50, 0)
-      AND artistic > IF(${artistic}, 50, 0)
-      AND science > IF(${science}, 50, 0)
-      AND cozy > IF(${cozy}, 50, 0)
-      AND colorful > IF(${colorful}, 50, 0)
-    AND space > IF(${space}, 50, 0)
+  REPLACE INTO all_media
+  WITH MediaSum AS(
+      SELECT media_id, media_type, (
+      IF(${christmas}, christmas, 0)+
+      IF(${halloween}, halloween, 0)+
+      IF(${valentine}, valentine, 0)+
+      IF(${celebration}, celebration, 0)+
+      IF(${relaxing}, relaxing, 0)+
+      IF(${nature}, nature, 0)+
+      IF(${industrial}, industrial, 0)+
+      IF(${sunshine}, sunshine, 0)+
+      IF(${sad}, sad, 0)+
+      IF(${happy}, happy, 0)+
+      IF(${summer}, summer, 0)+
+      IF(${winter}, winter, 0)+
+      IF(${sports}, sports, 0)+
+      IF(${playful}, playful, 0)+
+      IF(${energetic}, energetic, 0)+
+      IF(${scary}, scary, 0)+
+      IF(${anger}, anger, 0)+
+      IF(${optimistic}, optimistic, 0)+
+      IF(${adventurous}, adventurous, 0)+
+      IF(${learning}, learning, 0)+
+      IF(${artistic}, artistic, 0)+
+      IF(${science}, science, 0)+
+      IF(${cozy}, cozy, 0)+
+      IF(${colorful}, colorful, 0)+
+      IF(${space}, space, 0)) AS mood_sum
+  FROM MediaMoods
+  GROUP BY media_id, media_type
+  )
+      SELECT mm.media_id, mm.media_type, ROW_NUMBER() OVER (PARTITION BY mm.media_type ORDER BY mood_sum DESC) AS row_num
+      FROM MediaMoods mm JOIN MediaSum ms ON mm.media_id = ms.media_id
+      WHERE christmas > IF(${christmas}, 50, 0)
+        AND halloween > IF(${halloween}, 50, 0)
+        AND valentine > IF(${valentine}, 50, 0)
+        AND celebration > IF(${celebration}, 50, 0)
+        AND relaxing > IF(${relaxing}, 50, 0)
+        AND nature > IF(${nature}, 50, 0)
+        AND industrial > IF(${industrial}, 50, 0)
+        AND sunshine > IF(${sunshine}, 50, 0)
+        AND sad > IF(${sad}, 50, 0)
+        AND happy > IF(${happy}, 50, 0)
+        AND summer > IF(${summer}, 50, 0)
+        AND winter > IF(${winter}, 50, 0)
+        AND sports > IF(${sports}, 50, 0)
+        AND playful > IF(${playful}, 50, 0)
+        AND energetic > IF(${energetic}, 50, 0)
+        AND scary > IF(${scary}, 50, 0)
+        AND anger > IF(${anger}, 50, 0)
+        AND optimistic > IF(${optimistic}, 50, 0)
+        AND adventurous > IF(${adventurous}, 50, 0)
+        AND learning > IF(${learning}, 50, 0)
+        AND artistic > IF(${artistic}, 50, 0)
+        AND science > IF(${science}, 50, 0)
+        AND cozy > IF(${cozy}, 50, 0)
+        AND colorful > IF(${colorful}, 50, 0)
+      AND space > IF(${space}, 50, 0);
   `);
 
   connection.query(
