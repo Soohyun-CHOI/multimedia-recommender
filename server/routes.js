@@ -167,7 +167,7 @@ const new_playlist = async function (req, res) {
 
   connection.query(
     `
-      INSERT INTO Playlist (title, public, user_id, image, max_mood) VALUES('${playlist_name}', ${public}, ${user_id}, '${image_URL}', 'None');
+      INSERT INTO Playlist (title, public, user_id, image, max_mood) VALUES('${playlist_name}', ${public}, '${user_id}', '${image_URL}', 'None');
       `,
     (err) => {
       if (err) {
@@ -201,6 +201,28 @@ const new_collaborator = async function (req, res) {
       } else {
         console.log("Collaborator added successfully!");
         res.json({ message: "Collaborator added successfully!" });
+      }
+    }
+  );
+};
+
+// Route C2: POST /new_user
+// About: Adds a new user
+// Input: email
+const new_user = async function (req, res) {
+  const email = req.body.email;
+
+  connection.query(
+    `
+     INSERT INTO Users VALUES('${email}');
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to add new user" });
+      } else {
+        console.log("User added successfully!");
+        res.json({ message: "User added successfully!" });
       }
     }
   );
@@ -315,7 +337,7 @@ const delete_collaborator = async function (req, res) {
 
   connection.query(
     `
-     DELETE FROM CollabortesOn WHERE playlist_id = ${playlist_id} AND user_id = ${user_id};
+     DELETE FROM CollabortesOn WHERE playlist_id = ${playlist_id} AND user_id = '${user_id}';
       `,
     (err) => {
       if (err) {
@@ -1126,15 +1148,15 @@ const ordered_suggestion = async function (req, res) {
         AND colorful > IF(${colorful}, 50, 0)
       AND space > IF(${space}, 50, 0);
   `),
-  (err) => {
-    if (err) {
-      console.log(err);
-      res.status(500).json({ error: "Failed to generate all_media" });
-    } else {
-      console.log("all_media generated successfully!");
-      res.json({ message: "all_media generated successfully!" });
-    }
-  };
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to generate all_media" });
+      } else {
+        console.log("all_media generated successfully!");
+        res.json({ message: "all_media generated successfully!" });
+      }
+    };
 };
 
 // Route 8: GET /suggested_media
@@ -1497,7 +1519,7 @@ const user = async function (req, res) {
   // We get a number of random songs from the database which have a high value of the given mood
   connection.query(
     `
-        SELECT * FROM Users WHERE user_id=${userID};
+        SELECT * FROM Users WHERE user_id= '${userID}';
     `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -1534,6 +1556,7 @@ module.exports = {
   user,
   new_playlist,
   new_collaborator,
+  new_user,
   new_media,
   user_playlist_search,
   all_playlist_search,

@@ -1,79 +1,130 @@
-import React, {useState, useEffect} from "react";
-import {NavLink} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
 import "../styles/HomPage.scss";
 import config from "../config.json";
-import {handleStringSize} from "../helpers/helpers";
+import { handleStringSize } from "../helpers/helpers";
 import AddPlaylist from "../components/AddPlaylist";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function HomePage() {
-    const [summer, setSummer] = useState([]);
-    const [happy, setHappy] = useState([]);
+  const [summer, setSummer] = useState([]);
+  const [happy, setHappy] = useState([]);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user, loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
 
-    const handleOpenModal = () => {
-        setIsModalOpen(true);
-    };
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-    };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
-    useEffect(() => {
-        fetch(`http://${config.server_host}:${config.server_port}/random_all/3/summer`)
-            .then(res => res.json())
-            .then(resJson => setSummer(resJson));
+  function addNewUser() {
+    fetch(`http://${config.server_host}:${config.server_port}/new_user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: user.email,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data); // Handle the response data here
+      });
+  }
 
-        fetch(`http://${config.server_host}:${config.server_port}/random_all/3/happy`)
-            .then(res => res.json())
-            .then(resJson => setHappy(resJson));
-    }, []);
+  useEffect(() => {
+    isAuthenticated && addNewUser();
 
-    return (
-        <>
-            <div className="main-banner">
-                <div className="title">THEME YOUR LIFE</div>
-                <div className="menu-wrap">
-                    <button onClick={handleOpenModal} className="menu">Add Playlist</button>
-                    <NavLink className="menu" to="/playlists">My Playlists</NavLink>
-                    <NavLink className="menu" to="/search">Search Media</NavLink>
-                </div>
+    fetch(
+      `http://${config.server_host}:${config.server_port}/random_all/3/summer`
+    )
+      .then((res) => res.json())
+      .then((resJson) => setSummer(resJson));
+
+    fetch(
+      `http://${config.server_host}:${config.server_port}/random_all/3/happy`
+    )
+      .then((res) => res.json())
+      .then((resJson) => setHappy(resJson));
+  }, [isAuthenticated]);
+
+  function handleStringSize(str) {
+    if (!str) return str;
+    if (str.length >= 24) return str.slice(0, 25) + "...";
+    return str;
+  }
+
+  return (
+    <>
+      <div className="banner">
+        <div className="title">THEME YOUR LIFE</div>
+        <div className="menu-wrap">
+          {isAuthenticated && (
+            <>
+              <button onClick={handleOpenModal} className="menu">
+                Add Playlist
+              </button>
+              <NavLink className="menu" to="/playlists">
+                My Playlists
+              </NavLink>
+              <NavLink className="menu" to="/search">
+                Search Media
+              </NavLink>
+            </>
+          )}
+          {!isAuthenticated && (
+            <>
+              <button className="menu" onClick={() => loginWithRedirect()}>
+                Log In
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+      <AddPlaylist open={isModalOpen} handleClose={handleCloseModal} />
+      <div className="theme">
+        <div className="title">Summer for You</div>
+        <div className="media-wrap">
+          {summer.map((media) => (
+            <div className="media" key={media.media_id}>
+              <div className="media-type">
+                {(media.media_type || " ").toUpperCase()}
+              </div>
+              <NavLink to={`/media/${media.media_id}`}>
+                <img src={media.image} alt="" />
+              </NavLink>
+              <NavLink to={`/media/${media.media_id}`} className="media-title">
+                {handleStringSize(media.title)}
+              </NavLink>
             </div>
-            <AddPlaylist open={isModalOpen} handleClose={handleCloseModal} />
-            <div className="theme">
-                <div className="title">Summer for You</div>
-                <div className="media-wrap">
-                    {summer.map(media =>
-                        <div className="media" key={media.media_id}>
-                            <div className="media-type">{(media.media_type || " ").toUpperCase()}</div>
-                            <NavLink to={`/media/${media.media_id}`}>
-                                <img src={media.image} alt=""/>
-                            </NavLink>
-                            <NavLink to={`/media/${media.media_id}`} className="media-title">
-                                {handleStringSize(media.title)}
-                            </NavLink>
-                        </div>
-                    )}
-                </div>
+          ))}
+        </div>
+      </div>
+      <div className="theme">
+        <div className="title">Happy for You</div>
+        <div className="media-wrap">
+          {happy.map((media) => (
+            <div className="media" key={media.media_id}>
+              <div className="media-type">
+                {(media.media_type || " ").toUpperCase()}
+              </div>
+              <NavLink to={`/media/${media.media_id}`}>
+                <img src={media.image} alt="" />
+              </NavLink>
+              <NavLink to={`/media/${media.media_id}`} className="media-title">
+                {handleStringSize(media.title)}
+              </NavLink>
             </div>
-            <div className="theme">
-                <div className="title">Happy for You</div>
-                <div className="media-wrap">
-                    {happy.map(media =>
-                        <div className="media" key={media.media_id}>
-                            <div className="media-type">{(media.media_type || " ").toUpperCase()}</div>
-                            <NavLink to={`/media/${media.media_id}`}>
-                                <img src={media.image} alt=""/>
-                            </NavLink>
-                            <NavLink to={`/media/${media.media_id}`} className="media-title">
-                                {handleStringSize(media.title)}
-                            </NavLink>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </>
-    );
+          ))}
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default HomePage;
