@@ -51,7 +51,7 @@ function HomePage() {
     )
       .then((res) => res.json())
       .then((resJson) => setHappy(resJson));
-  }, []);
+  }, [isAuthenticated]);
 
   function handleStringSize(str) {
     if (!str) return str;
