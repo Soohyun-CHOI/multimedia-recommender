@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import Banner from "../components/Banner";
 import {useNavigate} from "react-router-dom";
+import "../styles/SearchPage.scss"
 
 function SearchPage() {
     const moods = [
@@ -41,7 +42,7 @@ function SearchPage() {
 
     const toggleSelectedMoods = mood => {
         if (selectedMoods.includes(mood)) {
-            setSelectedMoods(moods.filter(m => m !== mood))
+            setSelectedMoods(selectedMoods.filter(m => m !== mood))
         } else {
             setSelectedMoods([...selectedMoods, mood])
         }
@@ -65,41 +66,49 @@ function SearchPage() {
     return (
         <>
             <Banner/>
-            <input
-                type="text"
-                placeholder="Taylor Swift"
-                value={searchInfo}
-                onChange={e => setSearchInfo(e.target.value)}
-            />
-            <div>
-                {Object.keys(selectedTypes).map(type =>
-                    <label key={type}>
-                        <input
-                            type="checkbox"
-                            checked={selectedTypes[type]}
-                            onChange={() => handleSelectedTypes(type)}
-                        />
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </label>
-                )}
-            </div>
-            <div>
-                <button onClick={() => setShowDropdown(!showDropdown)}>Select Moods</button>
-                {showDropdown &&
-                    <div style={{position: 'absolute', background: 'white', border: '1px solid gray', padding: '10px'}}>
-                        {moods.map(mood =>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedMoods.includes(mood)}
-                                    onChange={() => toggleSelectedMoods(mood)}
-                                />
-                                {mood.charAt(0).toUpperCase() + mood.slice(1)}
-                            </label>
+            <div id="search">
+                <div className="search-bar">
+                    <input
+                        type="text"
+                        placeholder="Search Your Media"
+                        value={searchInfo}
+                        onChange={e => setSearchInfo(e.target.value)}
+                    />
+                    <button onClick={handleSearch}>Search</button>
+                </div>
+                <div className="filters">
+                    <div className="moods">
+                        <button onClick={() => setShowDropdown(!showDropdown)}>Select Moods  <span>▼</span></button>
+                        {showDropdown &&
+                            <div className="drop-down">
+                                {moods.map(mood =>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedMoods.includes(mood)}
+                                            onChange={() => toggleSelectedMoods(mood)}
+                                        />
+                                        {mood.charAt(0).toUpperCase() + mood.slice(1)}
+                                    </label>
+                                )}
+                            </div>
+                        }
+                    </div>
+                    <div className="types">
+                        {Object.keys(selectedTypes).map(type =>
+                            <div className="type">
+                                <label key={type}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedTypes[type]}
+                                        onChange={() => handleSelectedTypes(type)}
+                                    />
+                                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                                </label>
+                            </div>
                         )}
                     </div>
-                }
-                <button onClick={handleSearch}>Search</button>
+                </div>
             </div>
         </>
     )
