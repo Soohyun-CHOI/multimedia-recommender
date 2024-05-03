@@ -6,6 +6,7 @@
   align-items: center;
   height: 60px;
   padding: 0 5%;
+  background: $dark-teal;
 
   img {
     width: 60px;
@@ -19,7 +20,7 @@
     font-size: 16px;
 
     &:hover {
-      color: $dark-teal;
+      color: $light-orange;
     }
   }
 }

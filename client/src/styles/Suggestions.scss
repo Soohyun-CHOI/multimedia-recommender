@@ -1,0 +1,33 @@
+@import "init";
+
+.results {
+  margin: 30px $margin-left;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  .media {
+    display: flex;
+    flex-direction: column;
+    width: 140px;
+    margin: 0 20px 30px 0;
+
+    img {
+      width: 140px;
+      height: 160px;
+      object-fit: cover;
+      margin-bottom: 5px;
+    }
+
+    .media-type {
+      font-size: 14px;
+      width: 34px;
+      padding: 3px 0;
+      border: 1px solid $dark-orange;
+      border-radius: 100px;
+      color: $dark-orange;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+  }
+}

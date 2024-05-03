@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import "../styles/HomPage.scss";
 import config from "../config.json";
+import { handleStringSize } from "../helpers/helpers";
 import AddPlaylist from "../components/AddPlaylist";
 import { useAuth0 } from "@auth0/auth0-react";
 
