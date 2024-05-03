@@ -23,18 +23,124 @@ const new_media = async function (req, res) {
 
   connection.query(
     `
-     INSERT INTO PlaylistMedia VALUES(${playlist_id}, ${media_id});
-      `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to add new media to playlist" });
-      } else {
-        console.log("New media added successfully!");
-        res.json({ message: "New media added successfully!" });
-      }
+     INSERT INTO PlaylistMedia VALUES(${playlist_id}, '${media_id}');
+      `
+  ),
+  (err) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ error: "Failed to add new media to playlist" });
+    } else {
+      console.log("New media added successfully!");
     }
-  );
+  };
+
+  //Updates the max_mood of the given playlist
+  connection.query(
+    `
+    UPDATE Playlist Set max_mood = (
+      WITH scores AS (SELECT playlist_id, SUM(christmas) AS christmas, SUM(halloween) AS halloween, SUM(valentine) AS valentine,
+                      SUM(celebration) AS celebration, SUM(relaxing) AS relaxing, SUM(nature) AS nature, SUM(industrial) AS industrial,
+                      SUM(sunshine) AS sunshine, SUM(sad) AS sad, SUM(happy) AS happy, SUM(summer) AS summer, SUM(winter) AS winter,
+                      SUM(sports) AS sports, SUM(playful) AS playful, SUM(energetic) AS energetic, SUM(scary) AS scary, SUM(anger) AS anger,
+                      SUM(optimistic) AS optimistic, SUM(adventurous) AS adventurous, SUM(learning) AS learning, SUM(artistic) AS artistic,
+                      SUM(science) AS science, SUM(cozy) AS cozy, SUM(colorful) AS colorful, SUM(space) AS space
+              FROM PlaylistMedia p
+              JOIN MediaMoods m ON p.media_id = m.media_id
+              WHERE p.playlist_id = ${playlist_id}
+              GROUP BY playlist_id)
+      SELECT CASE
+          WHEN christmas = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "christmas"
+          WHEN halloween = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "halloween"
+          WHEN valentine = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "valentine"
+          WHEN celebration = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "celebration"
+          WHEN relaxing = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "relaxing"
+          WHEN nature = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "nature"
+          WHEN industrial = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "industrial"
+          WHEN sunshine = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sunshine"
+          WHEN sad = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sad"
+          WHEN happy = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "happy"
+          WHEN summer = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "summer"
+          WHEN winter = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "winter"
+          WHEN sports = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sports"
+          WHEN playful = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "playful"
+          WHEN energetic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "energetic"
+          WHEN scary = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "scary"
+          WHEN anger = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "anger"
+          WHEN optimistic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "optimistic"
+          WHEN adventurous = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "adventurous"
+          WHEN learning = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "learning"
+          WHEN artistic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "artistic"
+          WHEN science = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "science"
+          WHEN cozy = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "cozy"
+          WHEN colorful = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "colorful"
+          WHEN space = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "space"
+          ELSE "None"
+      END AS max_mood
+      FROM scores)
+      WHERE playlist_id = ${playlist_id};
+      `
+  ),
+  (err) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ error: "Failed to add new media to playlist" });
+    } else {
+      console.log("max_mood updated!");
+      res.json({ message: "New media added successfully!" });
+    }
+  };
+  
 };
 
 // Route B: POST /new_playlist
@@ -231,7 +337,7 @@ const delete_media = async function (req, res) {
 
   connection.query(
     `
-     DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id} AND media_id = ${media_id};
+     DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id} AND media_id = '${media_id}';
       `,
     (err) => {
       if (err) {
@@ -241,6 +347,126 @@ const delete_media = async function (req, res) {
           .json({ error: "Failed to delete media from playlist." });
       } else {
         console.log("Media deleted successfully!");
+      }
+    }
+  );
+
+  //Updates the max_mood of the given playlist
+  connection.query(
+    `
+    UPDATE Playlist Set max_mood = (
+      WITH scores AS (SELECT playlist_id, SUM(christmas) AS christmas, SUM(halloween) AS halloween, SUM(valentine) AS valentine,
+                      SUM(celebration) AS celebration, SUM(relaxing) AS relaxing, SUM(nature) AS nature, SUM(industrial) AS industrial,
+                      SUM(sunshine) AS sunshine, SUM(sad) AS sad, SUM(happy) AS happy, SUM(summer) AS summer, SUM(winter) AS winter,
+                      SUM(sports) AS sports, SUM(playful) AS playful, SUM(energetic) AS energetic, SUM(scary) AS scary, SUM(anger) AS anger,
+                      SUM(optimistic) AS optimistic, SUM(adventurous) AS adventurous, SUM(learning) AS learning, SUM(artistic) AS artistic,
+                      SUM(science) AS science, SUM(cozy) AS cozy, SUM(colorful) AS colorful, SUM(space) AS space
+              FROM PlaylistMedia p
+              JOIN MediaMoods m ON p.media_id = m.media_id
+              WHERE p.playlist_id = ${playlist_id}
+              GROUP BY playlist_id)
+      SELECT CASE
+          WHEN christmas = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "christmas"
+          WHEN halloween = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "halloween"
+          WHEN valentine = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "valentine"
+          WHEN celebration = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "celebration"
+          WHEN relaxing = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "relaxing"
+          WHEN nature = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "nature"
+          WHEN industrial = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "industrial"
+          WHEN sunshine = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sunshine"
+          WHEN sad = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sad"
+          WHEN happy = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "happy"
+          WHEN summer = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "summer"
+          WHEN winter = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "winter"
+          WHEN sports = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "sports"
+          WHEN playful = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "playful"
+          WHEN energetic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "energetic"
+          WHEN scary = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "scary"
+          WHEN anger = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "anger"
+          WHEN optimistic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "optimistic"
+          WHEN adventurous = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "adventurous"
+          WHEN learning = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "learning"
+          WHEN artistic = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "artistic"
+          WHEN science = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "science"
+          WHEN cozy = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "cozy"
+          WHEN colorful = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "colorful"
+          WHEN space = GREATEST(christmas, halloween, valentine, celebration, relaxing, nature, industrial, sunshine, sad,
+                                    happy, summer, winter, sports, playful, energetic, scary, anger, optimistic, adventurous,
+                                    learning, artistic, science, cozy, colorful, space) THEN "space"
+          ELSE "None"
+      END AS max_mood
+      FROM scores)
+      WHERE playlist_id = ${playlist_id};
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to update max_mood" });
+      } else {
+        console.log("Playlist max_mood updated successfully!");
+      }
+    }
+  );
+
+  //IF we removed all data from a playlist, we will get a null value, so we handle that.
+  connection.query(
+    `
+    UPDATE Playlist Set max_mood = IFNULL(max_mood, "None") WHERE playlist_id = ${playlist_id};
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to handle null max_mood" });
+      } else {
+        console.log("Handled null max_mood");
         res.json({ message: "Media deleted successfully!" });
       }
     }
