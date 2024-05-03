@@ -65,7 +65,7 @@ function SearchPage() {
         show: {
             year_range: [1980, 2023],
             genre: [],
-            rating_num: 0
+            rating_num: 1
         },
         song: {
             year_range: [1980, 2023],
