@@ -337,7 +337,7 @@ const delete_collaborator = async function (req, res) {
 
   connection.query(
     `
-     DELETE FROM CollabortesOn WHERE playlist_id = ${playlist_id} AND user_id = ${user_id};
+     DELETE FROM CollabortesOn WHERE playlist_id = ${playlist_id} AND user_id = '${user_id}';
       `,
     (err) => {
       if (err) {
@@ -1606,7 +1606,7 @@ const user = async function (req, res) {
   // We get a number of random songs from the database which have a high value of the given mood
   connection.query(
     `
-        SELECT * FROM Users WHERE user_id=${userID};
+        SELECT * FROM Users WHERE user_id= '${userID}';
     `,
     (err, data) => {
       if (err || data.length === 0) {
