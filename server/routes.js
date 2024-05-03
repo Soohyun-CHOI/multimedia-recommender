@@ -598,36 +598,58 @@ const playlist = async function (req, res) {
 
   connection.query(
     `
-      SELECT 
-        s.media_id, 
-        COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
-        COALESCE (book_table.creator, music_table.creator, game_table.creator) AS creator,
-        image
-      FROM Playlist AS p
-      LEFT JOIN PlaylistMedia AS s ON s.playlist_id = p.playlist_id
-      LEFT JOIN (
-        SELECT b.book_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS creator
-        FROM Books b
-        LEFT JOIN Authors a ON b.book_id = a.book_id
-        GROUP BY b.book_id
-      ) book_table ON s.media_id = book_table.book_id
-      LEFT JOIN (
-        SELECT song_id, title, artist AS creator 
-        FROM Music
-      ) music_table ON s.media_id = music_table.song_id
-      LEFT JOIN (
-        SELECT app_id, name AS title, developers AS creator 
-        FROM Games
-      ) game_table ON s.media_id = game_table.app_id
-      LEFT JOIN (
-        SELECT movie_id, title 
-        FROM Movie
-      ) movie_table ON s.media_id = movie_table.movie_id
-      LEFT JOIN (
-        SELECT show_id, series_title 
-        FROM TVShows
-      ) show_table ON s.media_id = show_table.show_id
-      WHERE p.playlist_id = ${playlist_id};
+    CREATE TEMPORARY TABLE IF NOT EXISTS book_table
+    SELECT b.book_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS creator, image
+    FROM Books b
+    LEFT JOIN Authors a ON b.book_id = a.book_id
+    GROUP BY b.book_id
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      }
+    }
+  );
+
+  connection.query(
+    `
+    CREATE UNIQUE INDEX b_index ON book_table(book_id);
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("book_table already has an index.");
+      }
+    }
+  );
+
+  connection.query(
+    `
+      SELECT
+      s.media_id,
+      COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
+      COALESCE (book_table.creator, music_table.creator, game_table.creator) AS creator,
+      COALESCE (book_table.image, music_table.image, game_table.image, movie_table.image, show_table.image) AS image
+    FROM Playlist AS p
+    LEFT JOIN PlaylistMedia AS s ON s.playlist_id = p.playlist_id
+    LEFT JOIN book_table ON s.media_id = book_table.book_id
+    LEFT JOIN (
+      SELECT song_id, title, artist AS creator, image
+      FROM Music
+    ) music_table ON s.media_id = music_table.song_id
+    LEFT JOIN (
+      SELECT app_id, name AS title, developers AS creator, screenshot as image
+      FROM Games
+    ) game_table ON s.media_id = game_table.app_id
+    LEFT JOIN (
+      SELECT movie_id, title, image
+      FROM Movie
+    ) movie_table ON s.media_id = movie_table.movie_id
+    LEFT JOIN (
+      SELECT show_id, series_title, image
+      FROM TVShows
+    ) show_table ON s.media_id = show_table.show_id
+    WHERE p.playlist_id = ${playlist_id};
     `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -1061,6 +1083,17 @@ const ordered_suggestion = async function (req, res) {
     CREATE TEMPORARY TABLE IF NOT EXISTS all_media SELECT media_id, media_type, 0 AS row_num FROM MediaMoods LIMIT 0
   `);
 
+  connection.query(
+    `
+    CREATE UNIQUE INDEX am_index ON all_media(media_id);
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("all_media already has an index.");
+      }
+    }
+  );
+
   // Empty the temporary table
   connection.query(`
     TRUNCATE all_media
@@ -1071,8 +1104,10 @@ const ordered_suggestion = async function (req, res) {
   connection.query(`
   REPLACE INTO all_media
   WITH MediaSum AS(
-      SELECT media_id, media_type, (
-      IF(${christmas}, christmas, 0)+
+      SELECT media_id, media_type, christmas, halloween, valentine, celebration, relaxing, nature, industrial,
+             sunshine, sad, happy, summer, winter, sports, playful, energetic, scary, anger, optimistic,
+             adventurous, learning, artistic, science, cozy, colorful, space,
+      (IF(${christmas}, christmas, 0)+
       IF(${halloween}, halloween, 0)+
       IF(${valentine}, valentine, 0)+
       IF(${celebration}, celebration, 0)+
@@ -1098,10 +1133,9 @@ const ordered_suggestion = async function (req, res) {
       IF(${colorful}, colorful, 0)+
       IF(${space}, space, 0)) AS mood_sum
   FROM MediaMoods
-  GROUP BY media_id, media_type
   )
-      SELECT mm.media_id, mm.media_type, ROW_NUMBER() OVER (PARTITION BY mm.media_type ORDER BY mood_sum DESC) AS row_num
-      FROM MediaMoods mm JOIN MediaSum ms ON mm.media_id = ms.media_id
+      SELECT media_id, media_type, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY mood_sum DESC) AS row_num
+      FROM MediaSum
       WHERE christmas > IF(${christmas}, 50, 0)
         AND halloween > IF(${halloween}, 50, 0)
         AND valentine > IF(${valentine}, 50, 0)
@@ -1161,6 +1195,44 @@ const suggested_media = async function (req, res) {
     )
   `);
 
+  connection.query(
+    `
+    CREATE UNIQUE INDEX sm_index ON suggested_media(media_id);
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("suggested_media already has an index.");
+      }
+    }
+  );
+
+  connection.query(
+    `
+    CREATE TEMPORARY TABLE IF NOT EXISTS book_table
+    SELECT b.book_id, title, GROUP_CONCAT(author ORDER BY author SEPARATOR ',') AS creator, image
+    FROM Books b
+    LEFT JOIN Authors a ON b.book_id = a.book_id
+    GROUP BY b.book_id
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      }
+    }
+  );
+
+  connection.query(
+    `
+    CREATE UNIQUE INDEX b_index ON book_table(book_id);
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log("book_table already has an index.");
+      }
+    }
+  );
+
   // Empty the temporary table
   connection.query(`
     TRUNCATE suggested_media
@@ -1199,10 +1271,7 @@ const suggested_media = async function (req, res) {
         WHEN media_type = 'tv' THEN NULL
     END AS creator
     FROM suggest_rand s
-    LEFT JOIN (SELECT b.book_id, title, GROUP_CONCAT(author, ' , ') AS creator, image
-    FROM Books b
-    JOIN Authors a ON b.book_id=a.book_id
-    GROUP BY b.book_id) book_table
+    LEFT JOIN book_table
     ON s.media_id = book_table.book_id AND s.media_type = 'bk'
     LEFT JOIN (SELECT song_id, title, artist AS creator, image  FROM Music) music_table
     ON s.media_id = music_table.song_id AND s.media_type = 'mu'
@@ -1212,7 +1281,7 @@ const suggested_media = async function (req, res) {
     ON s.media_id = movie_table.movie_id AND s.media_type = 'mv'
     LEFT JOIN (SELECT show_id, series_title AS title, image FROM TVShows) show_table
     ON s.media_id = show_table.show_id AND s.media_type = 'tv'
-    WHERE row_num2 <= 1
+    WHERE row_num2 <= 1;
   `);
 
   connection.query(
