@@ -4,6 +4,7 @@ import "../styles/PlaylistListPage.scss"
 import {useAuth0} from "@auth0/auth0-react";
 import {NavLink} from "react-router-dom";
 import Banner from "../components/Banner";
+import AddPlaylist from "../components/AddPlaylist";
 
 
 const config = require('../config.json');
@@ -12,6 +13,7 @@ const config = require('../config.json');
 function PlaylistListPage() {
     const [playlists, setPlaylists] = useState([]);
     const {user, isAuthenticated} = useAuth0();
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -21,11 +23,25 @@ function PlaylistListPage() {
         }
     }, [isAuthenticated]);
 
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
     return (
         <>
             <Banner/>
             <div className="plist">
-                <div className="title">MY PLAYLISTS</div>
+                <div className="plist-top">
+                    <div className="title">MY PLAYLISTS</div>
+                    <button onClick={handleOpenModal} className="menu">
+                        Create Playlist
+                    </button>
+                </div>
+                <AddPlaylist open={isModalOpen} handleClose={handleCloseModal}/>
                 <div className="media-wrap">
                     {playlists.map((user_playlist) => (
                         <NavLink
@@ -34,7 +50,8 @@ function PlaylistListPage() {
                         >
                             <div className="item">
                                 <div className="title">{user_playlist.title}</div>
-                                <div className="time">{user_playlist.timestamp && user_playlist.timestamp.slice(0, 10)}</div>
+                                <div
+                                    className="time">{user_playlist.timestamp && user_playlist.timestamp.slice(0, 10)}</div>
                             </div>
                         </NavLink>
                     ))}

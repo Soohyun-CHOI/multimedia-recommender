@@ -1,11 +1,87 @@
 @import "init";
 
-#suggest-results {
-  margin: 30px $margin-left;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
 
+.media-controls {
+  margin: 0 30px;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: center;
+  border-radius: 100px;
+  font-weight: 100;
+  font-size: 20px;
+  
+  div {
+    font-family: "Playfair Display", serif;
+    margin-right: 20px;
+  }
+  
+  button {
+    background-color: $plum; // Reusing your color variable
+    color: white; // Contrasting text color for readability
+    border: none;
+    border-radius: 20px;
+    margin: 0 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: darken($plum, 10%); // Darker on hover for feedback
+    }
+
+    &:focus {
+      outline: none; // Removes outline but ensure accessibility considerations
+      box-shadow: 0 0 0 2px lighten($dark-orange, 20%); // Adds a subtle glow
+    }
+
+    &:not(:last-child) {
+      margin-right: 10px; // Spacing between buttons, except the last one
+    }
+    font-style: italic;
+    
+    
+  }
+}
+
+#suggest-results {
+  // margin: 30px $margin-left;
+  // display: flex;
+  // justify-content: space-between;
+  // flex-wrap: wrap;
+  position: relative;
+  margin: 10px 10px;
+  padding-bottom: 40px; // Space for the 'Done' button
+  height: 520px; // Adjust based on your layout needs
+  overflow-y: auto; // Makes the div scrollable
+  border: 1px solid $plum; // Example border added
+  padding: 10px; // Padding to ensure content does not touch the border directly
+  border-radius: 10px;
+
+  .scrollable-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    
+    
+  }
+  button {
+    background-color: $light-orange; // Matching the media-controls button style
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 1px; 
+    width: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: $dark-orange;
+    }
+    
+  }
+  
+  
   .media {
     display: flex;
     flex-direction: column;
@@ -29,5 +105,29 @@
       text-align: center;
       margin-bottom: 4px;
     }
+
+    
   }
+
+}
+.done-button {
+  
+  position: absolute;
+  bottom: 20px; // Adjust this value to control margin from the bottom
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: $light-blue;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 70px;
+  font-size: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: darken($light-blue, 10%); // Darker on hover for feedback
+  }
+
+
+
 }

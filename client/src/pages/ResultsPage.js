@@ -36,7 +36,7 @@ function ResultsPage() {
                 let params = [];
                 const baseApiUrl = `http://${config.server_host}:${config.server_port}/${type}s`;
 
-                params.push(`title=${encodeURIComponent(searchInfo)}`);
+                params.push(`search_input=${encodeURIComponent(searchInfo)}`);
                 params.push(moodParams);
 
                 if (filterData[type]) {
