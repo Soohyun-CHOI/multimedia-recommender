@@ -92,11 +92,11 @@ function AddPlaylist({ open, handleClose }) {
               value={titleInput}
               onChange={(e) => setTitleInput(e.target.value)}
             />
-            <Checkbox
-              name="Public"
-              checked={isPublic}
-              onChange={handleCheckboxChange}
-            />
+            {/*<Checkbox*/}
+            {/*  name="Public"*/}
+            {/*  checked={isPublic}*/}
+            {/*  onChange={handleCheckboxChange}*/}
+            {/*/>*/}
             <label>Public</label>
           </div>
           <div className="footer">
