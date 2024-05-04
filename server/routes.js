@@ -242,7 +242,8 @@ const new_playlist = async function (req, res) {
         res.status(500).json({ error: "Failed to create playlist" });
       } else {
         console.log("New playlist added successfully!");
-        res.json({ message: "New playlist added successfully!" });
+        res.json({ message: "New playlist added successfully!"});
+
       }
     }
   );
@@ -394,7 +395,7 @@ const delete_playlist = async function (req, res) {
       }
     }
   );
-
+  
   connection.query(
     `
     DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id};
@@ -1629,16 +1630,39 @@ const user = async function (req, res) {
   );
 };
 
+
 // Route 13: GET /playlist_max_mood/:playlist_id
 // About: return the max mood of the given playlist
 // Input param: playlist_id
 // Return: max_mood
 const playlist_max_mood = async function (req, res) {
+    const playlist_id = req.params.playlist_id;
+
+    connection.query(
+        `
+     SELECT max_mood FROM Playlist AS p WHERE p.playlist_id = ${playlist_id};
+    `,
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log(err);
+                res.json([]);
+            } else {
+                res.json(data);
+            }
+        }
+    );
+};
+
+// Route 14: GET /collaborators/:playlist_id
+// About: return all the collaborators of the given playlist
+// Input param: playlist_id
+// Return: collaborator
+const collaborators = async function (req, res) {
   const playlist_id = req.params.playlist_id;
 
   connection.query(
     `
-     SELECT max_mood FROM Playlist AS p WHERE p.playlist_id = ${playlist_id};
+      SELECT user_id FROM CollaboratesOn WHERE playlist_id = ${playlist_id};
     `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -1650,6 +1674,7 @@ const playlist_max_mood = async function (req, res) {
     }
   );
 };
+
 
 module.exports = {
   random_shows,
@@ -1681,4 +1706,5 @@ module.exports = {
   media,
   playlist_max_mood,
   recent_playlist,
+  collaborators
 };

@@ -24,7 +24,7 @@ export default function App() {
                 <Route path="/suggestions" element={<SuggestionPage/>}/>
                 <Route path="/media/:mediaId" element={<MediaDetailPage/>}/>
                 <Route path="/account" element={<AccountInfoPage/>}/>
-                <Route path="/playlist/:playlist_id" element={<PlaylistDetailPage/>}/>
+                <Route path="/playlist/:playlistId" element={<PlaylistDetailPage/>}/>
             </Routes>
         </div>
     );

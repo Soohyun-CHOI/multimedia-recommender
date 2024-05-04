@@ -59,7 +59,6 @@ function HomePage() {
     if (str.length >= 24) return str.slice(0, 25) + "...";
     return str;
   }
-
   return (
     <>
       <div className="main-banner">
@@ -68,7 +67,7 @@ function HomePage() {
           {isAuthenticated && (
             <>
               <button onClick={handleOpenModal} className="menu">
-                Add Playlist
+                Create Playlist
               </button>
               <NavLink className="menu" to="/playlists">
                 My Playlists
