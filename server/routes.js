@@ -663,31 +663,32 @@ const playlist = async function (req, res) {
 
   connection.query(
     `
-      SELECT
-      s.media_id,
+     SELECT
+      p.title AS playlist_title, s.media_id,
       COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
       COALESCE (book_table.creator, music_table.creator, game_table.creator) AS creator,
-      COALESCE (book_table.image, music_table.image, game_table.image, movie_table.image, show_table.image) AS image
+      COALESCE (book_table.image, music_table.image, game_table.image, movie_table.image, show_table.image) AS image,
+      COALESCE (book_table.media_type, music_table.media_type, game_table.media_type, movie_table.media_type, show_table.media_type) AS media_type
     FROM Playlist AS p
     LEFT JOIN PlaylistMedia AS s ON s.playlist_id = p.playlist_id
     LEFT JOIN (
-      SELECT media_id, title, authors AS creator, image
+      SELECT media_id, title, authors AS creator, image, media_type
       FROM Books_Combined
     ) book_table ON s.media_id = book_table.media_id
     LEFT JOIN (
-      SELECT song_id, title, artist AS creator, image
+      SELECT song_id, title, artist AS creator, image, 'mu' AS media_type
       FROM Music
     ) music_table ON s.media_id = music_table.song_id
     LEFT JOIN (
-      SELECT app_id, name AS title, developers AS creator, screenshot as image
+      SELECT app_id, name AS title, developers AS creator, screenshot as image, 'gm' AS media_type
       FROM Games
     ) game_table ON s.media_id = game_table.app_id
     LEFT JOIN (
-      SELECT movie_id, title, image
+      SELECT movie_id, title, image, 'mv' AS media_type
       FROM Movie
     ) movie_table ON s.media_id = movie_table.movie_id
     LEFT JOIN (
-      SELECT show_id, series_title, image
+      SELECT show_id, series_title, image, 'tv' AS media_type
       FROM TVShows
     ) show_table ON s.media_id = show_table.show_id
     WHERE p.playlist_id = ${playlist_id};
