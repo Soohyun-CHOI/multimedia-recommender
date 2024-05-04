@@ -23,8 +23,10 @@ function MediaDetailPage() {
             <div id="media-detail">
                 <img src={media.image} alt=""/>
                 <div className="contents">
+                    <div className="media-type">
+                        {(media.media_type || " ").toUpperCase()}
+                    </div>
                     <div className="title">{media.title}</div>
-
                     {media.media_type === "mv" && (
                         <>
                             <div className="info-wrap">
@@ -43,7 +45,7 @@ function MediaDetailPage() {
                             <div className="info-wrap">
                                 <div className="info"><span>• Release Year :</span> {media.release_year}</div>
                                 <div className="info"><span>• Genre :</span> {media.genres}</div>
-                                <div className="info"><span>• Rating :</span> {media.rating} / 5</div>
+                                <div className="info"><span>• Rating :</span> {media.rating} / 10</div>
                                 <div className="info"><span>• Cast :</span> {media.cast}</div>
                             </div>
                             <div className="description">

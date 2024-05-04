@@ -11,6 +11,18 @@
     margin-right: 40px;
   }
 
+  .media-type {
+    font-size: 16px;
+    font-weight: 500;
+    width: 40px;
+    padding: 3px 0;
+    border: 2px solid $light-blue;
+    border-radius: 100px;
+    color: $light-blue;
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
   .title {
     font-size: 34px;
     font-weight: 700;

@@ -10,7 +10,7 @@
   .title {
     font-family: "Playfair Display", serif;
     font-size: 70px;
-    margin: 50px 0 70px;
+    margin: 50px 0 50px;
     color: $dark-teal;
   }
 
@@ -21,19 +21,19 @@
     font-weight: 500;
     font-size: 20px;
 
-    &:first-child {
-      background: $yellow;  // Example color variable
-      color: $dark-teal;
-      
-    }
-    &:nth-child(2) {
-      background: $dark-teal;
-      color: white
+    background: $dark-teal;
+    color: $light-orange;
+    border: 2px solid $dark-teal;
+
+    &:hover {
+      cursor: pointer;
     }
 
-    &:last-child {
-      border: 1px solid $dark-teal;
+    &:nth-child(2) {
+      border: 2px solid $dark-teal;
+      background: $light-orange;
       color: $dark-teal;
+      font-weight: 700;
     }
   }
 }
@@ -71,13 +71,14 @@
 
       .media-type {
         font-size: 14px;
-        width: 34px;
+        width: 38px;
         padding: 3px 0;
-        border: 1px solid $dark-orange;
+        border: 2px solid $plum;
+        font-weight: 500;
         border-radius: 100px;
-        color: $dark-orange;
+        color: $plum;
         text-align: center;
-        margin-bottom: 4px;
+        margin-bottom: 5px;
       }
     }
   }

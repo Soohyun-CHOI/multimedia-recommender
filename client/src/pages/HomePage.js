@@ -67,7 +67,7 @@ function HomePage() {
                     {isAuthenticated && (
                         <>
                             <button onClick={handleOpenModal} className="menu">
-                                Add Playlist
+                                Create Playlist
                             </button>
                             <NavLink className="menu" to="/playlists">
                                 My Playlists
