@@ -15,6 +15,27 @@ connection.connect((err) => err && console.log(err));
 
 // NEW ROUTES:
 
+// Route 0: GET /recent_playlist
+// About: Returns most recent playlist created by user
+const recent_playlist = async function (req, res) {
+  const user_id = req.query.user_id;
+  let query = `
+        SELECT playlist_id
+        FROM Playlist WHERE user_id = '${user_id}'
+        ORDER BY timestamp DESC
+        LIMIT 1;
+    `;
+
+  connection.query(query, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json();
+    } else {
+      res.json(data);
+    }
+  });
+};
+
 // Route 0: GET /media
 // About: Gets a media based on media_id
 const media = async function (req, res) {
@@ -1658,5 +1679,6 @@ module.exports = {
   delete_media,
   delete_playlist,
   media,
-  playlist_max_mood
+  playlist_max_mood,
+  recent_playlist,
 };
