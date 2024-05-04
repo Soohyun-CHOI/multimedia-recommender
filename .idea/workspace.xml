@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3fddf8e5-6253-43d9-a5d4-d6f73a197baf" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/client/src/pages/MediaDetailPage.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/AddPlaylist.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/AddPlaylist.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/pages/FiltersPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/FiltersPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/pages/SuggestionPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/SuggestionPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/MediaDetailPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/MediaDetailPage.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/server.js" afterDir="false" />
     </list>

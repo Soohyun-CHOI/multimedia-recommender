@@ -10,6 +10,7 @@ function MediaDetailPage() {
         <>
             <Banner/>
             <div>{mediaId}</div>
+
         </>
     )
 }

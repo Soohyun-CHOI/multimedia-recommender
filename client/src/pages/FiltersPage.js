@@ -1,15 +1,17 @@
 import React, {useState} from 'react';
 import {Box, Button} from '@mui/material';
-import {NavLink} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import "../styles/Filters.scss"
 import christmasImage from '../assets/image/christmas_themed.jpg'
 import halloweenImage from '../assets/image/halloween_themed.jpg'
+import Banner from "../components/Banner";
 
 const config = require('../config.json');
 
 function FiltersPage() {
     const [christmasTag, setChristmasTag] = useState(false);
     const [halloweenTag, setHalloweenTag] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -32,6 +34,7 @@ function FiltersPage() {
             }
             const data = await response.json();
             console.log('Response:', data);
+            navigate("/suggestions");
         } catch (error) {
             console.error('failure', error);
             alert('failure');
@@ -40,6 +43,7 @@ function FiltersPage() {
 
     return (
         <>
+            <Banner/>
             <Box className='filter-page'>
                 <div className='header'>Select Options</div>
                 <div className='selections'>
@@ -63,16 +67,10 @@ function FiltersPage() {
                     </Box>
                 </div>
 
-                <NavLink to="/suggestions">
-                    <Button onClick={handleSubmit}>Submit</Button>
-                </NavLink>
-
+                <Button onClick={handleSubmit}>Submit</Button>
             </Box>
         </>
     )
-
-
-};
-
+}
 
 export default FiltersPage;
