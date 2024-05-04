@@ -57,8 +57,12 @@ function PlaylistDetailPage() {
                 <div className="title">{playlistContents[0] ? playlistContents[0].playlist_title : ""}</div>
                 <div className="buttons">
                     <button onClick={toggleEditMode}>{isEditing ? "Cancel" : "Edit"}</button>
-                    {isEditing && (
+                    {isEditing ? (
                         <button onClick={handleSubmit} className="submit">Submit</button>
+                    ) : (
+                        <NavLink to="/search">
+                            <div className="more">Search More Media +</div>
+                        </NavLink>
                     )}
                 </div>
 
