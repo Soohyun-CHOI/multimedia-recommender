@@ -1,11 +1,12 @@
 import React from "react";
-import {useState, useEffect} from "react";
-import {NavLink, useParams} from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, useParams } from "react-router-dom";
 import Banner from "../components/Banner";
-import {handleStringSize} from "../helpers/helpers";
+import { handleStringSize } from "../helpers/helpers";
 import "../styles/PlaylistDetailPage.scss";
+import defaultImage from "../assets/image/movie_default.jpg";
 
-const config = require('../config.json');
+const config = require("../config.json");
 
 function PlaylistDetailPage() {
     const params = useParams();
@@ -25,13 +26,15 @@ function PlaylistDetailPage() {
     const [isAddingCollab, setIsAddingCollab] = useState(false);
     const [newCollabId, setNewCollabId] = useState("");
 
-    useEffect(() => {
-        fetch(`http://${config.server_host}:${config.server_port}/playlist/${playlistId}`)
-            .then(res => res.json())
-            .then(resJson => {
-                setPlaylistContents(resJson);
-                setEditList(resJson);
-            });
+  useEffect(() => {
+    fetch(
+      `http://${config.server_host}:${config.server_port}/playlist/${playlistId}`
+    )
+      .then((res) => res.json())
+      .then((resJson) => {
+        setPlaylistContents(resJson);
+        setEditList(resJson);
+      });
 
         fetch(`http://${config.server_host}:${config.server_port}/playlist_max_mood/${playlistId}`)
             .then(res => res.json())
@@ -45,13 +48,13 @@ function PlaylistDetailPage() {
             });
     }, [playlistId]);
 
-    const toggleEditMode = () => {
-        if (isEditing) {
-            setEditList([...playlistContents]);
-            setDeletedItems([]);
-        }
-        setIsEditing(!isEditing);
+  const toggleEditMode = () => {
+    if (isEditing) {
+      setEditList([...playlistContents]);
+      setDeletedItems([]);
     }
+    setIsEditing(!isEditing);
+  };
 
     const toggleEditCollabMode = () => {
         if (isEditingCollab) {
@@ -79,10 +82,12 @@ function PlaylistDetailPage() {
                 body: JSON.stringify({playlist_id: playlistId, media_id: mediaId})
             });
         }
-        setPlaylistContents(editList);
-        setDeletedItems([]);
-        setIsEditing(false)
+      );
     }
+    setPlaylistContents(editList);
+    setDeletedItems([]);
+    setIsEditing(false);
+  };
 
     const handleSubmitCollab = async () => {
         for (let userId of deletedCollab) {
@@ -203,8 +208,24 @@ function PlaylistDetailPage() {
                     </div>
                 )}
             </div>
-        </>
-    );
+            <NavLink to={`/media/${media.media_id}`}>
+              <img
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = defaultImage;
+                }}
+                src={media.image}
+                alt="media image"
+              />
+            </NavLink>
+            <NavLink to={`/media/${media.media_id}`} className="media-title">
+              {handleStringSize(media.title)}
+            </NavLink>
+          </div>
+        ))}
+      </div>
+    </>
+  );
 }
 
 export default PlaylistDetailPage;
