@@ -1,0 +1,13 @@
+@import "init";
+
+.title-wrap {
+  margin: 30px $margin-left;
+  display: flex;
+  justify-content: space-between;
+
+  .title {
+    color: $dark-teal;
+    font-size: 30px;
+    font-weight: 700;
+  }
+}
