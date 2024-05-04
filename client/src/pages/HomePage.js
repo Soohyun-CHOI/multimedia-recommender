@@ -5,6 +5,7 @@ import config from "../config.json";
 import { handleStringSize } from "../helpers/helpers";
 import AddPlaylist from "../components/AddPlaylist";
 import { useAuth0 } from "@auth0/auth0-react";
+import defaultImage from "../assets/image/movie_default.jpg";
 
 function HomePage() {
   const [summer, setSummer] = useState([]);
@@ -96,7 +97,14 @@ function HomePage() {
                 {(media.media_type || " ").toUpperCase()}
               </div>
               <NavLink to={`/media/${media.media_id}`}>
-                <img src={media.image} alt="" />
+                <img
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = defaultImage;
+                  }}
+                  src={media.image}
+                  alt="media image"
+                />
               </NavLink>
               <NavLink to={`/media/${media.media_id}`} className="media-title">
                 {handleStringSize(media.title)}
@@ -114,7 +122,14 @@ function HomePage() {
                 {(media.media_type || " ").toUpperCase()}
               </div>
               <NavLink to={`/media/${media.media_id}`}>
-                <img src={media.image} alt="" />
+                <img
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = defaultImage;
+                  }}
+                  src={media.image}
+                  alt="media image"
+                />
               </NavLink>
               <NavLink to={`/media/${media.media_id}`} className="media-title">
                 {handleStringSize(media.title)}
