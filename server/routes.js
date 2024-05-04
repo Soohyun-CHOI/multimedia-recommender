@@ -648,11 +648,12 @@ const additional_media = async function (req, res) {
     `);
 
   //query = `SELECT * FROM suggested_media;`;
-  connection.query(`SELECT * FROM suggested_media ORDER BY RAND();`, (err, data) => {
+  connection.query(`SELECT * FROM suggested_media;`, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
       res.json([]);
     } else {
+      console.log("WE ARE WORKIGN");
       res.json(data);
     }
   });
@@ -1334,7 +1335,7 @@ const suggested_media = async function (req, res) {
 
   connection.query(
     `
-    SELECT * FROM suggested_media ORDER BY RAND()
+    SELECT * FROM suggested_media
   `,
     (err, data) => {
       if (err || data.length === 0) {
