@@ -91,7 +91,7 @@ function HomePage() {
             <div className="theme">
                 <div className="title">Summer for You</div>
                 <div className="media-wrap">
-                    {summer.map((media) => (
+                    {summer.map(media => (
                         <div className="media" key={media.media_id}>
                             <div className="media-type">
                                 {(media.media_type || " ").toUpperCase()}
@@ -116,7 +116,7 @@ function HomePage() {
             <div className="theme">
                 <div className="title">Happy for You</div>
                 <div className="media-wrap">
-                    {happy.map((media) => (
+                    {happy.map(media => (
                         <div className="media" key={media.media_id}>
                             <div className="media-type">
                                 {(media.media_type || " ").toUpperCase()}

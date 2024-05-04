@@ -4,31 +4,27 @@
     margin: 20px $margin-left;
 
     .title {
-        font-weight: 500;
-        font-size: 22px;
-        margin-bottom: 5px;
+        font-weight: 700;
+        font-size: 30px;
+        margin-bottom: 20px;
+        color: $plum;
     }
     .media-wrap {
-        display: block;
-        padding: 5px;
-        
-        overflow-x: auto;
 
         .item {
-            border: 1px solid #dddddd;
-            border-radius: 20px;
-            font-size: 14px;
-            padding: 10px;
-            margin-bottom: 10px; // Add some space between items
-    
-            h3 {
-                margin-bottom: 5px; // Space between the title and the creator name
-            }
-    
-            p {
-                font-size: 12px; // Smaller font size for creator's name
-                color: $dark-orange; // Different color for distinction
-                margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 50px;
+            border: 1px solid $dark-teal;
+            border-radius: 10px;
+            height: 80px;
+            margin-bottom: 14px;
+
+            .title {
+                font-size: 24px;
+                color: $dark-teal;
+                margin: 0;
             }
         }
     }

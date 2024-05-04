@@ -8,9 +8,10 @@
   padding: 0 5%;
   background: $dark-teal;
 
-  img {
-    width: 60px;
-    height: 60px;
+  .logo {
+    font-family: "Playfair Display", serif;
+    font-size: 20px;
+    color: $yellow;
   }
 
   .menu {
