@@ -34,3 +34,24 @@
     font-weight: 700;
   }
 }
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+
+  button {
+    border: 2px solid $plum;
+    background: white;
+    color: $plum;
+    border-radius: 100px;
+    width: 26px;
+    height: 26px;
+    font-size: 18px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}

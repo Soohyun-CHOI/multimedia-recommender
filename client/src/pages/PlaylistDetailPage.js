@@ -66,8 +66,13 @@ function PlaylistDetailPage() {
             <div className="media-list">
                 {editList.map(media =>
                     <div className="media" key={media.media_id}>
-                        <div className="media-type">
-                            {(media.media_type || " ").toUpperCase()}
+                        <div className="top">
+                            <div className="media-type">
+                                {(media.media_type || " ").toUpperCase()}
+                            </div>
+                            {isEditing && (
+                                <button onClick={() => handleDelete(media.media_id)}>X</button>
+                            )}
                         </div>
                         <NavLink to={`/media/${media.media_id}`}>
                             <img src={media.image} alt=""/>
@@ -75,9 +80,6 @@ function PlaylistDetailPage() {
                         <NavLink to={`/media/${media.media_id}`} className="media-title">
                             {handleStringSize(media.title)}
                         </NavLink>
-                        {isEditing && (
-                            <button onClick={() => handleDelete(media.media_id)}>Delete</button>
-                        )}
                     </div>
                 )}
             </div>
