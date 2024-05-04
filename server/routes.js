@@ -15,6 +15,34 @@ connection.connect((err) => err && console.log(err));
 
 // NEW ROUTES:
 
+// Route 0: GET /media
+// About: Gets a media based on media_id
+// Route 12: GET /user/:user_id
+const media = async function (req, res) {
+  const media_id = req.params.media_id;
+  const type = media_id.substring(0, 2);
+  let table = "";
+
+  if (type == "bk") {
+  }
+
+  // image, title, creator, media_type, description
+  connection.query(
+    `
+        SELECT * FROM Users WHERE media_id = '${media_id}';
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json();
+      } else {
+        // Here, we return results of the query
+        res.json(data);
+      }
+    }
+  );
+};
+
 // Route A: POST /new_media
 // About: Adds a new media item to the playlist
 const new_media = async function (req, res) {
