@@ -14,12 +14,6 @@ function PlaylistListPage() {
     
 
     useEffect(() => {
-        // fetch(`${config.server_host}:${config.server_port}/account_info`)
-        //     .then(res => res.json())
-        //     .then(resJson => {
-        //         setUserId(resJson.userId);
-        //     })
-
         fetch(`http://${config.server_host}:${config.server_port}/user_playlist/${user.email}`)
             .then(res => res.json())
             .then(resJson => setPlaylists(resJson));
