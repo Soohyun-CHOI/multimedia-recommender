@@ -764,8 +764,8 @@ const games = async function (req, res) {
     const game_score = req.query.game_score ?? 0;
     const year_min = req.query.year_min ?? 0;
     const year_max = req.query.year_max ?? 2030;
-    const category = req.query.category == "" ? ".*" : req.query.category;
-    const genre = req.query.genre == "" ? ".*" : req.query.genre;
+    const category = (req.query.category == "" || req.query.category == null)? ".*" : req.query.category;
+    const genre = (req.query.genre == "" || req.query.genre == null)? ".*" : req.query.genre;
 
     const christmas = req.query.christmas ?? false;
     const halloween = req.query.halloween ?? false;
@@ -850,7 +850,8 @@ const books = async function (req, res) {
     const searchInput = req.query.search_input ?? "";
     const year_min = req.query.year_min ?? 0;
     const year_max = req.query.year_max ?? 2030;
-    const category = req.query.category == "" ? ".*" : req.query.category;
+    const category = (req.query.category == "" || req.query.category == null)? ".*" : req.query.category;
+    
 
     const christmas = req.query.christmas ?? false;
     const halloween = req.query.halloween ?? false;
@@ -1364,7 +1365,7 @@ const shows = async function (req, res) {
     const searchInput = req.query.search_input ?? "";
     const yearMin = req.query.year_min ?? 0;
     const yearMax = req.query.year_max ?? 2030;
-    const genre = req.query.genre == "" ? ".*" : req.query.genre;
+    const genre = (req.query.genre == "" || req.query.genre == null)? ".*" : req.query.genre;
     const ratingNum = req.query.rating_num ?? 0;
 
     const christmas = req.query.christmas ?? false;
@@ -1453,7 +1454,7 @@ const movies = async function (req, res) {
     const searchInput = req.query.search_input ?? "";
     const yearMin = req.query.year_min ?? 0;
     const yearMax = req.query.year_max ?? 2030;
-    const genre = req.query.genre == "" ? ".*" : req.query.genre;
+    const genre = (req.query.genre == "" || req.query.genre == null)? ".*" : req.query.genre;
 
     const christmas = req.query.christmas ?? false;
     const halloween = req.query.halloween ?? false;
@@ -1540,7 +1541,7 @@ const songs = async function (req, res) {
     const searchInput = req.query.search_input ?? "";
     const yearMin = req.query.year_min ?? 0;
     const yearMax = req.query.year_max ?? 2030;
-    const tagList = req.query.tag_list == "" ? ".*" : req.query.tag_list;
+    const tagList = (req.query.tag_list == "" || req.query.tag_list == null)? ".*" : req.query.tag_list;
 
     const christmas = req.query.christmas ?? false;
     const halloween = req.query.halloween ?? false;
