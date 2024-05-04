@@ -239,27 +239,27 @@ const user_playlist_search = async function (req, res) {
   connection.query(
     `
     WITH personal_playlists AS (
-      SELECT playlist_id, image, title, username AS creator, timestamp, public
+      SELECT playlist_id, image, title, timestamp, public
       FROM Playlist p
       LEFT JOIN Users u ON p.user_id = u.user_id
-      WHERE p.user_id = ${user_id}
+      WHERE p.user_id = '${user_id}'
     ), my_collabs AS (
       SELECT playlist_id
       FROM CollaboratesOn c
-      WHERE user_id = ${user_id}
+      WHERE user_id = '${user_id}'
     ), collab_playlists AS (
-      SELECT p.playlist_id, image, title, username AS creator, timestamp, public
+      SELECT p.playlist_id, image, title, timestamp, public
       FROM my_collabs m
       LEFT JOIN Playlist p ON p.playlist_id = m.playlist_id
       LEFT JOIN Users u ON p.user_id = u.user_id
       WHERE p.playlist_id NOT IN (SELECT playlist_id FROM personal_playlists) 
     )
-    SELECT playlist_id, image, title, creator, timestamp, public, collab
+    SELECT playlist_id, image, title, timestamp, public, collab
     FROM (
-      SELECT playlist_id, image, title, creator, timestamp, public, 0 AS collab
+      SELECT playlist_id, image, title, timestamp, public, 0 AS collab
       FROM personal_playlists
       UNION
-      SELECT playlist_id, image, title, creator, timestamp, public, 1 AS collab
+      SELECT playlist_id, image, title, timestamp, public, 1 AS collab
       FROM collab_playlists
     ) AS subquery
     WHERE title LIKE '%${search}%'
@@ -289,7 +289,7 @@ const all_playlist_search = async function (req, res) {
 
   connection.query(
     `
-    SELECT playlist_id, image, title, Users.username AS creator, timestamp, public
+    SELECT playlist_id, image, title, timestamp, public
     FROM Playlist
     LEFT JOIN Users ON Playlist.user_id = Users.user_id
     WHERE title LIKE '%${search}%' AND public = 1
@@ -575,27 +575,27 @@ const user_playlist = async function (req, res) {
   connection.query(
     `
     WITH personal_playlists AS (
-      SELECT playlist_id, image, title, username AS creator, timestamp, public
+      SELECT playlist_id, image, title, timestamp, public
       FROM Playlist p
       LEFT JOIN Users u ON p.user_id = u.user_id
-      WHERE p.user_id = ${user_id}
+      WHERE p.user_id = '${user_id}'
     ), my_collabs AS (
       SELECT playlist_id
       FROM CollaboratesOn c
-      WHERE user_id = ${user_id}
+      WHERE user_id = '${user_id}'
     ), collab_playlists AS (
-      SELECT p.playlist_id, image, title, username AS creator, timestamp, public
+      SELECT p.playlist_id, image, title, timestamp, public
       FROM my_collabs m
       LEFT JOIN Playlist p ON p.playlist_id = m.playlist_id
       LEFT JOIN Users u ON p.user_id = u.user_id
       WHERE p.playlist_id NOT IN (SELECT playlist_id FROM personal_playlists) 
     )
-    SELECT playlist_id, image, title, creator, timestamp, public, collab
+    SELECT playlist_id, image, title, timestamp, public, collab
     FROM (
-      SELECT playlist_id, image, title, creator, timestamp, public, 0 AS collab
+      SELECT playlist_id, image, title, timestamp, public, 0 AS collab
       FROM personal_playlists
       UNION
-      SELECT playlist_id, image, title, creator, timestamp, public, 1 AS collab
+      SELECT playlist_id, image, title, timestamp, public, 1 AS collab
       FROM collab_playlists
     ) AS subquery
     ORDER BY subquery.timestamp DESC
@@ -1519,7 +1519,7 @@ const user = async function (req, res) {
   // We get a number of random songs from the database which have a high value of the given mood
   connection.query(
     `
-        SELECT * FROM Users WHERE user_id= '${userID}';
+        SELECT * FROM Users WHERE user_id='${userID}';
     `,
     (err, data) => {
       if (err || data.length === 0) {
