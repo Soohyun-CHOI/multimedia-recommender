@@ -175,8 +175,7 @@ const new_media = async function (req, res) {
       END AS max_mood
       FROM scores)
       WHERE playlist_id = ${playlist_id};
-      `
-  ),
+      `,
     (err) => {
       if (err) {
         console.log(err);
@@ -185,7 +184,8 @@ const new_media = async function (req, res) {
         console.log("max_mood updated!");
         res.json({ message: "New media added successfully!" });
       }
-    };
+    }
+  );
 };
 
 // Route B: POST /new_playlist
@@ -598,15 +598,14 @@ const additional_media = async function (req, res) {
     `);
 
   //query = `SELECT * FROM suggested_media;`;
-  connection.query(`SELECT * FROM suggested_media;`),
-    connection.query(query, (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
-      }
-    });
+  connection.query(`SELECT * FROM suggested_media;`, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json([]);
+    } else {
+      res.json(data);
+    }
+  });
 };
 
 // Route 2: GET /user_playlist/:user_id (ALLY)
@@ -1207,6 +1206,8 @@ const ordered_suggestion = async function (req, res) {
 
 // Route 8: GET /suggested_media
 const suggested_media = async function (req, res) {
+  const numMedia = req.body.num_media ?? 1;
+
   // Create the temporary table if it does not exist already
   connection.query(`
     CREATE TEMPORARY TABLE IF NOT EXISTS suggested_media (
@@ -1277,7 +1278,7 @@ const suggested_media = async function (req, res) {
     ON s.media_id = movie_table.movie_id AND s.media_type = 'mv'
     LEFT JOIN (SELECT show_id, series_title AS title, image FROM TVShows) show_table
     ON s.media_id = show_table.show_id AND s.media_type = 'tv'
-    WHERE row_num2 <= 1;
+    WHERE row_num2 <= ${numMedia};
   `);
 
   connection.query(
