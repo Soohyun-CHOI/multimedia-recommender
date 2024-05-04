@@ -5,10 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3fddf8e5-6253-43d9-a5d4-d6f73a197baf" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/client/public/default_user_image.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/profile.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/styles/AccountInfo.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/pages/SuggestionPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/SuggestionPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/styles/HomPage.scss" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/styles/HomPage.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/AddPlaylist.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/AddPlaylist.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/Header.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/Header.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/AccountInfoPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/AccountInfoPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/HomePage.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/HomePage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/PlaylistDetailPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/PlaylistDetailPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/PlaylistListPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/PlaylistListPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/styles/AddPlaylist.scss" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/styles/AddPlaylist.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/styles/Header.scss" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/styles/Header.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/styles/SuggestionPage.scss" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/styles/SuggestionPage.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/server.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

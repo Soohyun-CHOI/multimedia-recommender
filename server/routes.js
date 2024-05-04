@@ -5,39 +5,85 @@ const { query } = require("express");
 // Creates MySQL connection using database credential provided in config.json
 // Do not edit. If the connection fails, make sure to check that config.json is filled out correctly
 const connection = mysql.createConnection({
-  host: config.rds_host,
-  user: config.rds_user,
-  password: config.rds_password,
-  port: config.rds_port,
-  database: config.rds_db,
+    host: config.rds_host,
+    user: config.rds_user,
+    password: config.rds_password,
+    port: config.rds_port,
+    database: config.rds_db,
 });
 connection.connect((err) => err && console.log(err));
 
 // NEW ROUTES:
 
+// Route 0: GET /media
+// About: Gets a media based on media_id
+const media = async function (req, res) {
+    const media_id = req.query.media_id;
+    const type = media_id.substring(0, 2);
+    let query = "";
+
+    if (type == "bk") {
+        query = `
+        SELECT media_type, title, authors, publisher, published_date, description, image, categories 
+        FROM Books_Combined WHERE media_id = '${media_id}';
+    `;
+    } else if (type == "mv") {
+        query = `
+        SELECT media_type, title, release_date, overview, image, cast, genres
+        FROM Movie_Combined WHERE media_id = '${media_id}';
+    `;
+    } else if (type == "mu") {
+        query = `
+        SELECT media_type, title, tag, artist, lyrics, image, year, views
+        FROM Music_Combined WHERE media_id = '${media_id}';
+    `;
+    } else if (type == "tv") {
+        query = `
+        SELECT media_type, title, release_year, runtime, rating, synopsis, image, cast, genres
+        FROM TVShows_Combined WHERE media_id = '${media_id}';
+    `;
+    } else {
+        query = `
+        SELECT media_type, title, release_date, developers, about_the_game, price, image, metacritic_score, categories, genres
+        FROM Game_Combined WHERE media_id = '${media_id}';
+    `;
+    }
+
+    // image, title, creator, media_type, description
+    connection.query(query, (err, data) => {
+        if (err || data.length === 0) {
+            console.log(err);
+            res.json();
+        } else {
+            // Here, we return results of the query
+            res.json(data);
+        }
+    });
+};
+
 // Route A: POST /new_media
 // About: Adds a new media item to the playlist
 const new_media = async function (req, res) {
-  const playlist_id = req.body.playlist_id;
-  const media_id = req.body.media_id;
+    const playlist_id = req.body.playlist_id;
+    const media_id = req.body.media_id;
 
-  connection.query(
-      `
+    connection.query(
+        `
      INSERT INTO PlaylistMedia VALUES(${playlist_id}, '${media_id}');
       `
-  ),
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ error: "Failed to add new media to playlist" });
-        } else {
-          console.log("New media added successfully!");
-        }
-      };
+    ),
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to add new media to playlist" });
+            } else {
+                console.log("New media added successfully!");
+            }
+        };
 
-  //Updates the max_mood of the given playlist
-  connection.query(
-      `
+    //Updates the max_mood of the given playlist
+    connection.query(
+        `
     UPDATE Playlist Set max_mood = (
       WITH scores AS (SELECT playlist_id, SUM(christmas) AS christmas, SUM(halloween) AS halloween, SUM(valentine) AS valentine,
                       SUM(celebration) AS celebration, SUM(relaxing) AS relaxing, SUM(nature) AS nature, SUM(industrial) AS industrial,
@@ -130,15 +176,16 @@ const new_media = async function (req, res) {
       FROM scores)
       WHERE playlist_id = ${playlist_id};
       `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ error: "Failed to add new media to playlist" });
-        } else {
-          console.log("max_mood updated!");
-          res.json({ message: "New media added successfully!" });
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to add new media to playlist" });
+            } else {
+                console.log("max_mood updated!");
+                res.json({ message: "New media added successfully!" });
+            }
         }
-      });
+    );
 };
 
 // Route B: POST /new_playlist
@@ -146,85 +193,85 @@ const new_media = async function (req, res) {
 // Request input: user_id, playlist_name, public, image_URL
 // Request body should be: 'application/x-www-form-urlencoded'
 const new_playlist = async function (req, res) {
-  const user_id = req.body.user_id;
-  const playlist_name = req.body.playlist_name;
-  const public = req.body.public;
-  const image_URL = req.body.image_URL ?? "N/A";
-  // const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
-  // let playlist_id = 0;
+    const user_id = req.body.user_id;
+    const playlist_name = req.body.playlist_name;
+    const public = req.body.public;
+    const image_URL = req.body.image_URL ?? "N/A";
+    // const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+    // let playlist_id = 0;
 
-  // Get max playlist_id and add 1 to get the new playlist_id
-  // const first_query = `SELECT MAX(playlist_id) AS max_id FROM Playlist;`;
-  // await connection.query(first_query, (err, data) => {
-  //   if (err) {
-  //     console.log(err);
-  //   } else {
-  //     playlist_id = data[0].max_id + 1;
-  //     console.log(playlist_id);
-  //   }
-  // });
+    // Get max playlist_id and add 1 to get the new playlist_id
+    // const first_query = `SELECT MAX(playlist_id) AS max_id FROM Playlist;`;
+    // await connection.query(first_query, (err, data) => {
+    //   if (err) {
+    //     console.log(err);
+    //   } else {
+    //     playlist_id = data[0].max_id + 1;
+    //     console.log(playlist_id);
+    //   }
+    // });
 
-  connection.query(
-      `
+    connection.query(
+        `
       INSERT INTO Playlist (title, public, user_id, image, max_mood) VALUES('${playlist_name}', ${public}, '${user_id}', '${image_URL}', 'None');
       `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ error: "Failed to create playlist" });
-        } else {
-          console.log("New playlist added successfully!");
-          res.json({ message: "New playlist added successfully!" });
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to create playlist" });
+            } else {
+                console.log("New playlist added successfully!");
+                res.json({ message: "New playlist added successfully!" });
+            }
         }
-      }
-  );
+    );
 };
 
 // Route C: POST /new_collaborator
 // About: Adds a new collaborator to the playlist
 // Input: playlist_id, collaborator_id
 const new_collaborator = async function (req, res) {
-  const playlist_id = req.body.playlist_id;
-  const collaborator_id = req.body.collaborator_id;
+    const playlist_id = req.body.playlist_id;
+    const collaborator_id = req.body.collaborator_id;
 
-  connection.query(
-      `
+    connection.query(
+        `
      INSERT INTO CollaboratesOn VALUES(${collaborator_id}, ${playlist_id});
       `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res
-              .status(500)
-              .json({ error: "Failed to add collaborator to playlist" });
-        } else {
-          console.log("Collaborator added successfully!");
-          res.json({ message: "Collaborator added successfully!" });
+        (err) => {
+            if (err) {
+                console.log(err);
+                res
+                    .status(500)
+                    .json({ error: "Failed to add collaborator to playlist" });
+            } else {
+                console.log("Collaborator added successfully!");
+                res.json({ message: "Collaborator added successfully!" });
+            }
         }
-      }
-  );
+    );
 };
 
 // Route C2: POST /new_user
 // About: Adds a new user
 // Input: email
 const new_user = async function (req, res) {
-  const email = req.body.email;
+    const email = req.body.email;
 
-  connection.query(
-      `
+    connection.query(
+        `
      INSERT INTO Users VALUES('${email}');
       `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ error: "Failed to add new user" });
-        } else {
-          console.log("User added successfully!");
-          res.json({ message: "User added successfully!" });
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to add new user" });
+            } else {
+                console.log("User added successfully!");
+                res.json({ message: "User added successfully!" });
+            }
         }
-      }
-  );
+    );
 };
 
 // Route D: POST /user_playlist_search
@@ -232,11 +279,11 @@ const new_user = async function (req, res) {
 // Input: user_id, search
 // Return: playlist_id, image, title, creator, timestamp, public, collab
 const user_playlist_search = async function (req, res) {
-  const user_id = req.query.user_id ?? 0;
-  const search = req.query.search ?? "";
+    const user_id = req.query.user_id ?? 0;
+    const search = req.query.search ?? "";
 
-  connection.query(
-      `
+    connection.query(
+        `
     WITH personal_playlists AS (
       SELECT playlist_id, image, title, timestamp, public
       FROM Playlist p
@@ -264,19 +311,19 @@ const user_playlist_search = async function (req, res) {
     WHERE title LIKE '%${search}%'
     ORDER BY subquery.timestamp DESC
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route E: POST /all_playlist_search
@@ -284,96 +331,96 @@ const user_playlist_search = async function (req, res) {
 // Input: search
 // Return: playlist_id, image, title, creator, timestamp, public
 const all_playlist_search = async function (req, res) {
-  const search = req.query.search ?? "";
+    const search = req.query.search ?? "";
 
-  connection.query(
-      `
+    connection.query(
+        `
     SELECT playlist_id, image, title, timestamp, public
     FROM Playlist
     LEFT JOIN Users ON Playlist.user_id = Users.user_id
     WHERE title LIKE '%${search}%' AND public = 1
     ORDER BY timestamp DESC
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route F: Remove playlist
 const delete_playlist = async function (req, res) {
-  const playlist_id = req.body.playlist_id;
+    const playlist_id = req.body.playlist_id;
 
-  connection.query(
-      `
+    connection.query(
+        `
      DELETE FROM Playlist WHERE playlist_id = ${playlist_id};
       `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ error: "Failed to delete playlist" });
-        } else {
-          console.log("Playlist deleted successfully!");
-          res.json({ message: "Playlist deleted successfully!" });
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to delete playlist" });
+            } else {
+                console.log("Playlist deleted successfully!");
+                res.json({ message: "Playlist deleted successfully!" });
+            }
         }
-      }
-  );
+    );
 };
 
 // Route G: Remove collaborator
 const delete_collaborator = async function (req, res) {
-  const playlist_id = req.body.playlist_id;
-  const user_id = req.body.user_id;
+    const playlist_id = req.body.playlist_id;
+    const user_id = req.body.user_id;
 
-  connection.query(
-      `
+    connection.query(
+        `
      DELETE FROM CollabortesOn WHERE playlist_id = ${playlist_id} AND user_id = '${user_id}';
       `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ error: "Failed to delete collaborator" });
-        } else {
-          console.log("Collaborator deleted successfully!");
-          res.json({ message: "Collaborator deleted successfully!" });
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to delete collaborator" });
+            } else {
+                console.log("Collaborator deleted successfully!");
+                res.json({ message: "Collaborator deleted successfully!" });
+            }
         }
-      }
-  );
+    );
 };
 
 // Route H: Remove media from playlist
 const delete_media = async function (req, res) {
-  const playlist_id = req.body.playlist_id;
-  const media_id = req.body.media_id;
+    const playlist_id = req.body.playlist_id;
+    const media_id = req.body.media_id;
 
-  connection.query(
-      `
+    connection.query(
+        `
      DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id} AND media_id = '${media_id}';
       `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res
-              .status(500)
-              .json({ error: "Failed to delete media from playlist." });
-        } else {
-          console.log("Media deleted successfully!");
+        (err) => {
+            if (err) {
+                console.log(err);
+                res
+                    .status(500)
+                    .json({ error: "Failed to delete media from playlist." });
+            } else {
+                console.log("Media deleted successfully!");
+            }
         }
-      }
-  );
+    );
 
-  //Updates the max_mood of the given playlist
-  connection.query(
-      `
+    //Updates the max_mood of the given playlist
+    connection.query(
+        `
     UPDATE Playlist Set max_mood = (
       WITH scores AS (SELECT playlist_id, SUM(christmas) AS christmas, SUM(halloween) AS halloween, SUM(valentine) AS valentine,
                       SUM(celebration) AS celebration, SUM(relaxing) AS relaxing, SUM(nature) AS nature, SUM(industrial) AS industrial,
@@ -466,31 +513,31 @@ const delete_media = async function (req, res) {
       FROM scores)
       WHERE playlist_id = ${playlist_id};
       `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ error: "Failed to update max_mood" });
-        } else {
-          console.log("Playlist max_mood updated successfully!");
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to update max_mood" });
+            } else {
+                console.log("Playlist max_mood updated successfully!");
+            }
         }
-      }
-  );
+    );
 
-  //IF we removed all data from a playlist, we will get a null value, so we handle that.
-  connection.query(
-      `
+    //IF we removed all data from a playlist, we will get a null value, so we handle that.
+    connection.query(
+        `
     UPDATE Playlist Set max_mood = IFNULL(max_mood, "None") WHERE playlist_id = ${playlist_id};
       `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ error: "Failed to handle null max_mood" });
-        } else {
-          console.log("Handled null max_mood");
-          res.json({ message: "Media deleted successfully!" });
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to handle null max_mood" });
+            } else {
+                console.log("Handled null max_mood");
+                res.json({ message: "Media deleted successfully!" });
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 1: GET /additional_media/ (ALLY)
@@ -499,22 +546,22 @@ const delete_media = async function (req, res) {
 // Return: media_id, media_type, title, creator, image
 let pool_size = 50;
 const additional_media = async function (req, res) {
-  let type = req.query.type ?? "";
-  pool_size = pool_size + 5; // increment pool size by 5 every time we add media
+    let type = req.query.type ?? "";
+    pool_size = pool_size + 5; // increment pool size by 5 every time we add media
 
-  connection.query(`
+    connection.query(`
     CREATE TEMPORARY TABLE IF NOT EXISTS suggested_ids (media_id VARCHAR(100));
   `);
 
-  connection.query(
-      `
+    connection.query(
+        `
     REPLACE INTO suggested_ids (media_id)
     SELECT media_id
     FROM suggested_media;
     `
-  );
+    );
 
-  connection.query(`
+    connection.query(`
     INSERT INTO suggested_media
     SELECT s.media_id,
       COALESCE (book_table.media_type, music_table.media_type, game_table.media_type, movie_table.media_type, show_table.media_type) AS media_type,
@@ -550,18 +597,15 @@ const additional_media = async function (req, res) {
         show_table.media_type LIKE '${type}');
     `);
 
-  //query = `SELECT * FROM suggested_media;`;
-  connection.query(
-      `SELECT * FROM suggested_media;`
-      ,
-      (err, data) => {
+    //query = `SELECT * FROM suggested_media;`;
+    connection.query(`SELECT * FROM suggested_media;`, (err, data) => {
         if (err || data.length === 0) {
-          console.log(err);
-          res.json([]);
+            console.log(err);
+            res.json([]);
         } else {
-          res.json(data);
+            res.json(data);
         }
-      });
+    });
 };
 
 // Route 2: GET /user_playlist/:user_id (ALLY)
@@ -569,10 +613,10 @@ const additional_media = async function (req, res) {
 // Input param: user_id
 // Return: playlist_id, image, title, creator, timestamp, public, collab
 const user_playlist = async function (req, res) {
-  const user_id = req.params.user_id;
+    const user_id = req.params.user_id;
 
-  connection.query(
-      `
+    connection.query(
+        `
     WITH personal_playlists AS (
       SELECT playlist_id, image, title, timestamp, public
       FROM Playlist p
@@ -599,15 +643,15 @@ const user_playlist = async function (req, res) {
     ) AS subquery
     ORDER BY subquery.timestamp DESC
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          console.log(err);
-          res.json([]);
-        } else {
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log(err);
+                res.json([]);
+            } else {
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 3: GET /playlist/:playlist_id (ALLY)
@@ -615,10 +659,10 @@ const user_playlist = async function (req, res) {
 // Input param: playlist_id
 // Return: media_id, title, creator, image
 const playlist = async function (req, res) {
-  const playlist_id = req.params.playlist_id;
+    const playlist_id = req.params.playlist_id;
 
-  connection.query(
-      `
+    connection.query(
+        `
       SELECT
       s.media_id,
       COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
@@ -648,15 +692,15 @@ const playlist = async function (req, res) {
     ) show_table ON s.media_id = show_table.show_id
     WHERE p.playlist_id = ${playlist_id};
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          console.log(err);
-          res.json([]);
-        } else {
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log(err);
+                res.json([]);
+            } else {
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 4: GET /games (ALLY)
@@ -665,41 +709,41 @@ const playlist = async function (req, res) {
 // Return: media_id, title, developer, image link
 // Category and genre should be a list of strings concatenated by '|'
 const games = async function (req, res) {
-  const searchInput = req.query.search_input ?? "";
-  const game_score = req.query.game_score ?? 0;
-  const year_min = req.query.year_min ?? 0;
-  const year_max = req.query.year_max ?? 2030;
-  const category = req.query.category ?? ".*";
-  const genre = req.query.genre ?? ".*";
+    const searchInput = req.query.search_input ?? "";
+    const game_score = req.query.game_score ?? 0;
+    const year_min = req.query.year_min ?? 0;
+    const year_max = req.query.year_max ?? 2030;
+    const category = req.query.category ?? ".*";
+    const genre = req.query.genre ?? ".*";
 
-  const christmas = req.query.christmas ?? false;
-  const halloween = req.query.halloween ?? false;
-  const valentine = req.query.valentine ?? false;
-  const celebration = req.query.celebration ?? false;
-  const relaxing = req.query.relaxing ?? false;
-  const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ?? false;
-  const sunshine = req.query.sunshine ?? false;
-  const sad = req.query.sad ?? false;
-  const happy = req.query.happy ?? false;
-  const summer = req.query.summer ?? false;
-  const winter = req.query.winter ?? false;
-  const sports = req.query.sports ?? false;
-  const playful = req.query.playful ?? false;
-  const energetic = req.query.energetic ?? false;
-  const scary = req.query.scary ?? false;
-  const anger = req.query.anger ?? false;
-  const optimistic = req.query.optimistic ?? false;
-  const adventurous = req.query.adventurous ?? false;
-  const learning = req.query.learning ?? false;
-  const artistic = req.query.artistic ?? false;
-  const science = req.query.science ?? false;
-  const cozy = req.query.cozy ?? false;
-  const colorful = req.query.colorful ?? false;
-  const space = req.query.space ?? false;
+    const christmas = req.query.christmas ?? false;
+    const halloween = req.query.halloween ?? false;
+    const valentine = req.query.valentine ?? false;
+    const celebration = req.query.celebration ?? false;
+    const relaxing = req.query.relaxing ?? false;
+    const nature = req.query.nature ?? false;
+    const industrial = req.query.industrial ?? false;
+    const sunshine = req.query.sunshine ?? false;
+    const sad = req.query.sad ?? false;
+    const happy = req.query.happy ?? false;
+    const summer = req.query.summer ?? false;
+    const winter = req.query.winter ?? false;
+    const sports = req.query.sports ?? false;
+    const playful = req.query.playful ?? false;
+    const energetic = req.query.energetic ?? false;
+    const scary = req.query.scary ?? false;
+    const anger = req.query.anger ?? false;
+    const optimistic = req.query.optimistic ?? false;
+    const adventurous = req.query.adventurous ?? false;
+    const learning = req.query.learning ?? false;
+    const artistic = req.query.artistic ?? false;
+    const science = req.query.science ?? false;
+    const cozy = req.query.cozy ?? false;
+    const colorful = req.query.colorful ?? false;
+    const space = req.query.space ?? false;
 
-  connection.query(
-      `
+    connection.query(
+        `
     SELECT media_id, media_type, title, developers, image
     FROM Game_Combined
     WHERE (title LIKE '%${searchInput}%' OR developers LIKE '%${searchInput}%')
@@ -733,15 +777,15 @@ const games = async function (req, res) {
         AND categories REGEXP '${category}'
         AND genres REGEXP '${genre}'
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          console.log(err);
-          res.json([]);
-        } else {
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log(err);
+                res.json([]);
+            } else {
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 5: GET /books (ALLY)
@@ -750,39 +794,39 @@ const games = async function (req, res) {
 // Return: book_id, title, authors, image link
 // Category should be a list of strings concatenated by '|'
 const books = async function (req, res) {
-  const searchInput = req.query.search_input ?? "";
-  const year_min = req.query.year_min ?? 0;
-  const year_max = req.query.year_max ?? 2030;
-  const category = req.query.category ?? ".*";
+    const searchInput = req.query.search_input ?? "";
+    const year_min = req.query.year_min ?? 0;
+    const year_max = req.query.year_max ?? 2030;
+    const category = req.query.category ?? ".*";
 
-  const christmas = req.query.christmas ?? false;
-  const halloween = req.query.halloween ?? false;
-  const valentine = req.query.valentine ?? false;
-  const celebration = req.query.celebration ?? false;
-  const relaxing = req.query.relaxing ?? false;
-  const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ? 1 : 0;
-  const sunshine = req.query.sunshine ?? false;
-  const sad = req.query.sad ?? false;
-  const happy = req.query.happy ?? false;
-  const summer = req.query.summer ?? false;
-  const winter = req.query.winter ?? false;
-  const sports = req.query.sports ?? false;
-  const playful = req.query.playful ?? false;
-  const energetic = req.query.energetic ?? false;
-  const scary = req.query.scary ?? false;
-  const anger = req.query.anger ?? false;
-  const optimistic = req.query.optimistic ?? false;
-  const adventurous = req.query.adventurous ?? false;
-  const learning = req.query.learning ?? false;
-  const artistic = req.query.artistic ?? false;
-  const science = req.query.science ?? false;
-  const cozy = req.query.cozy ?? false;
-  const colorful = req.query.colorful ?? false;
-  const space = req.query.space ?? false;
+    const christmas = req.query.christmas ?? false;
+    const halloween = req.query.halloween ?? false;
+    const valentine = req.query.valentine ?? false;
+    const celebration = req.query.celebration ?? false;
+    const relaxing = req.query.relaxing ?? false;
+    const nature = req.query.nature ?? false;
+    const industrial = req.query.industrial ? 1 : 0;
+    const sunshine = req.query.sunshine ?? false;
+    const sad = req.query.sad ?? false;
+    const happy = req.query.happy ?? false;
+    const summer = req.query.summer ?? false;
+    const winter = req.query.winter ?? false;
+    const sports = req.query.sports ?? false;
+    const playful = req.query.playful ?? false;
+    const energetic = req.query.energetic ?? false;
+    const scary = req.query.scary ?? false;
+    const anger = req.query.anger ?? false;
+    const optimistic = req.query.optimistic ?? false;
+    const adventurous = req.query.adventurous ?? false;
+    const learning = req.query.learning ?? false;
+    const artistic = req.query.artistic ?? false;
+    const science = req.query.science ?? false;
+    const cozy = req.query.cozy ?? false;
+    const colorful = req.query.colorful ?? false;
+    const space = req.query.space ?? false;
 
-  connection.query(
-      `
+    connection.query(
+        `
     SELECT media_id, media_type, title, authors, image
     FROM Books_Combined
     WHERE (title LIKE '%${searchInput}%' OR authors LIKE '%${searchInput}%' OR publisher LIKE '%${searchInput}%')
@@ -814,25 +858,25 @@ const books = async function (req, res) {
         AND CAST(LEFT(published_date, 4) AS UNSIGNED) BETWEEN ${year_min} AND ${year_max}
         AND categories REGEXP '${category}'
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          console.log(err);
-          res.json([]);
-        } else {
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log(err);
+                res.json([]);
+            } else {
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 6.1: GET /random_shows/:num/:selected_mood
 const random_shows = async function (req, res) {
-  const num = req.params.num;
-  const selectedMood = req.params.selected_mood;
+    const num = req.params.num;
+    const selectedMood = req.params.selected_mood;
 
-  // We get a number of random shows from the database which have a high value of the given mood
-  connection.query(
-      `
+    // We get a number of random shows from the database which have a high value of the given mood
+    connection.query(
+        `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'tv'
@@ -842,29 +886,29 @@ const random_shows = async function (req, res) {
     SELECT media_id, series_title AS title, image
     FROM TVShows tv JOIN mm ON tv.show_id = mm.media_id
   `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 6.2: GET /random_books/:num/:selected_mood
 const random_books = async function (req, res) {
-  const num = req.params.num;
-  const selectedMood = req.params.selected_mood;
+    const num = req.params.num;
+    const selectedMood = req.params.selected_mood;
 
-  // We get a number of random books from the database which have a high value of the given mood
-  connection.query(
-      `
+    // We get a number of random books from the database which have a high value of the given mood
+    connection.query(
+        `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'bk'
@@ -877,29 +921,29 @@ const random_books = async function (req, res) {
       JOIN Authors a ON b.book_id = a.book_id
     GROUP BY b.book_id, title, image;
   `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 6.3: GET /random_games/:num/:selected_mood
 const random_games = async function (req, res) {
-  const num = req.params.num;
-  const selectedMood = req.params.selected_mood;
+    const num = req.params.num;
+    const selectedMood = req.params.selected_mood;
 
-  // We get a number of random games from the database which have a high value of the given mood
-  connection.query(
-      `
+    // We get a number of random games from the database which have a high value of the given mood
+    connection.query(
+        `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'gm'
@@ -909,29 +953,29 @@ const random_games = async function (req, res) {
       SELECT media_id, name AS title, developers, screenshot AS image
     FROM Games g JOIN mm ON g.app_id = mm.media_id
   `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 6.4: GET /random_movies/:num/:selected_mood
 const random_movies = async function (req, res) {
-  const num = req.params.num;
-  const selectedMood = req.params.selected_mood;
+    const num = req.params.num;
+    const selectedMood = req.params.selected_mood;
 
-  // We get a number of random movies from the database which have a high value of the given mood
-  connection.query(
-      `
+    // We get a number of random movies from the database which have a high value of the given mood
+    connection.query(
+        `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'mv'
@@ -941,29 +985,29 @@ const random_movies = async function (req, res) {
     SELECT media_id, title, image
     FROM Movie mv JOIN mm ON mv.movie_id = mm.media_id
   `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 6.5: GET /random_songs/:num/:selected_mood
 const random_songs = async function (req, res) {
-  const num = req.params.num;
-  const selectedMood = req.params.selected_mood;
+    const num = req.params.num;
+    const selectedMood = req.params.selected_mood;
 
-  // We get a number of random songs from the database which have a high value of the given mood
-  connection.query(
-      `
+    // We get a number of random songs from the database which have a high value of the given mood
+    connection.query(
+        `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'mu'
@@ -973,29 +1017,29 @@ const random_songs = async function (req, res) {
     SELECT media_id, title, image
     FROM Music mu JOIN mm ON mu.song_id = mm.media_id
   `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 6.6: GET /random_all/:num/:selected_mood
 const random_all = async function (req, res) {
-  const num = req.params.num;
-  const selectedMood = req.params.selected_mood;
+    const num = req.params.num;
+    const selectedMood = req.params.selected_mood;
 
-  // We get a number of random songs from the database which have a high value of the given mood
-  connection.query(
-      `
+    // We get a number of random songs from the database which have a high value of the given mood
+    connection.query(
+        `
     WITH mm AS (SELECT media_id, media_type
      FROM MediaMoods
      WHERE ${selectedMood} > 65)
@@ -1020,73 +1064,74 @@ const random_all = async function (req, res) {
       LEFT JOIN Music mu on mu.song_id = mu_mm.media_id )
     ORDER BY RAND();
   `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 7: GET /ordered_suggestion
 const ordered_suggestion = async function (req, res) {
-  const christmas = req.body.christmas ?? false;
-  const halloween = req.body.halloween ?? false;
-  const valentine = req.body.valentine ?? false;
-  const celebration = req.body.celebration ?? false;
-  const relaxing = req.body.relaxing ?? false;
-  const nature = req.body.nature ?? false;
-  const industrial = req.body.industrial ?? false;
-  const sunshine = req.body.sunshine ?? false;
-  const sad = req.body.sad ?? false;
-  const happy = req.body.happy ?? false;
-  const summer = req.body.summer ?? false;
-  const winter = req.body.winter ?? false;
-  const sports = req.body.sports ?? false;
-  const playful = req.body.playful ?? false;
-  const energetic = req.body.energetic ?? false;
-  const scary = req.body.scary ?? false;
-  const anger = req.body.anger ?? false;
-  const optimistic = req.body.optimistic ?? false;
-  const adventurous = req.body.adventurous ?? false;
-  const learning = req.body.learning ?? false;
-  const artistic = req.body.artistic ?? false;
-  const science = req.body.science ?? false;
-  const cozy = req.body.cozy ?? false;
-  const colorful = req.body.colorful ?? false;
-  const space = req.body.space ?? false;
+    const christmas = req.body.christmas ?? false;
+    const halloween = req.body.halloween ?? false;
+    const valentine = req.body.valentine ?? false;
+    const celebration = req.body.celebration ?? false;
+    const relaxing = req.body.relaxing ?? false;
+    const nature = req.body.nature ?? false;
+    const industrial = req.body.industrial ?? false;
+    const sunshine = req.body.sunshine ?? false;
+    const sad = req.body.sad ?? false;
+    const happy = req.body.happy ?? false;
+    const summer = req.body.summer ?? false;
+    const winter = req.body.winter ?? false;
+    const sports = req.body.sports ?? false;
+    const playful = req.body.playful ?? false;
+    const energetic = req.body.energetic ?? false;
+    const scary = req.body.scary ?? false;
+    const anger = req.body.anger ?? false;
+    const optimistic = req.body.optimistic ?? false;
+    const adventurous = req.body.adventurous ?? false;
+    const learning = req.body.learning ?? false;
+    const artistic = req.body.artistic ?? false;
+    const science = req.body.science ?? false;
+    const cozy = req.body.cozy ?? false;
+    const colorful = req.body.colorful ?? false;
+    const space = req.body.space ?? false;
 
-  // Create the temporary table if it does not exist already
-  connection.query(`
+    // Create the temporary table if it does not exist already
+    connection.query(`
     CREATE TEMPORARY TABLE IF NOT EXISTS all_media SELECT media_id, media_type, 0 AS row_num FROM MediaMoods LIMIT 0
   `);
 
-  connection.query(
-      `
+    connection.query(
+        `
     CREATE UNIQUE INDEX am_index ON all_media(media_id);
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          console.log("all_media already has an index.");
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log("all_media already has an index.");
+            }
         }
-      }
-  );
+    );
 
-  // Empty the temporary table
-  connection.query(`
+    // Empty the temporary table
+    connection.query(`
     TRUNCATE all_media
   `);
 
-  // Creates a temporary table of all media that filters for moods in the mood list
-  // Orders each media within type from best to least matching media of specified selected mood
-  connection.query(`
+    // Creates a temporary table of all media that filters for moods in the mood list
+    // Orders each media within type from best to least matching media of specified selected mood
+    connection.query(
+        `
   REPLACE INTO all_media
   WITH MediaSum AS(
       SELECT media_id, media_type, christmas, halloween, valentine, celebration, relaxing, nature, industrial,
@@ -1147,23 +1192,24 @@ const ordered_suggestion = async function (req, res) {
         AND colorful > IF(${colorful}, 50, 0)
       AND space > IF(${space}, 50, 0);
   `,
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({ error: "Failed to generate all_media" });
-        } else {
-          console.log("all_media generated successfully!");
-          res.json({ message: "all_media generated successfully!" });
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to generate all_media" });
+            } else {
+                console.log("all_media generated successfully!");
+                res.json({ message: "all_media generated successfully!" });
+            }
         }
-      });
+    );
 };
 
 // Route 8: GET /suggested_media
 const suggested_media = async function (req, res) {
-  const numMedia = req.body.num_media ?? 1;
+    const numMedia = req.query.num_media ?? 1;
 
-  // Create the temporary table if it does not exist already
-  connection.query(`
+    // Create the temporary table if it does not exist already
+    connection.query(`
     CREATE TEMPORARY TABLE IF NOT EXISTS suggested_media (
       media_id VARCHAR(15),
       media_type VARCHAR(2),
@@ -1173,25 +1219,25 @@ const suggested_media = async function (req, res) {
     )
   `);
 
-  connection.query(
-      `
+    connection.query(
+        `
     CREATE UNIQUE INDEX sm_index ON suggested_media(media_id);
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          console.log("suggested_media already has an index.");
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log("suggested_media already has an index.");
+            }
         }
-      }
-  );
+    );
 
-  // Empty the temporary table
-  connection.query(`
+    // Empty the temporary table
+    connection.query(`
     TRUNCATE suggested_media
   `);
 
-  // Creates a temporary table of all media that filters for moods in the mood list
-  // Orders each media within type from best to least matching media of specified selected mood
-  connection.query(`
+    // Creates a temporary table of all media that filters for moods in the mood list
+    // Orders each media within type from best to least matching media of specified selected mood
+    connection.query(`
     REPLACE INTO suggested_media
     WITH suggest_rand AS (
     SELECT *, ROW_NUMBER() OVER (PARTITION BY media_type
@@ -1235,23 +1281,23 @@ const suggested_media = async function (req, res) {
     WHERE row_num2 <= ${numMedia};
   `);
 
-  connection.query(
-      `
+    connection.query(
+        `
     SELECT * FROM suggested_media
   `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 9: GET /shows
@@ -1260,40 +1306,40 @@ const suggested_media = async function (req, res) {
 // Return: show_id, title, image link
 // Genre should be a list of strings concatenated by '|'
 const shows = async function (req, res) {
-  const searchInput = req.query.search_input ?? "";
-  const yearMin = req.query.year_min ?? 0;
-  const yearMax = req.query.year_max ?? 2030;
-  const genre = req.query.genre ?? ".*";
-  const ratingNum = req.query.rating_num ?? 0;
+    const searchInput = req.query.search_input ?? "";
+    const yearMin = req.query.year_min ?? 0;
+    const yearMax = req.query.year_max ?? 2030;
+    const genre = req.query.genre ?? ".*";
+    const ratingNum = req.query.rating_num ?? 0;
 
-  const christmas = req.query.christmas ?? false;
-  const halloween = req.query.halloween ?? false;
-  const valentine = req.query.valentine ?? false;
-  const celebration = req.query.celebration ?? false;
-  const relaxing = req.query.relaxing ?? false;
-  const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ? 1 : 0;
-  const sunshine = req.query.sunshine ?? false;
-  const sad = req.query.sad ?? false;
-  const happy = req.query.happy ?? false;
-  const summer = req.query.summer ?? false;
-  const winter = req.query.winter ?? false;
-  const sports = req.query.sports ?? false;
-  const playful = req.query.playful ?? false;
-  const energetic = req.query.energetic ?? false;
-  const scary = req.query.scary ?? false;
-  const anger = req.query.anger ?? false;
-  const optimistic = req.query.optimistic ?? false;
-  const adventurous = req.query.adventurous ?? false;
-  const learning = req.query.learning ?? false;
-  const artistic = req.query.artistic ?? false;
-  const science = req.query.science ?? false;
-  const cozy = req.query.cozy ?? false;
-  const colorful = req.query.colorful ?? false;
-  const space = req.query.space ?? false;
+    const christmas = req.query.christmas ?? false;
+    const halloween = req.query.halloween ?? false;
+    const valentine = req.query.valentine ?? false;
+    const celebration = req.query.celebration ?? false;
+    const relaxing = req.query.relaxing ?? false;
+    const nature = req.query.nature ?? false;
+    const industrial = req.query.industrial ? 1 : 0;
+    const sunshine = req.query.sunshine ?? false;
+    const sad = req.query.sad ?? false;
+    const happy = req.query.happy ?? false;
+    const summer = req.query.summer ?? false;
+    const winter = req.query.winter ?? false;
+    const sports = req.query.sports ?? false;
+    const playful = req.query.playful ?? false;
+    const energetic = req.query.energetic ?? false;
+    const scary = req.query.scary ?? false;
+    const anger = req.query.anger ?? false;
+    const optimistic = req.query.optimistic ?? false;
+    const adventurous = req.query.adventurous ?? false;
+    const learning = req.query.learning ?? false;
+    const artistic = req.query.artistic ?? false;
+    const science = req.query.science ?? false;
+    const cozy = req.query.cozy ?? false;
+    const colorful = req.query.colorful ?? false;
+    const space = req.query.space ?? false;
 
-  connection.query(
-      `
+    connection.query(
+        `
       WITH shows_in AS (
         SELECT show_id
         FROM TVCast
@@ -1333,15 +1379,15 @@ const shows = async function (req, res) {
         AND sg.genre REGEXP '${genre}'
         AND rating >= ${ratingNum}
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          console.log(err);
-          res.json([]);
-        } else {
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log(err);
+                res.json([]);
+            } else {
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 10: GET /movies
@@ -1350,39 +1396,39 @@ const shows = async function (req, res) {
 // Return: show_id, title
 // Genre should be a list of strings concatenated by '|'
 const movies = async function (req, res) {
-  const searchInput = req.query.search_input ?? "";
-  const yearMin = req.query.year_min ?? 0;
-  const yearMax = req.query.year_max ?? 2030;
-  const genre = req.query.genre ?? ".*";
+    const searchInput = req.query.search_input ?? "";
+    const yearMin = req.query.year_min ?? 0;
+    const yearMax = req.query.year_max ?? 2030;
+    const genre = req.query.genre ?? ".*";
 
-  const christmas = req.query.christmas ?? false;
-  const halloween = req.query.halloween ?? false;
-  const valentine = req.query.valentine ?? false;
-  const celebration = req.query.celebration ?? false;
-  const relaxing = req.query.relaxing ?? false;
-  const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ? 1 : 0;
-  const sunshine = req.query.sunshine ?? false;
-  const sad = req.query.sad ?? false;
-  const happy = req.query.happy ?? false;
-  const summer = req.query.summer ?? false;
-  const winter = req.query.winter ?? false;
-  const sports = req.query.sports ?? false;
-  const playful = req.query.playful ?? false;
-  const energetic = req.query.energetic ?? false;
-  const scary = req.query.scary ?? false;
-  const anger = req.query.anger ?? false;
-  const optimistic = req.query.optimistic ?? false;
-  const adventurous = req.query.adventurous ?? false;
-  const learning = req.query.learning ?? false;
-  const artistic = req.query.artistic ?? false;
-  const science = req.query.science ?? false;
-  const cozy = req.query.cozy ?? false;
-  const colorful = req.query.colorful ?? false;
-  const space = req.query.space ?? false;
+    const christmas = req.query.christmas ?? false;
+    const halloween = req.query.halloween ?? false;
+    const valentine = req.query.valentine ?? false;
+    const celebration = req.query.celebration ?? false;
+    const relaxing = req.query.relaxing ?? false;
+    const nature = req.query.nature ?? false;
+    const industrial = req.query.industrial ? 1 : 0;
+    const sunshine = req.query.sunshine ?? false;
+    const sad = req.query.sad ?? false;
+    const happy = req.query.happy ?? false;
+    const summer = req.query.summer ?? false;
+    const winter = req.query.winter ?? false;
+    const sports = req.query.sports ?? false;
+    const playful = req.query.playful ?? false;
+    const energetic = req.query.energetic ?? false;
+    const scary = req.query.scary ?? false;
+    const anger = req.query.anger ?? false;
+    const optimistic = req.query.optimistic ?? false;
+    const adventurous = req.query.adventurous ?? false;
+    const learning = req.query.learning ?? false;
+    const artistic = req.query.artistic ?? false;
+    const science = req.query.science ?? false;
+    const cozy = req.query.cozy ?? false;
+    const colorful = req.query.colorful ?? false;
+    const space = req.query.space ?? false;
 
-  connection.query(
-      `
+    connection.query(
+        `
       WITH movies_in AS (
         SELECT movie_id
         FROM MovieCast
@@ -1421,15 +1467,15 @@ const movies = async function (req, res) {
         AND release_date BETWEEN '${yearMin}-01-01' AND '${yearMax}-01-01'
         AND mg.genre REGEXP '${genre}'
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          console.log(err);
-          res.json([]);
-        } else {
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log(err);
+                res.json([]);
+            } else {
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 11: GET /songs
@@ -1438,39 +1484,39 @@ const movies = async function (req, res) {
 // Return: show_id, title, image
 // tag_list should be a list of strings concatenated by '|'
 const songs = async function (req, res) {
-  const searchInput = req.query.search_input ?? "";
-  const yearMin = req.query.year_min ?? 0;
-  const yearMax = req.query.year_max ?? 2030;
-  const tagList = req.query.tag_list ?? ".*";
+    const searchInput = req.query.search_input ?? "";
+    const yearMin = req.query.year_min ?? 0;
+    const yearMax = req.query.year_max ?? 2030;
+    const tagList = req.query.tag_list ?? ".*";
 
-  const christmas = req.query.christmas ?? false;
-  const halloween = req.query.halloween ?? false;
-  const valentine = req.query.valentine ?? false;
-  const celebration = req.query.celebration ?? false;
-  const relaxing = req.query.relaxing ?? false;
-  const nature = req.query.nature ?? false;
-  const industrial = req.query.industrial ? 1 : 0;
-  const sunshine = req.query.sunshine ?? false;
-  const sad = req.query.sad ?? false;
-  const happy = req.query.happy ?? false;
-  const summer = req.query.summer ?? false;
-  const winter = req.query.winter ?? false;
-  const sports = req.query.sports ?? false;
-  const playful = req.query.playful ?? false;
-  const energetic = req.query.energetic ?? false;
-  const scary = req.query.scary ?? false;
-  const anger = req.query.anger ?? false;
-  const optimistic = req.query.optimistic ?? false;
-  const adventurous = req.query.adventurous ?? false;
-  const learning = req.query.learning ?? false;
-  const artistic = req.query.artistic ?? false;
-  const science = req.query.science ?? false;
-  const cozy = req.query.cozy ?? false;
-  const colorful = req.query.colorful ?? false;
-  const space = req.query.space ?? false;
+    const christmas = req.query.christmas ?? false;
+    const halloween = req.query.halloween ?? false;
+    const valentine = req.query.valentine ?? false;
+    const celebration = req.query.celebration ?? false;
+    const relaxing = req.query.relaxing ?? false;
+    const nature = req.query.nature ?? false;
+    const industrial = req.query.industrial ? 1 : 0;
+    const sunshine = req.query.sunshine ?? false;
+    const sad = req.query.sad ?? false;
+    const happy = req.query.happy ?? false;
+    const summer = req.query.summer ?? false;
+    const winter = req.query.winter ?? false;
+    const sports = req.query.sports ?? false;
+    const playful = req.query.playful ?? false;
+    const energetic = req.query.energetic ?? false;
+    const scary = req.query.scary ?? false;
+    const anger = req.query.anger ?? false;
+    const optimistic = req.query.optimistic ?? false;
+    const adventurous = req.query.adventurous ?? false;
+    const learning = req.query.learning ?? false;
+    const artistic = req.query.artistic ?? false;
+    const science = req.query.science ?? false;
+    const cozy = req.query.cozy ?? false;
+    const colorful = req.query.colorful ?? false;
+    const space = req.query.space ?? false;
 
-  connection.query(
-      `
+    connection.query(
+        `
     SELECT media_id, media_type, title, image
     FROM Music_Combined
     WHERE (title LIKE '%${searchInput}%' OR artist LIKE '%${searchInput}%')
@@ -1502,66 +1548,67 @@ const songs = async function (req, res) {
       AND year BETWEEN ${yearMin} AND ${yearMax}
       AND tag REGEXP '${tagList}'
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          console.log(err);
-          res.json([]);
-        } else {
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log(err);
+                res.json([]);
+            } else {
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 // Route 12: GET /user/:user_id
 const user = async function (req, res) {
-  const userID = req.params.user_id;
+    const userID = req.params.user_id;
 
-  // We get a number of random songs from the database which have a high value of the given mood
-  connection.query(
-      `
+    // We get a number of random songs from the database which have a high value of the given mood
+    connection.query(
+        `
         SELECT * FROM Users WHERE user_id='${userID}';
     `,
-      (err, data) => {
-        if (err || data.length === 0) {
-          // If there is an error for some reason, or if the query is empty (this should not be possible)
-          // print the error message and return an empty object instead
-          console.log(err);
-          // Be cognizant of the fact we return an empty array [].
-          res.json([]);
-        } else {
-          // Here, we return results of the query
-          res.json(data);
+        (err, data) => {
+            if (err || data.length === 0) {
+                // If there is an error for some reason, or if the query is empty (this should not be possible)
+                // print the error message and return an empty object instead
+                console.log(err);
+                // Be cognizant of the fact we return an empty array [].
+                res.json([]);
+            } else {
+                // Here, we return results of the query
+                res.json(data);
+            }
         }
-      }
-  );
+    );
 };
 
 module.exports = {
-  random_shows,
-  random_books,
-  random_games,
-  random_movies,
-  random_songs,
-  random_all,
-  ordered_suggestion,
-  books,
-  games,
-  playlist,
-  user_playlist,
-  additional_media,
-  suggested_media,
-  shows,
-  movies,
-  songs,
-  user,
-  new_playlist,
-  new_collaborator,
-  new_user,
-  new_media,
-  user_playlist_search,
-  all_playlist_search,
-  delete_collaborator,
-  delete_media,
-  delete_playlist,
+    random_shows,
+    random_books,
+    random_games,
+    random_movies,
+    random_songs,
+    random_all,
+    ordered_suggestion,
+    books,
+    games,
+    playlist,
+    user_playlist,
+    additional_media,
+    suggested_media,
+    shows,
+    movies,
+    songs,
+    user,
+    new_playlist,
+    new_collaborator,
+    new_user,
+    new_media,
+    user_playlist_search,
+    all_playlist_search,
+    delete_collaborator,
+    delete_media,
+    delete_playlist,
+    media,
 };

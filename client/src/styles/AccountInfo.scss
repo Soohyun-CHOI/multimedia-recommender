@@ -1,0 +1,45 @@
+@import "init";
+
+.flex {
+  display: flex;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.flex-item {
+  display: flex;
+  flex-direction: column;
+  padding: 50px;
+}
+
+.title {
+  font-weight: 500;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+
+.solid {
+  border-top: 2px solid #bbb;
+  border-color: $light-orange;
+  margin-bottom: 20px;
+}
+
+.profile-image {
+  width: 100px;
+  height: 100px;
+  align-self: center;
+}
+
+.field {
+  font-weight: 500;
+  font-size: large;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.value {
+  font-weight: 300;
+  font-size: large;
+}

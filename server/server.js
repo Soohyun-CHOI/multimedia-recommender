@@ -18,7 +18,7 @@ app.use(
     authRequired: false,
     auth0Logout: true,
     secret: "rsTKI0MU8n5KCzZEmsiwg2b6nAwoiUU78-DT7Z3wAJ9TPbIS_rDtHzebtMXn6MXn",
-    baseURL: "http://localhost:8080",
+    baseURL: "http://localhost:3000",
     clientID: "UQ5u32mrjn1n5aEestrBuZMD42cSnxam",
     issuerBaseURL: "https://dev-f7sryn57ejf6hcg7.us.auth0.com",
   })
@@ -47,9 +47,11 @@ app.get("/suggested_media", routes.suggested_media);
 app.get("/shows", routes.shows);
 app.get("/movies", routes.movies);
 app.get("/songs", routes.songs);
+app.get("/media", routes.media);
 app.get("/user/:user_id", routes.user);
 app.post("/new_playlist", routes.new_playlist);
 app.post("/new_collaborator", routes.new_collaborator);
+app.post("/new_user", routes.new_user);
 app.post("/new_media", routes.new_media);
 app.get("/all_playlist_search", routes.all_playlist_search);
 app.get("/user_playlist_search", routes.user_playlist_search);

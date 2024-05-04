@@ -8,6 +8,8 @@ import ResultsPage from "./pages/ResultsPage";
 import FiltersPage from "./pages/FiltersPage";
 import SuggestionPage from "./pages/SuggestionPage";
 import MediaDetailPage from "./pages/MediaDetailPage";
+import AccountInfoPage from "./pages/AccountInfoPage";
+import PlaylistDetailPage from "./pages/PlaylistDetailPage";
 
 export default function App() {
     return (
@@ -21,6 +23,8 @@ export default function App() {
                 <Route path="/filters" element={<FiltersPage/>}/>
                 <Route path="/suggestions" element={<SuggestionPage/>}/>
                 <Route path="/media/:mediaId" element={<MediaDetailPage/>}/>
+                <Route path="/account" element={<AccountInfoPage/>}/>
+                <Route path="/playlist/:playlist_id" element={<PlaylistDetailPage/>}/>
             </Routes>
         </div>
     );
