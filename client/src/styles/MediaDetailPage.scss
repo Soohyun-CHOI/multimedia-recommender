@@ -1,0 +1,42 @@
+@import "init";
+
+#media-detail {
+  display: flex;
+  margin: 30px $margin-left;
+
+  img {
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+    margin-right: 40px;
+  }
+
+  .title {
+    font-size: 34px;
+    font-weight: 700;
+    color: $plum;
+  }
+
+  .info {
+    margin-bottom: 5px;
+
+    span {
+      font-weight: 500;
+      color: $dark-orange;
+    }
+  }
+
+  .description {
+    border: 1px solid $plum;
+    margin-top: 30px;
+    border-radius: 10px;
+    padding: 20px;
+
+    .title {
+      margin-bottom: 10px;
+      font-weight: 700;
+      color: $dark-teal;
+      font-size: 24px;
+    }
+  }
+}

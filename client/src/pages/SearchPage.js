@@ -36,7 +36,7 @@ function SearchPage() {
         "Action", "Adventure", "Indie", "RPG", "Strategy", "Simulation", "Casual", "Free to Play", "Massively Multiplayer",
         "Early Access", "Education", "Racing", "Sports", "Utilities", "Web Publishing", "Animation & Modeling", "Design & Illustration",
         "Photo Editing", "Accounting", "Game Development", "Audio Production", "Video Production", "Software Training",
-        "360 Video", "Documentary", "Episodic", "Movie", "Short", "Tutorial", "Gore", "Violent", "Nudity", "Sexual Content"
+        "360 Video", "Documentary", "Episodic", "Movie", "Short", "Tutorial", "Gore", "Violent"
     ]
 
     const gameCategories = [
