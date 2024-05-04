@@ -664,7 +664,7 @@ const playlist = async function (req, res) {
   connection.query(
     `
      SELECT
-      p.title AS title, s.media_id,
+      p.title AS playlist_title, s.media_id,
       COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
       COALESCE (book_table.creator, music_table.creator, game_table.creator) AS creator,
       COALESCE (book_table.image, music_table.image, game_table.image, movie_table.image, show_table.image) AS image,
