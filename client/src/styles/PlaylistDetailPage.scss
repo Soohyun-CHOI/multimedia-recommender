@@ -1,7 +1,7 @@
 @import "init";
 
 .title-wrap {
-  margin: 30px $margin-left;
+  margin: 30px $margin-left 10px;
   display: flex;
   justify-content: space-between;
 
@@ -119,5 +119,87 @@
     &:hover {
       cursor: pointer;
     }
+  }
+}
+
+.collab {
+  margin: 10px $margin-left;
+  border: 1px solid $dark-teal;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+
+  .collab-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px;
+
+    button {
+      width: 54px;
+      height: 24px;
+      color: $dark-orange;
+      border: 2px solid $dark-orange;
+      border-radius: 100px;
+      margin-left: 5px;
+      background: white;
+      font-weight: 500;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .title {
+    color: $dark-teal;
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .collab-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    button {
+      padding: 5px 10px;
+      border-radius: 100px;
+      margin-top: 10px;
+      font-weight: 500;
+      font-size: 15px;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .edit {
+      background: white;
+      border: 2px solid $dark-teal;
+      color: $dark-teal;
+    }
+
+    .add {
+      background: $dark-teal;
+      color: white;
+      border: 2px solid $dark-teal;
+    }
+
+    .submit {
+      background: $dark-teal;
+      color: white;
+      border: 2px solid $dark-teal;
+      margin-left: 5px;
+    }
+  }
+  input {
+    padding: 6px 10px;
+    font-size: 15px;
+    width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
   }
 }

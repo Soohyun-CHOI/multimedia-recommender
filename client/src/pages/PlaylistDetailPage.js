@@ -150,31 +150,38 @@ function PlaylistDetailPage() {
             </div>
             <div className="collab">
                 <div>
-                    <div>Collaborators :</div>
+                    <div className="title">Collaborators</div>
                     {editCollab.map(item =>
-                        <>
-                            <div key={item.user_id}>{item.user_id}</div>
+                        <div className="collab-item">
+                            <div key={item.user_id}>• {item.user_id}</div>
                             {isEditingCollab && (
                                 <button onClick={() => handleDeleteCollab(item.user_id)}>Delete</button>
                             )}
-                        </>
+                        </div>
                     )}
                 </div>
-                <button onClick={toggleEditCollabMode}>{isEditingCollab ? "Cancel" : "Edit Collaborators"}</button>
-                {isEditingCollab && (
-                    <button onClick={handleSubmitCollab} className="submit">Submit</button>
-                )}
-                {isAddingCollab ? (
-                    <>
-                        <input
-                            type="text"
-                            placeholder="Enter collaborator email"
-                            value={newCollabId}
-                            onChange={handleNewCollabIdChange}
-                        />
-                        <button onClick={handleAddCollaborator}>Add</button>
-                    </>
-                ) : <button onClick={() => setIsAddingCollab(true)}>Add Collaborators</button>}
+                <div className="collab-buttons">
+                    <div>
+                        <button
+                            onClick={toggleEditCollabMode} className="edit">{isEditingCollab ? "Cancel" : "Edit Collaborators"}</button>
+                        {isEditingCollab && (
+                            <button onClick={handleSubmitCollab} className="submit">Submit</button>
+                        )}
+                    </div>
+                    <div>
+                        {isAddingCollab ? (
+                            <>
+                                <input
+                                    type="text"
+                                    placeholder="Enter collaborator email"
+                                    value={newCollabId}
+                                    onChange={handleNewCollabIdChange}
+                                />
+                                <button onClick={handleAddCollaborator} className="submit">Add</button>
+                            </>
+                        ) : <button onClick={() => setIsAddingCollab(true)} className="add">Add Collaborators</button>}
+                    </div>
+                </div>
             </div>
             <div className="media-list">
                 {editList.map(media =>
