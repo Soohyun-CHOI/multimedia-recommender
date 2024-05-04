@@ -14,6 +14,7 @@ function PlaylistDetailPage() {
     const [editList, setEditList] = useState([]);
     const [deletedItems, setDeletedItems] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
+    const [maxMood, setMaxMood] = useState([]);
 
     useEffect(() => {
         fetch(`http://${config.server_host}:${config.server_port}/playlist/${playlistId}`)
@@ -22,6 +23,10 @@ function PlaylistDetailPage() {
                 setPlaylistContents(resJson);
                 setEditList(resJson);
             });
+
+        fetch(`http://${config.server_host}:${config.server_port}/playlist_max_mood/${playlistId}`)
+            .then(res => res.json())
+            .then(resJson => setMaxMood(resJson[0]));
     }, [playlistId]);
 
     const toggleEditMode = () => {
@@ -54,7 +59,10 @@ function PlaylistDetailPage() {
         <>
             <Banner/>
             <div className="title-wrap">
-                <div className="title">{playlistContents[0] ? playlistContents[0].playlist_title : ""}</div>
+                <div className="titles">
+                    <div className="title">{playlistContents[0] ? playlistContents[0].playlist_title : ""}</div>
+                    <div className="max-mood">{maxMood.max_mood}</div>
+                </div>
                 <div className="buttons">
                     <button onClick={toggleEditMode}>{isEditing ? "Cancel" : "Edit"}</button>
                     {isEditing ? (

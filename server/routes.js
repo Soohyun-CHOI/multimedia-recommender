@@ -362,6 +362,34 @@ const delete_playlist = async function (req, res) {
 
     connection.query(
         `
+    DELETE FROM CollaboratesOn WHERE playlist_id = ${playlist_id};
+      `,
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to delete colaborators" });
+            } else {
+                console.log("Colaborators deleted successfully!");
+            }
+        }
+    );
+
+    connection.query(
+        `
+    DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id};
+      `,
+        (err) => {
+            if (err) {
+                console.log(err);
+                res.status(500).json({ error: "Failed to delete playlist media" });
+            } else {
+                console.log("Playlist media deleted successfully!");
+            }
+        }
+    );
+
+    connection.query(
+        `
      DELETE FROM Playlist WHERE playlist_id = ${playlist_id};
       `,
         (err) => {
@@ -572,7 +600,7 @@ const additional_media = async function (req, res) {
       SELECT *, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY RAND()) AS row_num2
       FROM all_media
       WHERE row_num <= ${pool_size}
-      AND media_id NOT IN (SELECT media_id FROM suggested_ids)
+      AND NOT EXISTS (SELECT 1 FROM suggested_ids WHERE suggested_ids.media_id = all_media.media_id)
     ) AS s
     LEFT JOIN (
       SELECT media_id, media_type, image, title, authors AS creator
@@ -1341,44 +1369,42 @@ const shows = async function (req, res) {
 
     connection.query(
         `
-      WITH shows_in AS (
-        SELECT show_id
-        FROM TVCast
-        WHERE cast LIKE '%${searchInput}%'
-      )
-      SELECT DISTINCT media_id, media_type, series_title AS title, image
-      FROM TVShows s
-      JOIN ShowGenre sg On s.show_id = sg.show_id
-      JOIN MediaMoods AS m ON s.show_id = m.media_id
-      WHERE (s.series_title LIKE '%${searchInput}%' OR s.show_id IN (SELECT * FROM shows_in))
-              AND christmas > IF(${christmas}, 50, 0)
-              AND halloween > IF(${halloween}, 50, 0)
-              AND valentine > IF(${valentine}, 50, 0)
-              AND celebration > IF(${celebration}, 50, 0)
-              AND relaxing > IF(${relaxing}, 50, 0)
-              AND nature > IF(${nature}, 50, 0)
-              AND industrial > IF(${industrial}, 50, 0)
-              AND sunshine > IF(${sunshine}, 50, 0)
-              AND sad > IF(${sad}, 50, 0)
-              AND happy > IF(${happy}, 50, 0)
-              AND summer > IF(${summer}, 50, 0)
-              AND winter > IF(${winter}, 50, 0)
-              AND sports > IF(${sports}, 50, 0)
-              AND playful > IF(${playful}, 50, 0)
-              AND energetic > IF(${energetic}, 50, 0)
-              AND scary > IF(${scary}, 50, 0)
-              AND anger > IF(${anger}, 50, 0)
-              AND optimistic > IF(${optimistic}, 50, 0)
-              AND adventurous > IF(${adventurous}, 50, 0)
-              AND learning > IF(${learning}, 50, 0)
-              AND artistic > IF(${artistic}, 50, 0)
-              AND science > IF(${science}, 50, 0)
-              AND cozy > IF(${cozy}, 50, 0)
-              AND colorful > IF(${colorful}, 50, 0)
-              AND space > IF(${space}, 50, 0)
-        AND release_year BETWEEN ${yearMin} AND ${yearMax}
-        AND sg.genre REGEXP '${genre}'
-        AND rating >= ${ratingNum}
+    WITH shows_in AS (
+      SELECT show_id
+      FROM TVCast
+      WHERE cast LIKE '%${searchInput}%'
+    )
+    SELECT DISTINCT media_id, media_type, title, image
+    FROM TVShows_Combined
+    WHERE (title LIKE '%${searchInput}%' OR media_id IN (SELECT * FROM shows_in))
+            AND christmas > IF(${christmas}, 50, 0)
+            AND halloween > IF(${halloween}, 50, 0)
+            AND valentine > IF(${valentine}, 50, 0)
+            AND celebration > IF(${celebration}, 50, 0)
+            AND relaxing > IF(${relaxing}, 50, 0)
+            AND nature > IF(${nature}, 50, 0)
+            AND industrial > IF(${industrial}, 50, 0)
+            AND sunshine > IF(${sunshine}, 50, 0)
+            AND sad > IF(${sad}, 50, 0)
+            AND happy > IF(${happy}, 50, 0)
+            AND summer > IF(${summer}, 50, 0)
+            AND winter > IF(${winter}, 50, 0)
+            AND sports > IF(${sports}, 50, 0)
+            AND playful > IF(${playful}, 50, 0)
+            AND energetic > IF(${energetic}, 50, 0)
+            AND scary > IF(${scary}, 50, 0)
+            AND anger > IF(${anger}, 50, 0)
+            AND optimistic > IF(${optimistic}, 50, 0)
+            AND adventurous > IF(${adventurous}, 50, 0)
+            AND learning > IF(${learning}, 50, 0)
+            AND artistic > IF(${artistic}, 50, 0)
+            AND science > IF(${science}, 50, 0)
+            AND cozy > IF(${cozy}, 50, 0)
+            AND colorful > IF(${colorful}, 50, 0)
+            AND space > IF(${space}, 50, 0)
+      AND release_year BETWEEN ${yearMin} AND ${yearMax}
+      AND genres REGEXP '${genre}'
+      AND rating >= ${ratingNum};
     `,
         (err, data) => {
             if (err || data.length === 0) {
@@ -1430,43 +1456,41 @@ const movies = async function (req, res) {
 
     connection.query(
         `
-      WITH movies_in AS (
-        SELECT movie_id
-        FROM MovieCast
-        WHERE cast LIKE '%${searchInput}%'
-      )
-      SELECT DISTINCT m.media_id, media_type, title, image
-      FROM Movie mv 
-      JOIN MovieGenre mg On mv.movie_id = mg.movie_id
-      JOIN MediaMoods AS m ON mv.movie_id = m.media_id
-      WHERE (mv.title LIKE '%${searchInput}%' OR mv.movie_id IN (SELECT * FROM movies_in))
-              AND christmas > IF(${christmas}, 50, 0)
-              AND halloween > IF(${halloween}, 50, 0)
-              AND valentine > IF(${valentine}, 50, 0)
-              AND celebration > IF(${celebration}, 50, 0)
-              AND relaxing > IF(${relaxing}, 50, 0)
-              AND nature > IF(${nature}, 50, 0)
-              AND industrial > IF(${industrial}, 50, 0)
-              AND sunshine > IF(${sunshine}, 50, 0)
-              AND sad > IF(${sad}, 50, 0)
-              AND happy > IF(${happy}, 50, 0)
-              AND summer > IF(${summer}, 50, 0)
-              AND winter > IF(${winter}, 50, 0)
-              AND sports > IF(${sports}, 50, 0)
-              AND playful > IF(${playful}, 50, 0)
-              AND energetic > IF(${energetic}, 50, 0)
-              AND scary > IF(${scary}, 50, 0)
-              AND anger > IF(${anger}, 50, 0)
-              AND optimistic > IF(${optimistic}, 50, 0)
-              AND adventurous > IF(${adventurous}, 50, 0)
-              AND learning > IF(${learning}, 50, 0)
-              AND artistic > IF(${artistic}, 50, 0)
-              AND science > IF(${science}, 50, 0)
-              AND cozy > IF(${cozy}, 50, 0)
-              AND colorful > IF(${colorful}, 50, 0)
-              AND space > IF(${space}, 50, 0)
-        AND release_date BETWEEN '${yearMin}-01-01' AND '${yearMax}-01-01'
-        AND mg.genre REGEXP '${genre}'
+    WITH movies_in AS (
+      SELECT movie_id
+      FROM MovieCast
+      WHERE cast LIKE '%${searchInput}%'
+    )
+    SELECT DISTINCT media_id, media_type, title, image
+    FROM Movie_Combined
+    WHERE (title LIKE '%${searchInput}%' OR media_id IN (SELECT * FROM movies_in))
+            AND christmas > IF(${christmas}, 50, 0)
+            AND halloween > IF(${halloween}, 50, 0)
+            AND valentine > IF(${valentine}, 50, 0)
+            AND celebration > IF(${celebration}, 50, 0)
+            AND relaxing > IF(${relaxing}, 50, 0)
+            AND nature > IF(${nature}, 50, 0)
+            AND industrial > IF(${industrial}, 50, 0)
+            AND sunshine > IF(${sunshine}, 50, 0)
+            AND sad > IF(${sad}, 50, 0)
+            AND happy > IF(${happy}, 50, 0)
+            AND summer > IF(${summer}, 50, 0)
+            AND winter > IF(${winter}, 50, 0)
+            AND sports > IF(${sports}, 50, 0)
+            AND playful > IF(${playful}, 50, 0)
+            AND energetic > IF(${energetic}, 50, 0)
+            AND scary > IF(${scary}, 50, 0)
+            AND anger > IF(${anger}, 50, 0)
+            AND optimistic > IF(${optimistic}, 50, 0)
+            AND adventurous > IF(${adventurous}, 50, 0)
+            AND learning > IF(${learning}, 50, 0)
+            AND artistic > IF(${artistic}, 50, 0)
+            AND science > IF(${science}, 50, 0)
+            AND cozy > IF(${cozy}, 50, 0)
+            AND colorful > IF(${colorful}, 50, 0)
+            AND space > IF(${space}, 50, 0)
+      AND release_date BETWEEN '${yearMin}-01-01' AND '${yearMax}-01-01'
+      AND genres REGEXP '${genre}'
     `,
         (err, data) => {
             if (err || data.length === 0) {
@@ -1584,6 +1608,28 @@ const user = async function (req, res) {
     );
 };
 
+// Route 13: GET /playlist_max_mood/:playlist_id
+// About: return the max mood of the given playlist
+// Input param: playlist_id
+// Return: max_mood
+const playlist_max_mood = async function (req, res) {
+    const playlist_id = req.params.playlist_id;
+
+    connection.query(
+        `
+     SELECT max_mood FROM Playlist AS p WHERE p.playlist_id = ${playlist_id};
+    `,
+        (err, data) => {
+            if (err || data.length === 0) {
+                console.log(err);
+                res.json([]);
+            } else {
+                res.json(data);
+            }
+        }
+    );
+};
+
 module.exports = {
     random_shows,
     random_books,
@@ -1612,4 +1658,5 @@ module.exports = {
     delete_media,
     delete_playlist,
     media,
+    playlist_max_mood
 };

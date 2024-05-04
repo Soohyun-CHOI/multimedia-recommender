@@ -5,10 +5,22 @@
   display: flex;
   justify-content: space-between;
 
-  .title {
-    color: $plum;
-    font-size: 30px;
-    font-weight: 700;
+  .titles {
+    display: flex;
+    align-items: center;
+
+    .title {
+      color: $plum;
+      font-size: 34px;
+      font-weight: 700;
+    }
+
+    .max-mood {
+      font-weight: 500;
+      font-size: 20px;
+      color: $light-blue;
+      margin-left: 10px;
+    }
   }
 
   .buttons {
