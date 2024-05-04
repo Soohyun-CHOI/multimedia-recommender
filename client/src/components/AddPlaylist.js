@@ -97,7 +97,7 @@ function AddPlaylist({ open, handleClose }) {
             {/*  checked={isPublic}*/}
             {/*  onChange={handleCheckboxChange}*/}
             {/*/>*/}
-            <label>Public</label>
+            {/*<label>Public</label>*/}
           </div>
           <div className="footer">
             <Button onClick={handleClose} className="button">
