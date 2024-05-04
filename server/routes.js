@@ -90,7 +90,7 @@ const new_media = async function (req, res) {
 
     connection.query(
         `
-     INSERT INTO PlaylistMedia VALUES(${playlist_id}, '${media_id}');
+     INSERT IGNORE INTO PlaylistMedia VALUES(${playlist_id}, '${media_id}');
       `
     ),
         (err) => {
@@ -764,8 +764,8 @@ const games = async function (req, res) {
     const game_score = req.query.game_score ?? 0;
     const year_min = req.query.year_min ?? 0;
     const year_max = req.query.year_max ?? 2030;
-    const category = req.query.category ?? ".*";
-    const genre = req.query.genre ?? ".*";
+    const category = req.query.category == "" ? ".*" : req.query.category;
+    const genre = req.query.genre == "" ? ".*" : req.query.genre;
 
     const christmas = req.query.christmas ?? false;
     const halloween = req.query.halloween ?? false;
@@ -827,6 +827,8 @@ const games = async function (req, res) {
         AND metacritic_score >= ${game_score}
         AND categories REGEXP '${category}'
         AND genres REGEXP '${genre}'
+    ORDER BY RAND()
+    LIMIT 200
     `,
         (err, data) => {
             if (err || data.length === 0) {
@@ -848,7 +850,7 @@ const books = async function (req, res) {
     const searchInput = req.query.search_input ?? "";
     const year_min = req.query.year_min ?? 0;
     const year_max = req.query.year_max ?? 2030;
-    const category = req.query.category ?? ".*";
+    const category = req.query.category == "" ? ".*" : req.query.category;
 
     const christmas = req.query.christmas ?? false;
     const halloween = req.query.halloween ?? false;
@@ -908,6 +910,8 @@ const books = async function (req, res) {
         AND space > IF(${space}, 50, 0)
         AND CAST(LEFT(published_date, 4) AS UNSIGNED) BETWEEN ${year_min} AND ${year_max}
         AND categories REGEXP '${category}'
+    ORDER BY RAND()
+    LIMIT 200
     `,
         (err, data) => {
             if (err || data.length === 0) {
@@ -1360,7 +1364,7 @@ const shows = async function (req, res) {
     const searchInput = req.query.search_input ?? "";
     const yearMin = req.query.year_min ?? 0;
     const yearMax = req.query.year_max ?? 2030;
-    const genre = req.query.genre ?? ".*";
+    const genre = req.query.genre == "" ? ".*" : req.query.genre;
     const ratingNum = req.query.rating_num ?? 0;
 
     const christmas = req.query.christmas ?? false;
@@ -1426,7 +1430,8 @@ const shows = async function (req, res) {
             AND space > IF(${space}, 50, 0)
       AND release_year BETWEEN ${yearMin} AND ${yearMax}
       AND genres REGEXP '${genre}'
-      AND rating >= ${ratingNum};
+      AND rating >= ${ratingNum}
+      LIMIT 200
     `,
         (err, data) => {
             if (err || data.length === 0) {
@@ -1448,7 +1453,7 @@ const movies = async function (req, res) {
     const searchInput = req.query.search_input ?? "";
     const yearMin = req.query.year_min ?? 0;
     const yearMax = req.query.year_max ?? 2030;
-    const genre = req.query.genre ?? ".*";
+    const genre = req.query.genre == "" ? ".*" : req.query.genre;
 
     const christmas = req.query.christmas ?? false;
     const halloween = req.query.halloween ?? false;
@@ -1513,6 +1518,7 @@ const movies = async function (req, res) {
             AND space > IF(${space}, 50, 0)
       AND release_date BETWEEN '${yearMin}-01-01' AND '${yearMax}-01-01'
       AND genres REGEXP '${genre}'
+      LIMIT 200
     `,
         (err, data) => {
             if (err || data.length === 0) {
@@ -1534,7 +1540,7 @@ const songs = async function (req, res) {
     const searchInput = req.query.search_input ?? "";
     const yearMin = req.query.year_min ?? 0;
     const yearMax = req.query.year_max ?? 2030;
-    const tagList = req.query.tag_list ?? ".*";
+    const tagList = req.query.tag_list == "" ? ".*" : req.query.tag_list;
 
     const christmas = req.query.christmas ?? false;
     const halloween = req.query.halloween ?? false;
@@ -1594,6 +1600,7 @@ const songs = async function (req, res) {
             AND space > IF(${space}, 50, 0)
       AND year BETWEEN ${yearMin} AND ${yearMax}
       AND tag REGEXP '${tagList}'
+      LIMIT 200
     `,
         (err, data) => {
             if (err || data.length === 0) {
