@@ -258,7 +258,7 @@ const new_collaborator = async function (req, res) {
 
   connection.query(
     `
-     INSERT INTO CollaboratesOn VALUES(${collaborator_id}, ${playlist_id});
+     INSERT INTO CollaboratesOn VALUES('${collaborator_id}', ${playlist_id});
       `,
     (err) => {
       if (err) {
@@ -433,7 +433,7 @@ const delete_collaborator = async function (req, res) {
 
   connection.query(
     `
-     DELETE FROM CollabortesOn WHERE playlist_id = ${playlist_id} AND user_id = '${user_id}';
+     DELETE FROM CollaboratesOn WHERE playlist_id = ${playlist_id} AND user_id = '${user_id}';
       `,
     (err) => {
       if (err) {
@@ -1654,6 +1654,29 @@ const playlist_max_mood = async function (req, res) {
     );
 };
 
+// Route 14: GET /collaborators/:playlist_id
+// About: return all the collaborators of the given playlist
+// Input param: playlist_id
+// Return: collaborator
+const collaborators = async function (req, res) {
+  const playlist_id = req.params.playlist_id;
+
+  connection.query(
+    `
+      SELECT user_id FROM CollaboratesOn WHERE playlist_id = ${playlist_id};
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
+    }
+  );
+};
+
+
 module.exports = {
   random_shows,
   random_books,
@@ -1684,4 +1707,5 @@ module.exports = {
   media,
   playlist_max_mood,
   recent_playlist,
+  collaborators
 };
