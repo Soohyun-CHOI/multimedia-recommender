@@ -258,7 +258,7 @@ const new_collaborator = async function (req, res) {
 
   connection.query(
     `
-     INSERT INTO CollaboratesOn VALUES(${collaborator_id}, ${playlist_id});
+     INSERT INTO CollaboratesOn VALUES('${collaborator_id}', ${playlist_id});
       `,
     (err) => {
       if (err) {
@@ -433,7 +433,7 @@ const delete_collaborator = async function (req, res) {
 
   connection.query(
     `
-     DELETE FROM CollabortesOn WHERE playlist_id = ${playlist_id} AND user_id = '${user_id}';
+     DELETE FROM CollaboratesOn WHERE playlist_id = ${playlist_id} AND user_id = '${user_id}';
       `,
     (err) => {
       if (err) {
