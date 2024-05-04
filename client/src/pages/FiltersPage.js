@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Button } from '@mui/material';
-import { NavLink } from 'react-router-dom';
-import "../styles/Filters.scss"
+import {useNavigate} from 'react-router-dom';
+
+import Banner from "../components/Banner";
+import "../styles/Filters.scss";
+
+
 import adventurousImage from '../assets/image/adventurous_themed.jpg';
 import angerImage from '../assets/image/anger_themed.jpg';
 import artisticImage from '../assets/image/artistic_themed.jpg';
@@ -59,6 +63,8 @@ function FiltersPage() {
     const [valentineTag, setValentineTag] = useState(false);
     const [winterTag, setWinterTag] = useState(false);
 
+    const navigate = useNavigate();
+
 
     
 
@@ -98,7 +104,7 @@ function FiltersPage() {
 
         const requestOptions = {
             method: 'POST',
-            //headers: { 'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify(themeData)
         };
         console.log("We are here 1");
@@ -114,6 +120,7 @@ function FiltersPage() {
             console.log("We are here");
             const data = await response.json();
             console.log('Response:', data);
+            navigate("/suggestions");
             
             
             
@@ -355,9 +362,7 @@ function FiltersPage() {
 
                 </div>
         
-                <NavLink to="/suggestions">
-                    <Button onClick={handleSubmit}>Submit</Button>
-                </NavLink>
+                <Button onClick={handleSubmit}>Submit</Button>
                 
             </Box>
         </>
