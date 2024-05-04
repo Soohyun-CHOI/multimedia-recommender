@@ -1,54 +1,58 @@
 @import "init";
 
 .add-playlist-modal {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    //background: white;
-    
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  //background: white;
+
+  //padding: 20px;
+  border-radius: 8px;
+
+  .modal-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background-color: white;
     //padding: 20px;
     border-radius: 8px;
-    
 
-    .modal-content {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 400px;
-        background-color: white;
-        //padding: 20px;
-        border-radius: 8px;
-        
-        .header {
-            background: $yellow;
-            font-family: "Playfair Display", serif;
-            font-size: 20px;
-        }
-        .body {
-            margin-top: 20px;
-            
-        }
-        .footer{
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 20px;
-            .button{
-                margin: 10px;
-                padding: 5px;
-                font-size: 20px;
-
-                &:first-child {
-                    background: $yellow;  
-                    color: $dark-teal;
-                    
-                }
-                &:last-child {
-                    border: 1px solid $dark-teal;
-                    color: $dark-teal;
-                  }
-            }
-            
-        }
+    .header {
+      background: $yellow;
+      font-family: "Playfair Display", serif;
+      font-size: 20px;
+      padding-left: 20px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius: 8px 8px 0 0;
     }
+    .body {
+      margin-top: 10px;
+      padding: 20px;
+    }
+    .footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+
+      .button {
+        margin: 10px;
+        padding: 5px;
+        font-size: 18px;
+        border-radius: 10px;
+        padding: 7px;
+
+        &:first-child {
+          background: $yellow;
+          color: $dark-teal;
+        }
+        &:last-child {
+          border: $yellow;
+          color: $dark-teal;
+        }
+      }
+    }
+  }
 }
