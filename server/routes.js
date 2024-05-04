@@ -647,7 +647,7 @@ const additional_media = async function (req, res) {
     `);
 
   //query = `SELECT * FROM suggested_media;`;
-  connection.query(`SELECT * FROM suggested_media;`, (err, data) => {
+  connection.query(`SELECT * FROM suggested_media ORDER BY RAND();`, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
       res.json([]);
@@ -1333,7 +1333,7 @@ const suggested_media = async function (req, res) {
 
   connection.query(
     `
-    SELECT * FROM suggested_media
+    SELECT * FROM suggested_media ORDER BY RAND()
   `,
     (err, data) => {
       if (err || data.length === 0) {
