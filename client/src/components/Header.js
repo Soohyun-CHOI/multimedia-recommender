@@ -39,7 +39,7 @@ function Header() {
     return (
         <div id="header">
             <NavLink to="/" className="logo">
-                {/*<img src={logo} alt=""/>*/}
+                THEMEDIA
             </NavLink>
             <div>
                 <button className="menu" onClick={() => loginWithRedirect()}>
