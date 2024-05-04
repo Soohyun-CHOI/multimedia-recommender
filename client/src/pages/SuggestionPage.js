@@ -31,7 +31,7 @@ function SuggestionPage() {
     //         .then(() => navigate('/suggestions')); // This assumes '/suggestions' is the current page for refresh-like behavior
     // };
     const fetchAdditionalMedia = (type) => {
-        const url = `http://${config.server_host}:${config.server_port}/additional_media?media_type=${type}`;
+        const url = `http://${config.server_host}:${config.server_port}/additional_media?type=${type}`;
         fetch(url)
             .then(res => {
                 if (!res.ok) {
@@ -42,6 +42,7 @@ function SuggestionPage() {
             .then(data => {
                 console.log("Fetched additional media:", data);  // Log the data to see what is received
                 setResultData(data);
+                
             })
             .catch(error => {
                 console.error("Error fetching additional media", error);
