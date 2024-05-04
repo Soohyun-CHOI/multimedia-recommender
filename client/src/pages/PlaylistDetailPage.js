@@ -55,10 +55,13 @@ function PlaylistDetailPage() {
             <Banner/>
             <div className="title-wrap">
                 <div className="title">{playlistContents[0] ? playlistContents[0].playlist_title : ""}</div>
-                <button onClick={toggleEditMode}>{isEditing ? "Cancel" : "Edit"}</button>
-                {isEditing && (
-                    <button onClick={handleSubmit}>Submit</button>
-                )}
+                <div className="buttons">
+                    <button onClick={toggleEditMode}>{isEditing ? "Cancel" : "Edit"}</button>
+                    {isEditing && (
+                        <button onClick={handleSubmit} className="submit">Submit</button>
+                    )}
+                </div>
+
             </div>
             <div className="media-list">
                 {editList.map(media =>

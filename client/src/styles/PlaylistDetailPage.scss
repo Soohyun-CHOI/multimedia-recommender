@@ -6,8 +6,31 @@
   justify-content: space-between;
 
   .title {
-    color: $dark-teal;
+    color: $plum;
     font-size: 30px;
+    font-weight: 700;
+  }
+
+  button {
+    width: 100px;
+    height: 50px;
+    border-radius: 100px;
+    outline: none;
+    border: none;
+    font-weight: 500;
+    color: $light-blue;
+    background: $plum;
+    font-size: 18px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .submit {
+    margin-left: 20px;
+    background: $light-blue;
+    color: $plum;
     font-weight: 700;
   }
 }
