@@ -9,15 +9,15 @@ import Banner from "../components/Banner";
 const config = require('../config.json');
 
 function FiltersPage() {
-    const [christmasTag, setChristmasTag] = useState(false);
-    const [halloweenTag, setHalloweenTag] = useState(false);
+    const [isChristmas, setIsChristmas] = useState(false);
+    const [isHalloween, setIsHalloween] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         const themeData = {
-            christmas: christmasTag,
-            halloween: halloweenTag
+            christmas: isChristmas,
+            halloween: isHalloween
         };
 
         const requestOptions = {
@@ -48,8 +48,8 @@ function FiltersPage() {
                 <div className='header'>Select Options</div>
                 <div className='selections'>
                     <Box
-                        className={`selection-box ${christmasTag ? 'selected' : ''}`}
-                        onClick={() => setChristmasTag(!christmasTag)}
+                        className={`selection-box ${isChristmas ? 'selected' : ''}`}
+                        onClick={() => setIsChristmas(!isChristmas)}
                     >
                         <div className="image-container">
                             <img src={christmasImage} alt="Christmas"/>
@@ -57,8 +57,8 @@ function FiltersPage() {
                         </div>
                     </Box>
                     <Box
-                        className={`selection-box ${halloweenTag ? 'selected' : ''}`}
-                        onClick={() => setHalloweenTag(!halloweenTag)}
+                        className={`selection-box ${isHalloween ? 'selected' : ''}`}
+                        onClick={() => setIsHalloween(!isHalloween)}
                     >
                         <div className="image-container">
                             <img src={halloweenImage} alt="Halloween"/>
