@@ -10,15 +10,15 @@
     align-items: center;
 
     .title {
-      color: $plum;
+      color: $dark-teal;
       font-size: 34px;
       font-weight: 700;
     }
 
     .max-mood {
-      font-weight: 500;
-      font-size: 20px;
-      color: $light-blue;
+      font-weight: 700;
+      font-size: 16px;
+      color: $dark-orange;
       margin-left: 10px;
     }
   }
@@ -124,7 +124,7 @@
 
 .collab {
   margin: 10px $margin-left;
-  border: 1px solid $dark-teal;
+  border: 1px solid $plum;
   border-radius: 10px;
   padding: 20px 30px;
   display: flex;
@@ -152,7 +152,7 @@
   }
 
   .title {
-    color: $dark-teal;
+    color: $plum;
     margin-bottom: 10px;
     font-size: 20px;
     font-weight: 700;
@@ -164,7 +164,7 @@
     align-items: flex-end;
 
     button {
-      padding: 5px 10px;
+      padding: 6px 12px;
       border-radius: 100px;
       margin-top: 10px;
       font-weight: 500;
@@ -177,20 +177,20 @@
 
     .edit {
       background: white;
-      border: 2px solid $dark-teal;
-      color: $dark-teal;
+      border: 2px solid $plum;
+      color: $plum;
     }
 
     .add {
-      background: $dark-teal;
+      background: $plum;
       color: white;
-      border: 2px solid $dark-teal;
+      border: 2px solid $plum;
     }
 
     .submit {
-      background: $dark-teal;
+      background: $plum;
       color: white;
-      border: 2px solid $dark-teal;
+      border: 2px solid $plum;
       margin-left: 5px;
     }
   }
