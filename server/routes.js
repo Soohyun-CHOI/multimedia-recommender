@@ -1207,7 +1207,7 @@ const ordered_suggestion = async function (req, res) {
 
 // Route 8: GET /suggested_media
 const suggested_media = async function (req, res) {
-  const numMedia = req.body.num_media ?? 1;
+  const numMedia = req.query.num_media ?? 1;
 
   // Create the temporary table if it does not exist already
   connection.query(`
