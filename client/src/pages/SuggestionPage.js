@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {NavLink} from 'react-router-dom';
-import "../styles/Suggestions.scss"
+import "../styles/SuggestionPage.scss"
+import {handleStringSize} from "../helpers/helpers";
 
 const config = require('../config.json');
 
@@ -11,13 +12,7 @@ function SuggestionPage() {
         fetch(`http://${config.server_host}:${config.server_port}/suggested_media`)
             .then(res => res.json())
             .then(resJson => setResultData(resJson));
-    });
-
-    function handleStringSize(str) {
-        if (!str) return str
-        if (str.length >= 24) return str.slice(0, 25) + "...";
-        return str;
-    }
+    }, []);
 
     return (
         <div id="suggest-results">
