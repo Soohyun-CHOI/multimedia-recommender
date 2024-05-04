@@ -47,6 +47,7 @@ app.get("/suggested_media", routes.suggested_media);
 app.get("/shows", routes.shows);
 app.get("/movies", routes.movies);
 app.get("/songs", routes.songs);
+app.get("/media", routes.media);
 app.get("/user/:user_id", routes.user);
 app.post("/new_playlist", routes.new_playlist);
 app.post("/new_collaborator", routes.new_collaborator);
