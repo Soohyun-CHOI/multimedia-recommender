@@ -107,17 +107,12 @@ function FiltersPage() {
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify(themeData)
         };
-        console.log("We are here 1");
-        console.log(requestOptions);
 
         try {
-            console.log("We are here 2");
             const response = await fetch(`http://${config.server_host}:${config.server_port}/ordered_suggestion`, requestOptions);
-            console.log("We are here 3");
             if (!response.ok){
                 throw new Error('Failure');
             }
-            console.log("We are here");
             const data = await response.json();
             console.log('Response:', data);
             navigate("/suggestions");

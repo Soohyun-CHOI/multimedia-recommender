@@ -43,14 +43,26 @@ function AddPlaylist({open, handleClose}) {
         };
 
         try {
-            const response = await fetch(`http://${config.server_host}:${config.server_port}/new_playlist`, requestOptions);
-            if (!response.ok) {
+            const createResponse = await fetch(`http://${config.server_host}:${config.server_port}/new_playlist`, requestOptions);
+            if (!createResponse.ok) {
                 throw new Error("Failed to create new playlist");
             }
-            const data = await response.json();
-            console.log("Response:", data);
+            const createData = await createResponse.json();
+            console.log("Response:", createData);
             
-            const newPlaylistId = data.playlist_id;
+            const idRequestOptions = {
+              method: "GET",
+              headers: { "Content-Type": "application/json"}
+            };
+
+            const idResponse = await fetch(`http://${config.server_host}:${config.server_port}/recent_playlist?user_id=${user.email}`, idRequestOptions);
+            if (!idResponse.ok){
+              throw new Error("Failed to fetch playlist ID");
+            }
+            const idData = await idResponse.json();
+            console.log(idData);
+
+            const newPlaylistId = idData[0].playlist_id;
             localStorage.setItem('playlistId', newPlaylistId);
             console.log("New playlistId set in local storage:", newPlaylistId);
 
