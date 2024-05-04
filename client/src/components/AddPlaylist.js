@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Box, Button, TextField, Modal, Checkbox} from "@mui/material";
 import "../styles/AddPlaylist.scss";
 import {useAuth0} from "@auth0/auth0-react";
-import {NavLink} from "react-router-dom";
+import {NavLink, useNavigate} from "react-router-dom";
 
 const config = require("../config.json");
 
@@ -10,7 +10,8 @@ function AddPlaylist({open, handleClose}) {
 
     const [titleInput, setTitleInput] = useState("");
     const [isPublic, setIsPublic] = useState(false);
-    const {user, isAuthenticated, isLoading} = useAuth0();
+    const { user } = useAuth0();
+    const navigate = useNavigate();
 
     const handleCheckboxChange = (event) => {
         setIsPublic(event.target.checked);
@@ -30,11 +31,15 @@ function AddPlaylist({open, handleClose}) {
         //   const image_URL = req.body.image_URL ?? "N/A";
 
         const playlistData = {
-            playlist_name: titleInput, public: isPublic, user_id: user.email,
+            playlist_name: titleInput, 
+            public: isPublic, 
+            user_id: user.email
         };
 
         const requestOptions = {
-            method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(playlistData),
+            method: "POST", 
+            headers: {"Content-Type": "application/json"}, 
+            body: JSON.stringify(playlistData)
         };
 
         try {
@@ -44,8 +49,13 @@ function AddPlaylist({open, handleClose}) {
             }
             const data = await response.json();
             console.log("Response:", data);
+            
+            const newPlaylistId = data.playlist_id;
+            localStorage.setItem('playlistId', newPlaylistId);
+            console.log("New playlistId set in local storage:", newPlaylistId);
+
             handleClose();
-            window.location.href = "/filters";
+            navigate('/filters');
         } catch (error) {
             console.error("Failed to create new playlist:", error);
             alert("Failed to add playlist.");

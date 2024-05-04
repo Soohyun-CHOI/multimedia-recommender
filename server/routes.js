@@ -221,7 +221,8 @@ const new_playlist = async function (req, res) {
         res.status(500).json({ error: "Failed to create playlist" });
       } else {
         console.log("New playlist added successfully!");
-        res.json({ message: "New playlist added successfully!" });
+        res.json({ message: "New playlist added successfully!"});
+
       }
     }
   );
