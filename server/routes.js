@@ -15,6 +15,52 @@ connection.connect((err) => err && console.log(err));
 
 // NEW ROUTES:
 
+// Route 0: GET /media
+// About: Gets a media based on media_id
+const media = async function (req, res) {
+  const media_id = req.query.media_id;
+  const type = media_id.substring(0, 2);
+  let query = "";
+
+  if (type == "bk") {
+    query = `
+        SELECT media_type, title, authors, publisher, published_date, description, image, categories 
+        FROM Books_Combined WHERE media_id = '${media_id}';
+    `;
+  } else if (type == "mv") {
+    query = `
+        SELECT media_type, title, release_date, overview, image, cast, genres
+        FROM Movie_Combined WHERE media_id = '${media_id}';
+    `;
+  } else if (type == "mu") {
+    query = `
+        SELECT media_type, title, tag, artist, lyrics, image, year, views
+        FROM Music_Combined WHERE media_id = '${media_id}';
+    `;
+  } else if (type == "tv") {
+    query = `
+        SELECT media_type, title, release_year, runtime, rating, synopsis, image, cast, genres
+        FROM TVShows_Combined WHERE media_id = '${media_id}';
+    `;
+  } else {
+    query = `
+        SELECT media_type, title, release_date, developers, about_the_game, price, image, metacritic_score, categories, genres
+        FROM Game_Combined WHERE media_id = '${media_id}';
+    `;
+  }
+
+  // image, title, creator, media_type, description
+  connection.query(query, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json();
+    } else {
+      // Here, we return results of the query
+      res.json(data);
+    }
+  });
+};
+
 // Route A: POST /new_media
 // About: Adds a new media item to the playlist
 const new_media = async function (req, res) {
@@ -138,7 +184,8 @@ const new_media = async function (req, res) {
         console.log("max_mood updated!");
         res.json({ message: "New media added successfully!" });
       }
-    });
+    }
+  );
 };
 
 // Route B: POST /new_playlist
@@ -551,10 +598,7 @@ const additional_media = async function (req, res) {
     `);
 
   //query = `SELECT * FROM suggested_media;`;
-  connection.query(
-    `SELECT * FROM suggested_media;`
-  ,
-  (err, data) => {
+  connection.query(`SELECT * FROM suggested_media;`, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
       res.json([]);
@@ -1086,7 +1130,8 @@ const ordered_suggestion = async function (req, res) {
 
   // Creates a temporary table of all media that filters for moods in the mood list
   // Orders each media within type from best to least matching media of specified selected mood
-  connection.query(`
+  connection.query(
+    `
   REPLACE INTO all_media
   WITH MediaSum AS(
       SELECT media_id, media_type, christmas, halloween, valentine, celebration, relaxing, nature, industrial,
@@ -1155,7 +1200,8 @@ const ordered_suggestion = async function (req, res) {
         console.log("all_media generated successfully!");
         res.json({ message: "all_media generated successfully!" });
       }
-    });
+    }
+  );
 };
 
 // Route 8: GET /suggested_media
@@ -1564,4 +1610,5 @@ module.exports = {
   delete_collaborator,
   delete_media,
   delete_playlist,
+  media,
 };
