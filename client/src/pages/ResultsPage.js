@@ -12,28 +12,20 @@ function ResultsPage() {
     location.state;
   const [results, setResults] = useState([]);
 
-  useEffect(() => {
-    const fetchResults = async () => {
-      const urls = createApiUrls(
-        searchInfo,
-        selectedTypes,
-        selectedMoods,
-        filterData
-      );
-      const apiPromises = urls.map((url) =>
-        fetch(url).then((res) => res.json())
-      );
-      try {
-        const resultsFromApis = await Promise.all(apiPromises);
-        setResults(resultsFromApis.flat());
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-        setResults([]);
-      }
-    };
-
-    fetchResults();
-  }, [searchInfo, selectedTypes, selectedMoods]);
+    useEffect(() => {
+        const fetchResults = async () => {
+            const urls = createApiUrls(searchInfo, selectedTypes, selectedMoods, filterData);
+            const apiPromises = urls.map(url => fetch(url).then(res => res.json()));
+            try {
+                const resultsFromApis = await Promise.all(apiPromises);
+                setResults(resultsFromApis.flat());
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+                setResults([]);
+            }
+        };
+        fetchResults();
+    }, [searchInfo, selectedTypes, selectedMoods]);
 
   const createApiUrls = (searchInfo, types, moods, filterData) => {
     const moodParams = moods.map((mood) => `${mood}=true`).join("&");

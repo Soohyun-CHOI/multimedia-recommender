@@ -1,6 +1,6 @@
 @import "init";
 
-.media-list {
+#results {
   margin: 30px $margin-left;
   display: flex;
   justify-content: space-between;
@@ -21,13 +21,14 @@
 
     .media-type {
       font-size: 14px;
-      width: 34px;
+      width: 38px;
       padding: 3px 0;
-      border: 1px solid $dark-orange;
+      border: 2px solid $plum;
+      font-weight: 500;
       border-radius: 100px;
-      color: $dark-orange;
+      color: $plum;
       text-align: center;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
   }
 }
