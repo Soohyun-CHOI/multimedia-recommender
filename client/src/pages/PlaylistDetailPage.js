@@ -10,11 +10,17 @@ const config = require('../config.json');
 function PlaylistDetailPage() {
     const params = useParams();
     const playlistId = params.playlistId
+    const [maxMood, setMaxMood] = useState([]);
+
     const [playlistContents, setPlaylistContents] = useState([]);
     const [editList, setEditList] = useState([]);
     const [deletedItems, setDeletedItems] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
-    const [maxMood, setMaxMood] = useState([]);
+
+    const [collaborators, setCollaborators] = useState([]);
+    const [editCollab, setEditCollab] = useState([]);
+    const [deletedCollab, setDeletedCollab] = useState([]);
+    const [isEditingCollab, setIsEditingCollab] = useState(false);
 
     useEffect(() => {
         fetch(`http://${config.server_host}:${config.server_port}/playlist/${playlistId}`)
@@ -27,6 +33,13 @@ function PlaylistDetailPage() {
         fetch(`http://${config.server_host}:${config.server_port}/playlist_max_mood/${playlistId}`)
             .then(res => res.json())
             .then(resJson => setMaxMood(resJson[0]));
+
+        fetch(`http://${config.server_host}:${config.server_port}/collaborators/${playlistId}`)
+            .then(res => res.json())
+            .then(resJson => {
+                setCollaborators(resJson);
+                setEditCollab(resJson);
+            });
     }, [playlistId]);
 
     const toggleEditMode = () => {
@@ -37,9 +50,22 @@ function PlaylistDetailPage() {
         setIsEditing(!isEditing);
     }
 
+    const toggleEditCollabMode = () => {
+        if (isEditingCollab) {
+            setEditCollab([...collaborators]);
+            setDeletedCollab([]);
+        }
+        setIsEditingCollab(!isEditingCollab);
+    }
+
     const handleDelete = mediaId => {
         setDeletedItems(prev => [...prev, mediaId]);
         setEditList(editList.filter(item => item.media_id !== mediaId));
+    }
+
+    const handleDeleteCollab = userId => {
+        setDeletedCollab(prev => [...prev, userId]);
+        setEditCollab(editCollab.filter(item => item.user_id !== userId));
     }
 
     const handleSubmit = async () => {
@@ -53,6 +79,19 @@ function PlaylistDetailPage() {
         setPlaylistContents(editList);
         setDeletedItems([]);
         setIsEditing(false)
+    }
+
+    const handleSubmitCollab = async () => {
+        for (let userId of deletedCollab) {
+            await fetch(`http://${config.server_host}:${config.server_port}/delete_collaborator`, {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({playlist_id: playlistId, user_id: userId})
+            });
+        }
+        setCollaborators(editCollab);
+        setDeletedCollab([]);
+        setIsEditingCollab(false);
     }
 
     return (
@@ -73,7 +112,27 @@ function PlaylistDetailPage() {
                         </NavLink>
                     )}
                 </div>
-
+            </div>
+            <div className="collab">
+                <div>
+                    <div>Collaborators :</div>
+                    {editCollab.map(item =>
+                        <>
+                            <div key={item.user_id}>{item.user_id}</div>
+                            {isEditingCollab && (
+                                <button onClick={() => handleDeleteCollab(item.user_id)}>Delete</button>
+                            )}
+                        </>
+                    )}
+                </div>
+                <button onClick={toggleEditCollabMode}>{isEditingCollab ? "Cancel" : "Edit Collaborators"}</button>
+                {isEditingCollab ? (
+                    <button onClick={handleSubmitCollab} className="submit">Submit</button>
+                ) : (
+                    <NavLink to="">
+                        <div className="more">Add Collaborators</div>
+                    </NavLink>
+                )}
             </div>
             <div className="media-list">
                 {editList.map(media =>

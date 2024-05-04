@@ -89,22 +89,22 @@ const new_media = async function (req, res) {
   const media_id = req.body.media_id;
 
   connection.query(
-    `
+      `
      INSERT INTO PlaylistMedia VALUES(${playlist_id}, '${media_id}');
       `
   ),
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to add new media to playlist" });
-      } else {
-        console.log("New media added successfully!");
-      }
-    };
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to add new media to playlist" });
+        } else {
+          console.log("New media added successfully!");
+        }
+      };
 
   //Updates the max_mood of the given playlist
   connection.query(
-    `
+      `
     UPDATE Playlist Set max_mood = (
       WITH scores AS (SELECT playlist_id, SUM(christmas) AS christmas, SUM(halloween) AS halloween, SUM(valentine) AS valentine,
                       SUM(celebration) AS celebration, SUM(relaxing) AS relaxing, SUM(nature) AS nature, SUM(industrial) AS industrial,
@@ -197,15 +197,15 @@ const new_media = async function (req, res) {
       FROM scores)
       WHERE playlist_id = ${playlist_id};
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to add new media to playlist" });
-      } else {
-        console.log("max_mood updated!");
-        res.json({ message: "New media added successfully!" });
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to add new media to playlist" });
+        } else {
+          console.log("max_mood updated!");
+          res.json({ message: "New media added successfully!" });
+        }
       }
-    }
   );
 };
 
@@ -233,19 +233,19 @@ const new_playlist = async function (req, res) {
   // });
 
   connection.query(
-    `
+      `
       INSERT INTO Playlist (title, public, user_id, image, max_mood) VALUES('${playlist_name}', ${public}, '${user_id}', '${image_URL}', 'None');
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to create playlist" });
-      } else {
-        console.log("New playlist added successfully!");
-        res.json({ message: "New playlist added successfully!"});
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to create playlist" });
+        } else {
+          console.log("New playlist added successfully!");
+          res.json({ message: "New playlist added successfully!"});
 
+        }
       }
-    }
   );
 };
 
@@ -257,20 +257,20 @@ const new_collaborator = async function (req, res) {
   const collaborator_id = req.body.collaborator_id;
 
   connection.query(
-    `
+      `
      INSERT INTO CollaboratesOn VALUES(${collaborator_id}, ${playlist_id});
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res
-          .status(500)
-          .json({ error: "Failed to add collaborator to playlist" });
-      } else {
-        console.log("Collaborator added successfully!");
-        res.json({ message: "Collaborator added successfully!" });
+      (err) => {
+        if (err) {
+          console.log(err);
+          res
+              .status(500)
+              .json({ error: "Failed to add collaborator to playlist" });
+        } else {
+          console.log("Collaborator added successfully!");
+          res.json({ message: "Collaborator added successfully!" });
+        }
       }
-    }
   );
 };
 
@@ -281,18 +281,18 @@ const new_user = async function (req, res) {
   const email = req.body.email;
 
   connection.query(
-    `
+      `
      INSERT INTO Users VALUES('${email}');
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to add new user" });
-      } else {
-        console.log("User added successfully!");
-        res.json({ message: "User added successfully!" });
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to add new user" });
+        } else {
+          console.log("User added successfully!");
+          res.json({ message: "User added successfully!" });
+        }
       }
-    }
   );
 };
 
@@ -305,7 +305,7 @@ const user_playlist_search = async function (req, res) {
   const search = req.query.search ?? "";
 
   connection.query(
-    `
+      `
     WITH personal_playlists AS (
       SELECT playlist_id, image, title, timestamp, public
       FROM Playlist p
@@ -333,18 +333,18 @@ const user_playlist_search = async function (req, res) {
     WHERE title LIKE '%${search}%'
     ORDER BY subquery.timestamp DESC
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -356,25 +356,25 @@ const all_playlist_search = async function (req, res) {
   const search = req.query.search ?? "";
 
   connection.query(
-    `
+      `
     SELECT playlist_id, image, title, timestamp, public
     FROM Playlist
     LEFT JOIN Users ON Playlist.user_id = Users.user_id
     WHERE title LIKE '%${search}%' AND public = 1
     ORDER BY timestamp DESC
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -383,46 +383,46 @@ const delete_playlist = async function (req, res) {
   const playlist_id = req.body.playlist_id;
 
   connection.query(
-    `
+      `
     DELETE FROM CollaboratesOn WHERE playlist_id = ${playlist_id};
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to delete colaborators" });
-      } else {
-        console.log("Colaborators deleted successfully!");
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to delete colaborators" });
+        } else {
+          console.log("Colaborators deleted successfully!");
+        }
       }
-    }
-  );
-  
-  connection.query(
-    `
-    DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id};
-      `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to delete playlist media" });
-      } else {
-        console.log("Playlist media deleted successfully!");
-      }
-    }
   );
 
   connection.query(
-    `
+      `
+    DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id};
+      `,
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to delete playlist media" });
+        } else {
+          console.log("Playlist media deleted successfully!");
+        }
+      }
+  );
+
+  connection.query(
+      `
      DELETE FROM Playlist WHERE playlist_id = ${playlist_id};
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to delete playlist" });
-      } else {
-        console.log("Playlist deleted successfully!");
-        res.json({ message: "Playlist deleted successfully!" });
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to delete playlist" });
+        } else {
+          console.log("Playlist deleted successfully!");
+          res.json({ message: "Playlist deleted successfully!" });
+        }
       }
-    }
   );
 };
 
@@ -432,18 +432,18 @@ const delete_collaborator = async function (req, res) {
   const user_id = req.body.user_id;
 
   connection.query(
-    `
-     DELETE FROM CollabortesOn WHERE playlist_id = ${playlist_id} AND user_id = '${user_id}';
+      `
+     DELETE FROM CollaboratesOn WHERE playlist_id = ${playlist_id} AND user_id = '${user_id}';
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to delete collaborator" });
-      } else {
-        console.log("Collaborator deleted successfully!");
-        res.json({ message: "Collaborator deleted successfully!" });
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to delete collaborator" });
+        } else {
+          console.log("Collaborator deleted successfully!");
+          res.json({ message: "Collaborator deleted successfully!" });
+        }
       }
-    }
   );
 };
 
@@ -453,24 +453,24 @@ const delete_media = async function (req, res) {
   const media_id = req.body.media_id;
 
   connection.query(
-    `
+      `
      DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id} AND media_id = '${media_id}';
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res
-          .status(500)
-          .json({ error: "Failed to delete media from playlist." });
-      } else {
-        console.log("Media deleted successfully!");
+      (err) => {
+        if (err) {
+          console.log(err);
+          res
+              .status(500)
+              .json({ error: "Failed to delete media from playlist." });
+        } else {
+          console.log("Media deleted successfully!");
+        }
       }
-    }
   );
 
   //Updates the max_mood of the given playlist
   connection.query(
-    `
+      `
     UPDATE Playlist Set max_mood = (
       WITH scores AS (SELECT playlist_id, SUM(christmas) AS christmas, SUM(halloween) AS halloween, SUM(valentine) AS valentine,
                       SUM(celebration) AS celebration, SUM(relaxing) AS relaxing, SUM(nature) AS nature, SUM(industrial) AS industrial,
@@ -563,30 +563,30 @@ const delete_media = async function (req, res) {
       FROM scores)
       WHERE playlist_id = ${playlist_id};
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to update max_mood" });
-      } else {
-        console.log("Playlist max_mood updated successfully!");
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to update max_mood" });
+        } else {
+          console.log("Playlist max_mood updated successfully!");
+        }
       }
-    }
   );
 
   //IF we removed all data from a playlist, we will get a null value, so we handle that.
   connection.query(
-    `
+      `
     UPDATE Playlist Set max_mood = IFNULL(max_mood, "None") WHERE playlist_id = ${playlist_id};
       `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to handle null max_mood" });
-      } else {
-        console.log("Handled null max_mood");
-        res.json({ message: "Media deleted successfully!" });
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to handle null max_mood" });
+        } else {
+          console.log("Handled null max_mood");
+          res.json({ message: "Media deleted successfully!" });
+        }
       }
-    }
   );
 };
 
@@ -604,7 +604,7 @@ const additional_media = async function (req, res) {
   `);
 
   connection.query(
-    `
+      `
     REPLACE INTO suggested_ids (media_id)
     SELECT media_id
     FROM suggested_media;
@@ -666,7 +666,7 @@ const user_playlist = async function (req, res) {
   const user_id = req.params.user_id;
 
   connection.query(
-    `
+      `
     WITH personal_playlists AS (
       SELECT playlist_id, image, title, timestamp, public
       FROM Playlist p
@@ -693,14 +693,14 @@ const user_playlist = async function (req, res) {
     ) AS subquery
     ORDER BY subquery.timestamp DESC
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -712,7 +712,7 @@ const playlist = async function (req, res) {
   const playlist_id = req.params.playlist_id;
 
   connection.query(
-    `
+      `
      SELECT
       p.title AS playlist_title, s.media_id,
       COALESCE (book_table.title, music_table.title, game_table.title, movie_table.title, show_table.series_title) AS title,
@@ -743,14 +743,14 @@ const playlist = async function (req, res) {
     ) show_table ON s.media_id = show_table.show_id
     WHERE p.playlist_id = ${playlist_id};
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -794,7 +794,7 @@ const games = async function (req, res) {
   const space = req.query.space ?? false;
 
   connection.query(
-    `
+      `
     SELECT media_id, media_type, title, developers, image
     FROM Game_Combined
     WHERE (title LIKE '%${searchInput}%' OR developers LIKE '%${searchInput}%')
@@ -828,14 +828,14 @@ const games = async function (req, res) {
         AND categories REGEXP '${category}'
         AND genres REGEXP '${genre}'
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -877,7 +877,7 @@ const books = async function (req, res) {
   const space = req.query.space ?? false;
 
   connection.query(
-    `
+      `
     SELECT media_id, media_type, title, authors, image
     FROM Books_Combined
     WHERE (title LIKE '%${searchInput}%' OR authors LIKE '%${searchInput}%' OR publisher LIKE '%${searchInput}%')
@@ -909,14 +909,14 @@ const books = async function (req, res) {
         AND CAST(LEFT(published_date, 4) AS UNSIGNED) BETWEEN ${year_min} AND ${year_max}
         AND categories REGEXP '${category}'
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -927,7 +927,7 @@ const random_shows = async function (req, res) {
 
   // We get a number of random shows from the database which have a high value of the given mood
   connection.query(
-    `
+      `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'tv'
@@ -937,18 +937,18 @@ const random_shows = async function (req, res) {
     SELECT media_id, series_title AS title, image
     FROM TVShows tv JOIN mm ON tv.show_id = mm.media_id
   `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -959,7 +959,7 @@ const random_books = async function (req, res) {
 
   // We get a number of random books from the database which have a high value of the given mood
   connection.query(
-    `
+      `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'bk'
@@ -972,18 +972,18 @@ const random_books = async function (req, res) {
       JOIN Authors a ON b.book_id = a.book_id
     GROUP BY b.book_id, title, image;
   `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -994,7 +994,7 @@ const random_games = async function (req, res) {
 
   // We get a number of random games from the database which have a high value of the given mood
   connection.query(
-    `
+      `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'gm'
@@ -1004,18 +1004,18 @@ const random_games = async function (req, res) {
       SELECT media_id, name AS title, developers, screenshot AS image
     FROM Games g JOIN mm ON g.app_id = mm.media_id
   `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -1026,7 +1026,7 @@ const random_movies = async function (req, res) {
 
   // We get a number of random movies from the database which have a high value of the given mood
   connection.query(
-    `
+      `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'mv'
@@ -1036,18 +1036,18 @@ const random_movies = async function (req, res) {
     SELECT media_id, title, image
     FROM Movie mv JOIN mm ON mv.movie_id = mm.media_id
   `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -1058,7 +1058,7 @@ const random_songs = async function (req, res) {
 
   // We get a number of random songs from the database which have a high value of the given mood
   connection.query(
-    `
+      `
     WITH mm AS (SELECT media_id
       FROM MediaMoods
       WHERE media_type = 'mu'
@@ -1068,18 +1068,18 @@ const random_songs = async function (req, res) {
     SELECT media_id, title, image
     FROM Music mu JOIN mm ON mu.song_id = mm.media_id
   `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -1090,7 +1090,7 @@ const random_all = async function (req, res) {
 
   // We get a number of random songs from the database which have a high value of the given mood
   connection.query(
-    `
+      `
     WITH mm AS (SELECT media_id, media_type
      FROM MediaMoods
      WHERE ${selectedMood} > 65)
@@ -1115,18 +1115,18 @@ const random_all = async function (req, res) {
       LEFT JOIN Music mu on mu.song_id = mu_mm.media_id )
     ORDER BY RAND();
   `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -1164,14 +1164,14 @@ const ordered_suggestion = async function (req, res) {
   `);
 
   connection.query(
-    `
+      `
     CREATE UNIQUE INDEX am_index ON all_media(media_id);
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log("all_media already has an index.");
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log("all_media already has an index.");
+        }
       }
-    }
   );
 
   // Empty the temporary table
@@ -1182,7 +1182,7 @@ const ordered_suggestion = async function (req, res) {
   // Creates a temporary table of all media that filters for moods in the mood list
   // Orders each media within type from best to least matching media of specified selected mood
   connection.query(
-    `
+      `
   REPLACE INTO all_media
   WITH MediaSum AS(
       SELECT media_id, media_type, christmas, halloween, valentine, celebration, relaxing, nature, industrial,
@@ -1243,15 +1243,15 @@ const ordered_suggestion = async function (req, res) {
         AND colorful > IF(${colorful}, 50, 0)
       AND space > IF(${space}, 50, 0);
   `,
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "Failed to generate all_media" });
-      } else {
-        console.log("all_media generated successfully!");
-        res.json({ message: "all_media generated successfully!" });
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "Failed to generate all_media" });
+        } else {
+          console.log("all_media generated successfully!");
+          res.json({ message: "all_media generated successfully!" });
+        }
       }
-    }
   );
 };
 
@@ -1271,14 +1271,14 @@ const suggested_media = async function (req, res) {
   `);
 
   connection.query(
-    `
+      `
     CREATE UNIQUE INDEX sm_index ON suggested_media(media_id);
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log("suggested_media already has an index.");
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log("suggested_media already has an index.");
+        }
       }
-    }
   );
 
   // Empty the temporary table
@@ -1333,21 +1333,21 @@ const suggested_media = async function (req, res) {
   `);
 
   connection.query(
-    `
+      `
     SELECT * FROM suggested_media ORDER BY RAND()
   `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -1390,7 +1390,7 @@ const shows = async function (req, res) {
   const space = req.query.space ?? false;
 
   connection.query(
-    `
+      `
     WITH shows_in AS (
       SELECT show_id
       FROM TVCast
@@ -1428,14 +1428,14 @@ const shows = async function (req, res) {
       AND genres REGEXP '${genre}'
       AND rating >= ${ratingNum};
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -1477,7 +1477,7 @@ const movies = async function (req, res) {
   const space = req.query.space ?? false;
 
   connection.query(
-    `
+      `
     WITH movies_in AS (
       SELECT movie_id
       FROM MovieCast
@@ -1514,14 +1514,14 @@ const movies = async function (req, res) {
       AND release_date BETWEEN '${yearMin}-01-01' AND '${yearMax}-01-01'
       AND genres REGEXP '${genre}'
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -1563,7 +1563,7 @@ const songs = async function (req, res) {
   const space = req.query.space ?? false;
 
   connection.query(
-    `
+      `
     SELECT media_id, media_type, title, image
     FROM Music_Combined
     WHERE (title LIKE '%${searchInput}%' OR artist LIKE '%${searchInput}%')
@@ -1595,14 +1595,14 @@ const songs = async function (req, res) {
       AND year BETWEEN ${yearMin} AND ${yearMax}
       AND tag REGEXP '${tagList}'
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -1612,21 +1612,21 @@ const user = async function (req, res) {
 
   // We get a number of random songs from the database which have a high value of the given mood
   connection.query(
-    `
+      `
         SELECT * FROM Users WHERE user_id='${userID}';
     `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        // If there is an error for some reason, or if the query is empty (this should not be possible)
-        // print the error message and return an empty object instead
-        console.log(err);
-        // Be cognizant of the fact we return an empty array [].
-        res.json([]);
-      } else {
-        // Here, we return results of the query
-        res.json(data);
+      (err, data) => {
+        if (err || data.length === 0) {
+          // If there is an error for some reason, or if the query is empty (this should not be possible)
+          // print the error message and return an empty object instead
+          console.log(err);
+          // Be cognizant of the fact we return an empty array [].
+          res.json([]);
+        } else {
+          // Here, we return results of the query
+          res.json(data);
+        }
       }
-    }
   );
 };
 
@@ -1636,22 +1636,45 @@ const user = async function (req, res) {
 // Input param: playlist_id
 // Return: max_mood
 const playlist_max_mood = async function (req, res) {
-    const playlist_id = req.params.playlist_id;
+  const playlist_id = req.params.playlist_id;
 
-    connection.query(
-        `
+  connection.query(
+      `
      SELECT max_mood FROM Playlist AS p WHERE p.playlist_id = ${playlist_id};
     `,
-        (err, data) => {
-            if (err || data.length === 0) {
-                console.log(err);
-                res.json([]);
-            } else {
-                res.json(data);
-            }
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json([]);
+        } else {
+          res.json(data);
         }
-    );
+      }
+  );
 };
+
+// Route 14: GET /collaborators/:playlist_id
+// About: return all the collaborators of the given playlist
+// Input param: playlist_id
+// Return: collaborator
+const collaborators = async function (req, res) {
+  const playlist_id = req.params.playlist_id;
+
+  connection.query(
+      `
+      SELECT user_id FROM CollaboratesOn WHERE playlist_id = ${playlist_id};
+    `,
+      (err, data) => {
+        if (err || data.length === 0) {
+          console.log(err);
+          res.json([]);
+        } else {
+          res.json(data);
+        }
+      }
+  );
+};
+
 
 module.exports = {
   random_shows,
@@ -1683,4 +1706,5 @@ module.exports = {
   media,
   playlist_max_mood,
   recent_playlist,
+  collaborators
 };
