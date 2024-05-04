@@ -22,6 +22,9 @@ function PlaylistDetailPage() {
     const [deletedCollab, setDeletedCollab] = useState([]);
     const [isEditingCollab, setIsEditingCollab] = useState(false);
 
+    const [isAddingCollab, setIsAddingCollab] = useState(false);
+    const [newCollabId, setNewCollabId] = useState("");
+
     useEffect(() => {
         fetch(`http://${config.server_host}:${config.server_port}/playlist/${playlistId}`)
             .then(res => res.json())
@@ -94,6 +97,38 @@ function PlaylistDetailPage() {
         setIsEditingCollab(false);
     }
 
+    const handleNewCollabIdChange = (event) => {
+        setNewCollabId(event.target.value);
+    };
+
+    const handleAddCollaborator = async () => {
+        if (newCollabId) {
+            const response = await fetch(`http://${config.server_host}:${config.server_port}/new_collaborator`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({playlist_id: playlistId, collaborator_id: newCollabId})
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data) {
+                    setCollaborators(prev => [...prev, data]);
+                    if (isEditingCollab) {
+                        setEditCollab(prev => [...prev, data]);
+                    }
+                    setNewCollabId("");
+                    setIsAddingCollab(false);
+                }
+            } else {
+                console.error("Failed to add collaborator");
+                alert("Failed to add collaborator. Please check the details and try again.");
+            }
+        } else {
+            alert("Please enter a valid collaborator Email.");
+        }
+    };
+
+
     return (
         <>
             <Banner/>
@@ -126,13 +161,20 @@ function PlaylistDetailPage() {
                     )}
                 </div>
                 <button onClick={toggleEditCollabMode}>{isEditingCollab ? "Cancel" : "Edit Collaborators"}</button>
-                {isEditingCollab ? (
+                {isEditingCollab && (
                     <button onClick={handleSubmitCollab} className="submit">Submit</button>
-                ) : (
-                    <NavLink to="">
-                        <div className="more">Add Collaborators</div>
-                    </NavLink>
                 )}
+                {isAddingCollab ? (
+                    <>
+                        <input
+                            type="text"
+                            placeholder="Enter collaborator email"
+                            value={newCollabId}
+                            onChange={handleNewCollabIdChange}
+                        />
+                        <button onClick={handleAddCollaborator}>Add</button>
+                    </>
+                ) : <button onClick={() => setIsAddingCollab(true)}>Add Collaborators</button>}
             </div>
             <div className="media-list">
                 {editList.map(media =>
