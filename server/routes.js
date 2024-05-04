@@ -1630,27 +1630,6 @@ const user = async function (req, res) {
   );
 };
 
-// Route 13: GET /playlist_max_mood/:playlist_id
-// About: return the max mood of the given playlist
-// Input param: playlist_id
-// Return: max_mood
-const playlist_max_mood = async function (req, res) {
-  const playlist_id = req.params.playlist_id;
-
-  connection.query(
-    `
-     SELECT max_mood FROM Playlist AS p WHERE p.playlist_id = ${playlist_id};
-    `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json([]);
-      } else {
-        res.json(data);
-      }
-    }
-  );
-};
 
 // Route 13: GET /playlist_max_mood/:playlist_id
 // About: return the max mood of the given playlist
