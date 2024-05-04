@@ -138,7 +138,7 @@ function PlaylistDetailPage() {
             <div className="title-wrap">
                 <div className="titles">
                     <div className="title">{playlistContents[0] ? playlistContents[0].playlist_title : ""}</div>
-                    <div className="max-mood">{maxMood.max_mood}</div>
+                    <div className="max-mood">{maxMood.max_mood && maxMood.max_mood.toUpperCase()}</div>
                 </div>
                 <div className="buttons">
                     <button onClick={toggleEditMode}>{isEditing ? "Cancel" : "Edit"}</button>
