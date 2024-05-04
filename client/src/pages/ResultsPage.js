@@ -22,7 +22,6 @@ function ResultsPage() {
                 setResults([]);
             }
         };
-
         fetchResults();
     }, [searchInfo, selectedTypes, selectedMoods]);
 
