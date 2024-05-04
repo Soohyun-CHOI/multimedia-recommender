@@ -362,6 +362,34 @@ const delete_playlist = async function (req, res) {
 
   connection.query(
     `
+    DELETE FROM CollaboratesOn WHERE playlist_id = ${playlist_id};
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to delete colaborators" });
+      } else {
+        console.log("Colaborators deleted successfully!");
+      }
+    }
+  );
+
+  connection.query(
+    `
+    DELETE FROM PlaylistMedia WHERE playlist_id = ${playlist_id};
+      `,
+    (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({ error: "Failed to delete playlist media" });
+      } else {
+        console.log("Playlist media deleted successfully!");
+      }
+    }
+  );
+
+  connection.query(
+    `
      DELETE FROM Playlist WHERE playlist_id = ${playlist_id};
       `,
     (err) => {
@@ -572,7 +600,7 @@ const additional_media = async function (req, res) {
       SELECT *, ROW_NUMBER() OVER (PARTITION BY media_type ORDER BY RAND()) AS row_num2
       FROM all_media
       WHERE row_num <= ${pool_size}
-      AND media_id NOT IN (SELECT media_id FROM suggested_ids)
+      AND NOT EXISTS (SELECT 1 FROM suggested_ids WHERE suggested_ids.media_id = all_media.media_id)
     ) AS s
     LEFT JOIN (
       SELECT media_id, media_type, image, title, authors AS creator
@@ -1580,6 +1608,28 @@ const user = async function (req, res) {
   );
 };
 
+// Route 13: GET /playlist_max_mood/:playlist_id
+// About: return the max mood of the given playlist
+// Input param: playlist_id
+// Return: max_mood
+const playlist_max_mood = async function (req, res) {
+  const playlist_id = req.params.playlist_id;
+
+  connection.query(
+    `
+     SELECT max_mood FROM Playlist AS p WHERE p.playlist_id = ${playlist_id};
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data);
+      }
+    }
+  );
+};
+
 module.exports = {
   random_shows,
   random_books,
@@ -1608,4 +1658,5 @@ module.exports = {
   delete_media,
   delete_playlist,
   media,
+  playlist_max_mood
 };

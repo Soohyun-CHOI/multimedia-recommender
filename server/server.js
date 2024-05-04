@@ -42,6 +42,7 @@ app.get("/additional_media", routes.additional_media);
 app.get("/games", routes.games);
 app.get("/books", routes.books);
 app.get("/playlist/:playlist_id", routes.playlist);
+app.get("/playlist_max_mood/:playlist_id", routes.playlist_max_mood);
 app.get("/user_playlist/:user_id", routes.user_playlist);
 app.get("/suggested_media", routes.suggested_media);
 app.get("/shows", routes.shows);
