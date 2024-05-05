@@ -3,8 +3,12 @@ import { useParams } from "react-router-dom";
 import Banner from "../components/Banner";
 import config from "../config.json";
 import "../styles/MediaDetailPage.scss";
-import defaultImage from "../assets/image/movie_default.jpg";
 import { useAuth0 } from "@auth0/auth0-react";
+import movieDefaultImage from "../assets/image/movie_default.jpg";
+import musicDefaultImage from "../assets/image/music_default.png";
+import gameDefaultImage from "../assets/image/game_default.png";
+import TVDefaultImage from "../assets/image/TV_default.png";
+import bookDefaultImage from "../assets/image/book_default.jpg";
 
 function MediaDetailPage() {
   const params = useParams();
@@ -65,14 +69,56 @@ function MediaDetailPage() {
       <Banner />
       <div id="media-detail">
         <div id="content-box">
-          <img
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = defaultImage;
-            }}
-            src={media.image}
-            alt="media image"
-          />
+          {media.media_type === "mv" && (
+            <img
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = movieDefaultImage;
+              }}
+              src={media.image || movieDefaultImage}
+              alt="media image"
+            />
+          )}
+          {media.media_type === "gm" && (
+            <img
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = gameDefaultImage;
+              }}
+              src={media.image || gameDefaultImage}
+              alt="media image"
+            />
+          )}
+          {media.media_type === "mu" && (
+            <img
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = musicDefaultImage;
+              }}
+              src={media.image || musicDefaultImage}
+              alt="media image"
+            />
+          )}
+          {media.media_type === "bk" && (
+            <img
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = bookDefaultImage;
+              }}
+              src={media.image || bookDefaultImage}
+              alt="media image"
+            />
+          )}
+          {media.media_type === "tv" && (
+            <img
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = TVDefaultImage;
+              }}
+              src={media.image || TVDefaultImage}
+              alt="media image"
+            />
+          )}
         </div>
         <div className="content-box">
           <div className="contents">
