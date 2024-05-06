@@ -31,36 +31,44 @@ app.get("/", (req, res) => {
 
 // We use express to define our various API endpoints and
 // provide their handlers that we implemented in routes.js
-app.get("/random_shows/:num/:selected_mood", routes.random_shows);
+app.post("/new_user", routes.new_user);
+app.post("/new_media", routes.new_media);
+app.post("/new_playlist", routes.new_playlist);
+app.post("/new_collaborator", routes.new_collaborator);
+app.delete("/delete_media/", routes.delete_media);
+app.delete("/delete_playlist/", routes.delete_playlist);
+app.delete("/delete_collaborator/", routes.delete_collaborator);
+app.get("/user/:user_id", routes.user);
 app.get("/random_books/:num/:selected_mood", routes.random_books);
 app.get("/random_games/:num/:selected_mood", routes.random_games);
 app.get("/random_movies/:num/:selected_mood", routes.random_movies);
 app.get("/random_songs/:num/:selected_mood", routes.random_songs);
+app.get("/random_shows/:num/:selected_mood", routes.random_shows);
 app.get("/random_all/:num/:selected_mood", routes.random_all);
-app.post("/ordered_suggestion", routes.ordered_suggestion);
-app.get("/additional_media", routes.additional_media);
-app.get("/games", routes.games);
 app.get("/books", routes.books);
-app.get("/playlist/:playlist_id", routes.playlist);
-app.get("/playlist_max_mood/:playlist_id", routes.playlist_max_mood);
-app.get("/collaborators/:playlist_id", routes.collaborators);
-app.get("/user_playlist/:user_id", routes.user_playlist);
-app.get("/suggested_media", routes.suggested_media);
-app.get("/shows", routes.shows);
+app.get("/games", routes.games);
 app.get("/movies", routes.movies);
 app.get("/songs", routes.songs);
+app.get("/shows", routes.shows);
+app.post("/ordered_suggestion", routes.ordered_suggestion);
+app.get("/additional_media", routes.additional_media);
+app.get("/suggested_media", routes.suggested_media);
 app.get("/media", routes.media);
-app.get("/recent_playlist", routes.recent_playlist);
-app.get("/user/:user_id", routes.user);
-app.post("/new_playlist", routes.new_playlist);
-app.post("/new_collaborator", routes.new_collaborator);
-app.post("/new_user", routes.new_user);
-app.post("/new_media", routes.new_media);
+app.get("/playlist/:playlist_id", routes.playlist);
+app.get("/playlist_max_mood/:playlist_id", routes.playlist_max_mood);
+app.get("/user_playlist/:user_id", routes.user_playlist);
 app.get("/all_playlist_search", routes.all_playlist_search);
 app.get("/user_playlist_search", routes.user_playlist_search);
-app.delete("/delete_playlist/", routes.delete_playlist);
-app.delete("/delete_collaborator/", routes.delete_collaborator);
-app.delete("/delete_media/", routes.delete_media);
+app.get("/recent_playlist", routes.recent_playlist);
+app.get("/collaborators/:playlist_id", routes.collaborators);
+
+
+
+
+
+
+
+
 app.get("/profile", requiresAuth(), (req, res) => {
     res.send(JSON.stringify(req.oidc.user));
 });
