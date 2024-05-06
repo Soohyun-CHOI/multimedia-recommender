@@ -749,7 +749,6 @@ const books = async function (req, res) {
         AND space > IF(${space}, 50, 0)
         AND CAST(LEFT(published_date, 4) AS UNSIGNED) BETWEEN ${year_min} AND ${year_max}
         AND categories REGEXP '${category}'
-    ORDER BY RAND()
     LIMIT 200
     `,
         (err, data) => {
@@ -836,7 +835,6 @@ const games = async function (req, res) {
         AND metacritic_score >= ${game_score}
         AND categories REGEXP '${category}'
         AND genres REGEXP '${genre}'
-    ORDER BY RAND()
     LIMIT 200
     `,
         (err, data) => {
