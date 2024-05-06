@@ -128,4 +128,89 @@ CREATE TABLE Authors (book_id VARCHAR(15), author VARCHAR(255),
                     FOREIGN KEY (book_id) REFERENCES Books (book_id));
 
 
+CREATE TABLE Books_Combined
+   SELECT media_id, media_type, title, description, image,
+          preview_link, publisher, published_date, info_link, categories, authors,
+          christmas, halloween, valentine, celebration, relaxing,
+          nature, industrial, sunshine, sad, happy, summer, winter,
+          sports, playful, energetic, scary, anger, optimistic,
+          adventurous, learning, artistic, science, cozy, colorful,space
+   FROM Books b
+   LEFT JOIN MediaMoods AS m ON b.book_id = m.media_id
+   LEFT JOIN (
+     SELECT book_id, GROUP_CONCAT(DISTINCT author SEPARATOR ', ') AS authors
+     FROM Authors a
+     GROUP BY book_id) AS au ON au.book_id = b.book_id;
+CREATE UNIQUE INDEX bk_index ON Books_Combined(media_id);
 
+
+CREATE TABLE Music_Combined
+   SELECT media_id, media_type, title, tag, artist,
+          year, views, lyrics, image,
+          christmas, halloween, valentine, celebration, relaxing,
+          nature, industrial, sunshine, sad, happy, summer, winter,
+          sports, playful, energetic, scary, anger, optimistic,
+          adventurous, learning, artistic, science, cozy, colorful,space
+   FROM Music mu
+   LEFT JOIN MediaMoods AS m ON mu.song_id = m.media_id;
+CREATE UNIQUE INDEX mu_index ON Music_Combined(media_id);
+
+
+CREATE TABLE Movie_Combined
+   SELECT media_id, media_type, title, release_date, overview,
+          image, cast, genres,
+          christmas, halloween, valentine, celebration, relaxing,
+          nature, industrial, sunshine, sad, happy, summer, winter,
+          sports, playful, energetic, scary, anger, optimistic,
+          adventurous, learning, artistic, science, cozy, colorful,space
+   FROM Movie mv
+   LEFT JOIN MediaMoods AS m ON mv.movie_id = m.media_id
+   LEFT JOIN (
+     SELECT movie_id, GROUP_CONCAT(DISTINCT cast SEPARATOR ', ') AS cast
+     FROM MovieCast
+     GROUP BY movie_id) AS mc ON mc.movie_id = mv.movie_id
+   LEFT JOIN (
+     SELECT movie_id, GROUP_CONCAT(DISTINCT genre SEPARATOR ', ') AS genres
+     FROM MovieGenre
+     GROUP BY movie_id) AS mg ON mg.movie_id = mv.movie_id;
+CREATE UNIQUE INDEX mv_index ON Movie_Combined(media_id);
+
+
+CREATE TABLE TVShows_Combined
+   SELECT media_id, media_type, series_title AS title, release_year, end_year,
+          runtime, rating, synopsis, image, cast, genres,
+          christmas, halloween, valentine, celebration, relaxing,
+          nature, industrial, sunshine, sad, happy, summer, winter,
+          sports, playful, energetic, scary, anger, optimistic,
+          adventurous, learning, artistic, science, cozy, colorful,space
+   FROM TVShows tv
+   LEFT JOIN MediaMoods AS m ON tv.show_id = m.media_id
+   LEFT JOIN (
+     SELECT show_id, GROUP_CONCAT(cast SEPARATOR ', ') AS cast
+     FROM TVCast
+     GROUP BY show_id) AS sc ON sc.show_id = tv.show_id
+   LEFT JOIN (
+     SELECT show_id, GROUP_CONCAT(genre SEPARATOR ', ') AS genres
+     FROM ShowGenre
+     GROUP BY show_id) AS sg ON sg.show_id = tv.show_id;
+CREATE UNIQUE INDEX tv_index ON TVShows_Combined(media_id);
+
+
+CREATE TABLE Game_Combined
+   SELECT media_id, media_type, name AS title, release_date, developers, about_the_game,
+          price, screenshot AS image, metacritic_score, categories, genres,
+          christmas, halloween, valentine, celebration, relaxing,
+          nature, industrial, sunshine, sad, happy, summer, winter,
+          sports, playful, energetic, scary, anger, optimistic,
+          adventurous, learning, artistic, science, cozy, colorful,space
+   FROM Games g
+   LEFT JOIN MediaMoods AS m ON g.app_id = m.media_id
+   LEFT JOIN (
+     SELECT app_id, GROUP_CONCAT(genre SEPARATOR ', ') AS genres
+     FROM GameGenre
+     GROUP BY app_id) AS gg ON gg.app_id = g.app_id
+   LEFT JOIN (
+     SELECT app_id, GROUP_CONCAT(categories SEPARATOR ', ') AS categories
+     FROM GameCategories
+     GROUP BY app_id) AS gc ON gc.app_id = g.app_id;
+CREATE UNIQUE INDEX gm_index ON Game_Combined(media_id);
