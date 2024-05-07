@@ -4,6 +4,38 @@ Our application, THEMEDIA,  is a multi-media playlist generator. Unlike traditio
 
 The main motivation of our product is to provide users with a more dynamic inspiration on how to plan for an event or spend their day. Existing platforms like YouTube and Spotify offer playlist generators that consist of only one type of media. However, a multi-media playlist can be useful for individuals planning a themed event or seeking a multi-sensory experience. 
 
+
+## Running the Project Locally
+
+### Client Setup
+1. Navigate to the `client` folder:
+   ```bash
+   cd client
+   ```
+2. Install all required modules:
+   ```bash
+   npm install
+   ```
+3. Start the client:
+   ```bash
+   npm start
+   ```
+
+### Server Setup
+1. Open a new terminal tab or window, and navigate to the `server` folder:
+   ```bash
+   cd server
+   ```
+2. Install all required modules:
+   ```bash
+   npm install
+   ```
+3. Start the server:
+   ```bash
+   npm start
+   ```
+
+
 ## Application Features
 - Create Playlist
   - Registered users can create, edit, save, and delete personalized playlists
